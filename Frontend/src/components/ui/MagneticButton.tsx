@@ -6,11 +6,12 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
 import Link from "next/link";
 
 const base =
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors px-6 py-3.5 whitespace-nowrap";
+  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition-colors px-6 py-3.5 whitespace-nowrap";
 
 const variants = {
-  primary: "bg-accent text-accent-foreground hover:bg-accent/90",
+  primary: "bg-accent text-accent-foreground hover:bg-accent-hover",
   secondary: "border border-border text-foreground hover:border-foreground/40 bg-transparent",
+  dark: "bg-ink-800 text-white hover:bg-ink-900",
 };
 
 export function MagneticButton({

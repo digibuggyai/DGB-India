@@ -3,15 +3,27 @@
 
 :root {
   --background: #ffffff;
-  --surface: #e8f9fd;
-  --surface-raised: #d6f2f9;
-  --border: #dbe7ea;
-  --border-strong: #c2d3d7;
-  --foreground: #0d1b1e;
-  --muted: #5c6b6e;
-  --accent: #ff1e00;
+  --surface: #f3f4f5;
+  --surface-raised: #eef1f3;
+  --border: #e5e8ea;
+  --border-strong: #d9bcc1;
+  --foreground: #10151c;
+  --muted: #5c6166;
+  --accent: #80202c;
+  --accent-hover: #661821;
   --accent-foreground: #ffffff;
-  --accent-2: #59ce8f;
+  --accent-2: #661821;
+
+  /* Design-language extras */
+  --ink-900: #202326;
+  --ink-800: #2e3236;
+  --ink-muted: #a9b0b6;
+  --ink-muted-2: #cbd0d4;
+  --ink-muted-3: #d6dadd;
+  --tint: #ecdcdf;
+  --tint-border: #d9bcc1;
+  --tint-foreground: #4d1219;
+  --tint-muted: #5c4448;
 }
 
 @theme inline {
@@ -23,9 +35,21 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent-2: var(--accent-2);
-  --font-sans: var(--font-geist-sans);
+
+  --color-ink-900: var(--ink-900);
+  --color-ink-800: var(--ink-800);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-muted-2: var(--ink-muted-2);
+  --color-ink-muted-3: var(--ink-muted-3);
+  --color-tint: var(--tint);
+  --color-tint-border: var(--tint-border);
+  --color-tint-foreground: var(--tint-foreground);
+  --color-tint-muted: var(--tint-muted);
+
+  --font-sans: var(--font-body);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-display);
 }
@@ -43,6 +67,46 @@ body {
 h1, h2, h3, h4, .font-display {
   font-family: var(--font-display);
   letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Reusable 3D flip-card primitives (WhoWeServe, HowWeWork). */
+.flip-card {
+  perspective: 1400px;
+}
+.flip-card-inner {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+.flip-card:hover .flip-card-inner,
+.flip-card:focus-within .flip-card-inner,
+.flip-card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.flip-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.flip-card-front {
+  position: relative;
+}
+.flip-card-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-card-inner {
+    transition: none;
+  }
 }
 
 .container-page {
@@ -59,7 +123,7 @@ h1, h2, h3, h4, .font-display {
 }
 
 .text-gradient {
-  background: linear-gradient(100deg, var(--foreground) 30%, var(--accent) 130%);
+  background: linear-gradient(100deg, var(--foreground) 20%, var(--accent) 140%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -113,6 +177,25 @@ h1, h2, h3, h4, .font-display {
 @media (prefers-reduced-motion: reduce) {
   .hero-orb-1,
   .hero-orb-2 {
+    animation: none;
+  }
+}
+
+@keyframes marquee-x {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee-x 38s linear infinite;
+}
+
+.group\/marquee:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
     animation: none;
   }
 }

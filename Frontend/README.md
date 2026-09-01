@@ -113,11 +113,11 @@ scripts/
 
 ## Known issues
 
-**This project lives inside a live-synced OneDrive folder.** `node_modules` has tens of
-thousands of small files; OneDrive's live sync has been observed intermittently corrupting or
-evicting them mid-session. If you hit unexplained "module not found" errors after things were
-working, suspect this first — `rm -rf node_modules && npm install` is the fix. Pausing OneDrive
-sync while actively developing, or excluding this folder from sync, avoids it entirely.
+**Keep this project off any live-synced OneDrive/Dropbox folder.** `node_modules` and `.next`
+together have well over 100,000 small, rapidly-changing files; OneDrive's live sync repeatedly
+corrupted them here — it deleted `.next`'s build manifests out from under a running dev server
+mid-session, crashing it. That's why this project now lives at `C:\DGB India` rather than under
+`OneDrive\Desktop`. If you ever move it back into a synced folder, expect this to recur.
 
 ## Going to production
 

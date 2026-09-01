@@ -135,12 +135,13 @@ will be fixed upstream — worth re-testing the plain CLI next time you bump Pay
 `@next/env`'s compiled output. It's applied automatically via `postinstall` (`patch-package`).
 Needed for the same interop reason as #2. Safe to remove once #2 is fixed upstream.
 
-**4. This project lives inside a live-synced OneDrive folder.** `node_modules` has tens of
-thousands of small files; OneDrive's live sync has been observed intermittently corrupting or
-evicting them mid-session (a whole `node_modules/payload` directory vanished once with no npm
-process running). If you hit unexplained "module not found" errors after things were working,
-suspect this first — `rm -rf node_modules && npm install` is the fix. Pausing OneDrive sync while
-actively developing, or excluding this folder from sync, avoids it entirely.
+**4. Keep this project off any live-synced OneDrive/Dropbox folder.** `node_modules` and `.next`
+together have well over 100,000 small, rapidly-changing files; OneDrive's live sync has repeatedly
+corrupted or evicted them mid-session in this project's history — a whole `node_modules/payload`
+directory vanished once with no npm process running, and later `.next`'s build manifests were
+deleted out from under a running dev server, crashing it. That's why this project now lives at
+`C:\DGB India` rather than under `OneDrive\Desktop`. If you ever move it back into a synced
+folder, expect this to recur.
 
 ## Going to production
 

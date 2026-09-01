@@ -46,8 +46,8 @@ export function HeaderClient({
         hidden && !mobileOpen && !openMenu ? "-translate-y-full" : "translate-y-0"
       } ${
         atTop && !openMenu
-          ? "border-transparent bg-transparent"
-          : "border-border bg-background/90 backdrop-blur"
+          ? "border-transparent bg-background/80 backdrop-blur"
+          : "border-border bg-background/95 backdrop-blur"
       }`}
     >
 
@@ -233,7 +233,7 @@ function MenuTrigger({
       </button>
       {isOpen && (
         <div className="absolute left-1/2 top-full z-50 -translate-x-1/2 pt-3">
-          <div className="rounded-lg border border-border bg-surface shadow-2xl shadow-black/40">
+          <div className="rounded-lg border border-border border-t-[3px] border-t-accent bg-background shadow-2xl shadow-black/10">
             {children}
           </div>
         </div>

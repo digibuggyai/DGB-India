@@ -10,10 +10,18 @@ export async function Header() {
   ]);
 
   return (
-    <HeaderClient
-      siteName={settings?.siteName || "Digibuggy Enterprise"}
-      industries={industries}
-      infraGroups={infraGroups}
-    />
+    <>
+      <div className="hidden bg-ink-900 text-ink-muted sm:block">
+        <div className="container-page flex h-9 items-center justify-between text-xs">
+          <span>{settings?.contact?.email || "hello@digibuggy.com"}</span>
+          <span className="uppercase tracking-[0.16em]">Enterprise support 24×7</span>
+        </div>
+      </div>
+      <HeaderClient
+        siteName={settings?.siteName || "Digibuggy Enterprise"}
+        industries={industries}
+        infraGroups={infraGroups}
+      />
+    </>
   );
 }

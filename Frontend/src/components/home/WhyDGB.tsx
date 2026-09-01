@@ -1,6 +1,5 @@
 import { Compass, Wrench, Gauge, TrendingUp } from "lucide-react";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 
 const POINTS = [
@@ -30,26 +29,32 @@ export function WhyDGB() {
   return (
     <section className="border-b border-border bg-surface py-24">
       <div className="container-page">
-        <Reveal>
-          <Eyebrow>Why DGB India</Eyebrow>
-          <h2 className="mt-4 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            An infrastructure partner, not a hardware vendor.
-          </h2>
-        </Reveal>
+        <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
+          <Reveal>
+            <Eyebrow>Why DGB India</Eyebrow>
+            <h2 className="font-display mt-4 max-w-xl text-3xl font-semibold tracking-tight sm:text-4xl">
+              Built Around What You Need.
+            </h2>
+            <p className="mt-4 max-w-md text-muted">
+              An infrastructure partner, not a hardware vendor — every recommendation starts with
+              your workload.
+            </p>
+          </Reveal>
 
-        <RevealGroup className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {POINTS.map((p) => (
-            <RevealItem key={p.title}>
-              <SpotlightCard className="card-depth h-full rounded-xl border border-border bg-background p-6">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface-raised text-accent-2">
-                  <p.icon size={18} strokeWidth={1.75} />
-                </span>
-                <div className="font-display mt-4 font-medium text-foreground">{p.title}</div>
-                <p className="mt-2 text-sm text-muted">{p.desc}</p>
-              </SpotlightCard>
-            </RevealItem>
-          ))}
-        </RevealGroup>
+          <RevealGroup className="grid gap-x-8 gap-y-8 sm:grid-cols-2">
+            {POINTS.map((p) => (
+              <RevealItem key={p.title}>
+                <div className="border-t-2 border-accent pt-4">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-tint text-accent">
+                    <p.icon size={16} strokeWidth={1.75} />
+                  </span>
+                  <div className="font-display mt-3 font-medium text-foreground">{p.title}</div>
+                  <p className="mt-2 text-sm text-muted">{p.desc}</p>
+                </div>
+              </RevealItem>
+            ))}
+          </RevealGroup>
+        </div>
       </div>
     </section>
   );
