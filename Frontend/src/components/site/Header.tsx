@@ -13,8 +13,11 @@ export async function Header() {
     <>
       <div className="hidden bg-ink-900 text-ink-muted sm:block">
         <div className="container-page flex h-9 items-center justify-between text-xs">
-          <span>{settings?.contact?.email || "hello@digibuggy.com"}</span>
-          <span className="uppercase tracking-[0.16em]">Enterprise support 24×7</span>
+          <span>Infrastructure solutions for demanding workloads &middot; India</span>
+          <span className="flex items-center gap-4">
+            <span>{settings?.contact?.email || "sales@dgbindia.com"}</span>
+            <span className="uppercase tracking-[0.16em] text-[#b06f79]">Enterprise support 24&times;7</span>
+          </span>
         </div>
       </div>
       <HeaderClient

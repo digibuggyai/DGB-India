@@ -60,7 +60,7 @@ export function HeaderClient({
         <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={close}>
           <NavLink href="/">Home</NavLink>
 
-          <MenuTrigger label="Industries" name="industries" openMenu={openMenu} setOpenMenu={setOpenMenu}>
+          <MenuTrigger label="Solutions" name="industries" openMenu={openMenu} setOpenMenu={setOpenMenu}>
             <div className="grid grid-cols-2 gap-6 p-6">
               {industries.map((ind) => (
                 <Link
@@ -161,7 +161,7 @@ export function HeaderClient({
       {mobileOpen && (
         <div className="border-t border-border bg-background px-4 pb-6 lg:hidden">
           <MobileSection title="Home" href="/" onNavigate={() => setMobileOpen(false)} />
-          <MobileGroup title="Industries" onNavigate={() => setMobileOpen(false)}>
+          <MobileGroup title="Solutions" onNavigate={() => setMobileOpen(false)}>
             {industries.map((ind) => (
               <Link key={ind.id} href={`/industries/${ind.slug}`} className="block py-1.5 text-sm text-muted">
                 {ind.name}

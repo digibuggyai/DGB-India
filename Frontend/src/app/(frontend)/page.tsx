@@ -1,5 +1,6 @@
 import { ScrollHero } from "@/components/home/ScrollHero";
 import { WhoWeServe } from "@/components/home/WhoWeServe";
+import { WhatWeSolve } from "@/components/home/WhatWeSolve";
 import { InfrastructureOverview } from "@/components/home/InfrastructureOverview";
 import { HowWeWork } from "@/components/home/HowWeWork";
 import { WhyDGB } from "@/components/home/WhyDGB";
@@ -11,6 +12,7 @@ export default function HomePage() {
     <>
       <ScrollHero />
       <WhoWeServe />
+      <WhatWeSolve />
       <InfrastructureOverview />
       <HowWeWork />
       <WhyDGB />

@@ -199,3 +199,42 @@ h1, h2, h3, h4, .font-display {
     animation: none;
   }
 }
+
+/* Infrastructure marquee (InfrastructureOverview) */
+@keyframes dgb-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(calc(-50% - 10px)); }
+}
+
+.dgb-marquee-track {
+  animation: dgb-marquee 44s linear infinite;
+}
+
+.group\/marquee:hover .dgb-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dgb-marquee-track {
+    animation: none;
+  }
+}
+
+/* 12-cell puzzle image reveal (Architecture & VFX pages) */
+@keyframes dgb-puzzle {
+  0% { opacity: 1; transform: scale(1.06); }
+  22% { opacity: 0; transform: scale(1); }
+  82% { opacity: 0; transform: scale(1); }
+  100% { opacity: 1; transform: scale(1.06); }
+}
+
+.dgb-puzzle-tile {
+  animation: dgb-puzzle 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dgb-puzzle-tile {
+    animation: none;
+    opacity: 0;
+  }
+}

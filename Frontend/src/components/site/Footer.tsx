@@ -52,7 +52,7 @@ export async function Footer() {
       <div className="border-t border-[#33383c]">
         <div className="container-page flex flex-col gap-2 py-6 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
           <span>
-            {nav?.footerNote || `© ${new Date().getFullYear()} Digibuggy Enterprise (DGB India). All rights reserved.`}
+            {nav?.footerNote || `© ${new Date().getFullYear()} DGB India. All rights reserved.`}
           </span>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-white">Privacy</Link>

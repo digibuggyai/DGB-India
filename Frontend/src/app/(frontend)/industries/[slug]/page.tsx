@@ -5,6 +5,8 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ButtonLink } from "@/components/ui/Button";
 import { RichText } from "@/components/ui/RichText";
 import { getIndustries, getIndustryBySlug } from "@/lib/content";
+import { ArchitectureEngineeringPage } from "@/components/industries/ArchitectureEngineeringPage";
+import { VfxAnimationPage } from "@/components/industries/VfxAnimationPage";
 
 export async function generateStaticParams() {
   const all = await getIndustries();
@@ -33,6 +35,13 @@ export default async function IndustryDetailPage({
   const { slug } = await params;
   const industry = await getIndustryBySlug(slug);
   if (!industry) notFound();
+
+  if (slug === "architecture-engineering") {
+    return <ArchitectureEngineeringPage industry={industry} />;
+  }
+  if (slug === "vfx-animation") {
+    return <VfxAnimationPage industry={industry} />;
+  }
 
   const workloads = (industry.workloads ?? []).filter((w) => typeof w === "object");
   const challenges = industry.challenges ?? [];
