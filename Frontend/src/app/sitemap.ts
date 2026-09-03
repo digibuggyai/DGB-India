@@ -19,7 +19,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/resources/blog",
     "/resources/case-studies",
     "/resources/insights",
-    "/contact",
   ].map((path) => ({ url: `${base}${path}`, lastModified: new Date() }));
 
   const [industries, infrastructure, blogs, insights, caseStudies] = await Promise.all([

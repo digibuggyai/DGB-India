@@ -92,7 +92,7 @@ const defaultColumns = [
       { label: "How We Work", href: "/how-we-work" },
       { label: "About Us", href: "/about" },
       { label: "Resources", href: "/resources" },
-      { label: "Contact", href: "/contact" },
+      { label: "Contact", href: "/about#contact" },
     ],
   },
 ];

@@ -31,7 +31,7 @@ export const getCTABlock = async (key: string) => {
 };
 
 export const getIndustries = cache(async () => {
-  const res = await payloadFind<Industry>("industries", { limit: 50, depth: 1 });
+  const res = await payloadFind<Industry>("industries", { limit: 50, depth: 1, sort: "id" });
   return res.docs;
 });
 

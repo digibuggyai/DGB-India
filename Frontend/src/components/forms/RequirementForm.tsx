@@ -74,16 +74,16 @@ export function RequirementForm({
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid gap-5 sm:grid-cols-2">
         <Field label="Full Name" required>
-          <input name="name" required className={inputClass} placeholder="Jane Doe" />
+          <input name="name" required className={inputClass} placeholder="Enter your name" />
         </Field>
         <Field label="Company" required>
-          <input name="company" required className={inputClass} placeholder="Acme Studios" />
+          <input name="company" required className={inputClass} placeholder="Company Name" />
         </Field>
         <Field label="Work Email" required>
-          <input type="email" name="email" required className={inputClass} placeholder="jane@acme.com" />
+          <input type="email" name="email" required className={inputClass} placeholder="Enter your email" />
         </Field>
-        <Field label="Phone">
-          <input name="phone" className={inputClass} placeholder="+91 98765 43210" />
+        <Field label="Phone" required>
+          <input name="phone" className={inputClass} placeholder="Enter your phone no." />
         </Field>
         <Field label="Industry">
           <select name="industry" className={inputClass} defaultValue="">
@@ -123,12 +123,12 @@ export function RequirementForm({
           name="workloadDescription"
           rows={3}
           className={inputClass}
-          placeholder="e.g. Rendering in Redshift for a 20-artist animation pipeline"
+          placeholder=""
         />
       </Field>
 
       <Field label="Applications / Software">
-        <input name="applicationsUsed" className={inputClass} placeholder="e.g. Maya, Houdini, Redshift" />
+        <input name="applicationsUsed" className={inputClass} placeholder="" />
       </Field>
 
       <Field label="Additional details">

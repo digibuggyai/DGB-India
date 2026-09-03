@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { IndustryArt } from "@/components/home/IndustryArt";
 import { getIndustries } from "@/lib/content";
 
 const FALLBACK = [
@@ -43,17 +44,24 @@ export async function WhoWeServe() {
                   {/* Front */}
                   <div className="flip-card-face flip-card-front h-full w-full overflow-hidden rounded-xl border border-border">
                     <div
-                      className="relative flex h-full w-full flex-col justify-end bg-cover bg-center p-5"
-                      style={{
-                        backgroundImage: ind.image
-                          ? `linear-gradient(180deg, transparent 42%, #2e3236d9 100%), url(${ind.image})`
-                          : "linear-gradient(180deg, #f4f5f6 42%, #d8dbde 100%)",
-                      }}
+                      className="relative flex h-full w-full flex-col justify-end bg-cover bg-center bg-ink-800 p-5"
+                      style={
+                        ind.image
+                          ? { backgroundImage: `linear-gradient(180deg, transparent 42%, #2e3236d9 100%), url(${ind.image})` }
+                          : undefined
+                      }
                     >
-                      <span className="text-xs font-semibold tracking-widest text-[#b06f79]">
+                      {!ind.image && <IndustryArt slug={ind.slug} />}
+                      {!ind.image && (
+                        <div
+                          className="absolute inset-0"
+                          style={{ background: "linear-gradient(180deg, transparent 42%, #2e3236d9 100%)" }}
+                        />
+                      )}
+                      <span className="relative text-xs font-semibold tracking-widest text-[#b06f79]">
                         {String(i + 1).padStart(2, "0")}
                       </span>
-                      <div className="font-display mt-1 text-[17px] font-semibold text-white">{ind.name}</div>
+                      <div className="relative font-display mt-1 text-[17px] font-semibold text-white">{ind.name}</div>
                     </div>
                   </div>
                   {/* Back */}

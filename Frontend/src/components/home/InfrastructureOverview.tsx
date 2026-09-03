@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
+import { InfraIcon } from "@/components/home/InfraIcon";
 import { getInfrastructure } from "@/lib/content";
 
 const TARGETS = [
@@ -89,7 +90,9 @@ export async function InfrastructureOverview() {
                 <div
                   className="h-[170px] bg-[#f3f4f5] bg-cover bg-center"
                   style={item.image ? { backgroundImage: `url(${item.image})` } : undefined}
-                />
+                >
+                  {!item.image && <InfraIcon name={item.name} />}
+                </div>
                 <div className="p-6">
                   <div className="h-1 w-[34px] bg-accent" />
                   <div className="font-display mt-4 text-[22px] font-bold">{item.name}</div>
@@ -106,7 +109,9 @@ export async function InfrastructureOverview() {
                   <div
                     className="h-[210px] rounded-t-lg bg-[#f3f4f5] bg-cover bg-center"
                     style={item.image ? { backgroundImage: `url(${item.image})` } : undefined}
-                  />
+                  >
+                    {!item.image && <InfraIcon name={item.name} size={104} />}
+                  </div>
                   <span className="absolute left-3 top-3 rounded bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white">
                     DGB
                   </span>

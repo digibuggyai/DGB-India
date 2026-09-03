@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import { Eyebrow } from "@/components/ui/Eyebrow";
-import { ButtonLink } from "@/components/ui/Button";
-import { getPartners } from "@/lib/content";
+import { RequirementForm } from "@/components/forms/RequirementForm";
+import { getIndustries, getInfrastructure, getPartners, getSiteSettings } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Digibuggy Enterprise (DGB India) designs, engineers and supports enterprise infrastructure for high-performance computing workloads.",
+    "Digibuggy Enterprise (DGB India) designs, engineers and supports enterprise infrastructure for high-performance computing workloads. Get in touch to discuss your workload.",
 };
 
 export default async function AboutPage() {
-  const partners = await getPartners();
+  const [partners, industries, infrastructure, settings] = await Promise.all([
+    getPartners(),
+    getIndustries(),
+    getInfrastructure(),
+    getSiteSettings(),
+  ]);
 
   return (
     <>
@@ -82,12 +87,53 @@ export default async function AboutPage() {
         </section>
       )}
 
-      <section className="py-16">
-        <div className="container-page flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+      <section id="contact" className="scroll-mt-24 py-20">
+        <div className="container-page grid gap-16 lg:grid-cols-[1fr_1.2fr]">
           <div>
-            <h2 className="text-2xl font-semibold tracking-tight">Let&rsquo;s talk about your infrastructure.</h2>
+            <Eyebrow>Contact</Eyebrow>
+            <h2 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+              Discuss Your Workload.
+            </h2>
+            <p className="mt-4 max-w-md text-muted">
+              Tell us what you run, and we&rsquo;ll tell you the infrastructure it needs. No sales
+              script — a real conversation with someone who understands the workload.
+            </p>
+
+            <div className="mt-10 space-y-4 border-t border-border pt-8">
+              {settings?.contact?.email && (
+                <div>
+                  <div className="font-mono text-xs uppercase tracking-wider text-muted">Email</div>
+                  <a
+                    href={`mailto:${settings.contact.email}`}
+                    className="mt-1 block text-foreground hover:text-accent-2"
+                  >
+                    {settings.contact.email}
+                  </a>
+                </div>
+              )}
+              {settings?.contact?.phone && (
+                <div>
+                  <div className="font-mono text-xs uppercase tracking-wider text-muted">Phone</div>
+                  <div className="mt-1 text-foreground">{settings.contact.phone}</div>
+                </div>
+              )}
+              {settings?.contact?.address && (
+                <div>
+                  <div className="font-mono text-xs uppercase tracking-wider text-muted">Office</div>
+                  <div className="mt-1 whitespace-pre-line text-foreground">{settings.contact.address}</div>
+                </div>
+              )}
+            </div>
           </div>
-          <ButtonLink href="/contact">Talk to an Expert</ButtonLink>
+
+          <div className="rounded-xl border border-border bg-surface p-8">
+            <RequirementForm
+              industries={industries.map((i) => ({ id: String(i.id), name: i.name }))}
+              infrastructure={infrastructure
+                .filter((i) => !i.parent)
+                .map((i) => ({ id: String(i.id), name: i.name }))}
+            />
+          </div>
         </div>
       </section>
     </>

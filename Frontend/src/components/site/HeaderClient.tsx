@@ -8,6 +8,20 @@ import type { InfraNavNode } from "@/lib/nav-data";
 
 type IndustryNavItem = { id: string; name: string; slug: string; tagline: string };
 
+// Fixed nav order/labels for the Infrastructure dropdown — "DGX" is the
+// display label for the CMS's "GPU Servers" item (same product category,
+// nav copy uses the more recognizable name). Falls back to skipping an
+// entry if that slug doesn't exist in the CMS yet, rather than crashing.
+const INFRA_NAV_ORDER: { label: string; slug: string }[] = [
+  { label: "DGX", slug: "gpu-servers" },
+  { label: "Workstations", slug: "workstations" },
+  { label: "Servers", slug: "servers" },
+  { label: "NAS", slug: "nas" },
+  { label: "Storage", slug: "storage" },
+  { label: "Networking", slug: "networking" },
+  { label: "Backup", slug: "backup" },
+];
+
 export function HeaderClient({
   siteName,
   industries,
@@ -61,56 +75,39 @@ export function HeaderClient({
           <NavLink href="/">Home</NavLink>
 
           <MenuTrigger label="Solutions" name="industries" openMenu={openMenu} setOpenMenu={setOpenMenu}>
-            <div className="grid grid-cols-2 gap-6 p-6">
+            <div className="min-w-[262px] py-2">
               {industries.map((ind) => (
                 <Link
                   key={ind.id}
                   href={`/industries/${ind.slug}`}
                   onClick={close}
-                  className="group rounded-md p-2 hover:bg-surface-raised"
+                  className="block px-5 py-3 text-sm text-foreground/90 hover:bg-surface-raised hover:text-accent"
                 >
-                  <div className="font-medium text-foreground group-hover:text-accent-2">{ind.name}</div>
-                  {ind.tagline ? <div className="mt-1 text-xs text-muted">{ind.tagline}</div> : null}
+                  {ind.name}
                 </Link>
               ))}
             </div>
           </MenuTrigger>
 
           <MenuTrigger label="Infrastructure" name="infrastructure" openMenu={openMenu} setOpenMenu={setOpenMenu}>
-            <div className="grid grid-cols-4 gap-6 p-6">
-              {infraGroups.map((group) => (
-                <div key={group.category}>
-                  <div className="font-mono text-xs uppercase tracking-wider text-muted">{group.label}</div>
-                  <ul className="mt-3 space-y-2">
-                    {group.items.map((item) => (
-                      <li key={item.id}>
-                        <Link
-                          href={`/infrastructure/${item.slug}`}
-                          onClick={close}
-                          className="text-sm text-foreground/90 hover:text-accent-2"
-                        >
-                          {item.name}
-                        </Link>
-                        {item.children.length > 0 && (
-                          <ul className="mt-1 ml-3 space-y-1 border-l border-border pl-3">
-                            {item.children.map((child) => (
-                              <li key={child.id}>
-                                <Link
-                                  href={`/infrastructure/${child.slug}`}
-                                  onClick={close}
-                                  className="text-xs text-muted hover:text-accent-2"
-                                >
-                                  {child.name}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+            <div className="min-w-[232px] py-2">
+              {(() => {
+                const allItems = infraGroups.flatMap((group) => group.items);
+                const slugs = new Set([
+                  ...allItems.map((item) => item.slug),
+                  ...allItems.flatMap((item) => item.children.map((c) => c.slug)),
+                ]);
+                return INFRA_NAV_ORDER.filter((entry) => slugs.has(entry.slug)).map((entry) => (
+                  <Link
+                    key={entry.slug}
+                    href={`/infrastructure/${entry.slug}`}
+                    onClick={close}
+                    className="block px-5 py-3 text-sm text-foreground/90 hover:bg-surface-raised hover:text-accent"
+                  >
+                    {entry.label}
+                  </Link>
+                ));
+              })()}
             </div>
           </MenuTrigger>
 
@@ -136,11 +133,10 @@ export function HeaderClient({
             </div>
           </MenuTrigger>
 
-          <NavLink href="/contact">Contact</NavLink>
         </nav>
 
         <div className="hidden lg:block">
-          <ButtonLink href="/contact" className="text-sm">
+          <ButtonLink href="/about#contact" className="text-sm">
             Talk to an Expert
           </ButtonLink>
         </div>
@@ -182,9 +178,8 @@ export function HeaderClient({
             <Link href="/resources/case-studies" className="block py-1.5 text-sm text-muted">Case Studies</Link>
             <Link href="/resources/insights" className="block py-1.5 text-sm text-muted">Insights</Link>
           </MobileGroup>
-          <MobileSection title="Contact" href="/contact" onNavigate={() => setMobileOpen(false)} />
           <div className="mt-4">
-            <ButtonLink href="/contact" className="w-full" onClick={() => setMobileOpen(false)}>
+            <ButtonLink href="/about#contact" className="w-full" onClick={() => setMobileOpen(false)}>
               Talk to an Expert
             </ButtonLink>
           </div>
