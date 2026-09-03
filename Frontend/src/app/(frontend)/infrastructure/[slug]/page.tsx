@@ -5,6 +5,12 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { ButtonLink } from "@/components/ui/Button";
 import { RichText } from "@/components/ui/RichText";
 import { getInfrastructure, getInfrastructureBySlug } from "@/lib/content";
+import { DgxPage } from "@/components/infrastructure/DgxPage";
+import { WorkstationsPage } from "@/components/infrastructure/WorkstationsPage";
+import { ServersPage } from "@/components/infrastructure/ServersPage";
+import { NasPage } from "@/components/infrastructure/NasPage";
+import { StoragePage } from "@/components/infrastructure/StoragePage";
+import { NetworkingPage } from "@/components/infrastructure/NetworkingPage";
 
 export async function generateStaticParams() {
   const all = await getInfrastructure();
@@ -33,6 +39,25 @@ export default async function InfrastructureDetailPage({
   const { slug } = await params;
   const item = await getInfrastructureBySlug(slug);
   if (!item) notFound();
+
+  if (slug === "gpu-servers") {
+    return <DgxPage item={item} />;
+  }
+  if (slug === "workstations") {
+    return <WorkstationsPage item={item} />;
+  }
+  if (slug === "servers") {
+    return <ServersPage item={item} />;
+  }
+  if (slug === "nas") {
+    return <NasPage item={item} />;
+  }
+  if (slug === "storage") {
+    return <StoragePage item={item} />;
+  }
+  if (slug === "networking") {
+    return <NetworkingPage item={item} />;
+  }
 
   const parent = typeof item.parent === "object" ? item.parent : null;
   const suitedWorkloads = (item.suitedWorkloads ?? []).filter((w) => typeof w === "object");
