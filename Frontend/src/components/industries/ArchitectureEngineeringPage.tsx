@@ -48,7 +48,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
             Infrastructure built for demanding design, visualization and engineering workflows.
           </p>
           <div className="mt-9">
-            <ButtonLink href="/contact">Talk to an Expert &rarr;</ButtonLink>
+            <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
           </div>
         </div>
       </section>
@@ -182,7 +182,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
               limitations.
             </p>
             <div className="mt-8">
-              <ButtonLink href="/contact">Tell Us About Your Project &rarr;</ButtonLink>
+              <ButtonLink href="/about#contact">Tell Us About Your Project &rarr;</ButtonLink>
             </div>
           </div>
           <div className="border-l-[3px] border-[#d9bcc1] pl-8">
