@@ -197,7 +197,9 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
             their creative ambitions.
           </p>
           <div className="mt-9">
-            <ButtonLink href="/contact">Tell Us About Your Production &rarr;</ButtonLink>
+            <ButtonLink href="/request-a-solution?source=vfx-animation">
+              Tell Us About Your Production &rarr;
+            </ButtonLink>
           </div>
         </div>
       </section>
