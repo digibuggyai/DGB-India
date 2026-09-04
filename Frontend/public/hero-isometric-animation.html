@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DGB India — Hero isometric block animation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; padding: 0; }
+  * { box-sizing: border-box; }
+
+  /* ---- HERO SHELL ---------------------------------------------------- */
+  .dgb-hero {
+    position: relative;
+    overflow: hidden;
+    background: #2e3236;                 /* grey base */
+    color: #ffffff;
+    font-family: 'IBM Plex Sans', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* the static 64px grid — this is CSS, not an image file */
+  .dgb-hero__grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.031) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.031) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+  /* the animated canvas */
+  .dgb-hero__canvas {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .dgb-hero__inner {
+    position: relative;
+    max-width: 1240px; margin: 0 auto;
+    padding: 132px 32px 120px;
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .dgb-hero__eyebrow { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 28px; }
+  .dgb-hero__rule { width: 40px; height: 3px; background: #80202c; }
+  .dgb-hero__kicker { font-size: 12.5px; letter-spacing: 0.18em; text-transform: uppercase; color: #a9b0b6; }
+  .dgb-hero__title {
+    font-family: 'Archivo', Helvetica, sans-serif; font-weight: 700;
+    font-size: 68px; line-height: 1.04; letter-spacing: -0.02em; margin: 0;
+    text-wrap: balance;
+  }
+  .dgb-hero__cta {
+    display: inline-block; margin-top: 44px;
+    background: #80202c; color: #ffffff;
+    font-size: 15px; font-weight: 600; padding: 16px 30px;
+    border: 0; cursor: pointer;
+  }
+  .dgb-hero__cta:hover { background: #661821; }
+</style>
+</head>
+<body>
+
+<!--
+  DGB INDIA — HERO WITH ROTATING ISOMETRIC BLOCK FIELD
+  ====================================================
+  Self-contained: no images, no libraries. Three layers, back to front:
+    1. .dgb-hero          solid grey #2e3236
+    2. .dgb-hero__grid    static 64px CSS grid (no image file needed)
+    3. .dgb-hero__canvas  the animated isometric towers  <- the script below
+  Content sits above them in .dgb-hero__inner (position: relative).
+
+  Palette used by the animation:
+    white wireframe   rgba(255,255,255, .018–.20)
+    maroon accents    #80202c / #b06f79 / #d1737f
+  Tuning knobs are grouped in the CONFIG block at the top of the script.
+-->
+
+<section class="dgb-hero">
+  <div class="dgb-hero__grid"></div>
+  <canvas class="dgb-hero__canvas" id="dgbHeroCanvas"></canvas>
+
+  <div class="dgb-hero__inner">
+    <div class="dgb-hero__eyebrow">
+      <div class="dgb-hero__rule"></div>
+      <span class="dgb-hero__kicker">Enterprise infrastructure</span>
+    </div>
+    <h1 class="dgb-hero__title">Your Workload.<br><span style="color:#eef1f3;">Our Infrastructure.</span></h1>
+    <a class="dgb-hero__cta" href="#">Explore Solutions</a>
+  </div>
+</section>
+
+<script>
+(function () {
+  var canvas = document.getElementById('dgbHeroCanvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  /* ---- CONFIG ------------------------------------------------------- */
+  var GRID       = 9,        // plate is GRID x GRID cells, corners trimmed to a circle
+      SPEED      = 0.00085,  // radians added per frame (~2 min per full rotation)
+      START_ANGLE= 0.45,     // initial rotation so it doesn't start axis-aligned
+      DENSITY    = 0.24,     // cells below this random value are left empty
+      MIN_H      = 0.35,     // shortest tower, in grid units
+      MAX_H      = 2.85,     // tallest tower
+      ACCENT_AT  = 0.86,     // cells above this random value render in maroon
+      UNIT_W     = 0.052,    // cell size as a fraction of hero width
+      UNIT_H     = 0.13;     // …capped by this fraction of hero height
+  /* ------------------------------------------------------------------- */
+
+  var w = 0, h = 0, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  // Deterministic per-cell pseudo-random, so the layout is identical every load.
+  function hash(x, z) {
+    var s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453;
+    return s - Math.floor(s);
+  }
+
+  // Build the tower list once.
+  var blocks = [];
+  for (var gx = 0; gx < GRID; gx++) {
+    for (var gz = 0; gz < GRID; gz++) {
+      var cx = gx - (GRID - 1) / 2,
+          cz = gz - (GRID - 1) / 2;
+      if (Math.sqrt(cx * cx + cz * cz) > GRID / 2 + 0.4) continue; // trim to a circle
+      var rnd = hash(gx, gz);
+      if (rnd < DENSITY) continue;                                  // leave gaps
+      blocks.push({
+        gx: cx,
+        gz: cz,
+        h: MIN_H + rnd * (MAX_H - MIN_H),
+        accent: rnd > ACCENT_AT,
+        phase: rnd * Math.PI * 2,        // offset so towers breathe out of sync
+        amp: 0.10 + rnd * 0.22           // how far each tower rises and falls
+      });
+    }
+  }
+
+  function resize() {
+    var rect = canvas.getBoundingClientRect();
+    w = rect.width; h = rect.height;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  if (window.ResizeObserver) new ResizeObserver(resize).observe(canvas);
+  else window.addEventListener('resize', resize);
+
+  var a = START_ANGLE, raf;
+
+  function draw() {
+    a += SPEED;
+    ctx.clearRect(0, 0, w, h);
+
+    var ox = w * 0.5,                          // origin of the plate on screen
+        oy = h * 0.56,
+        U = Math.min(w * UNIT_W, h * UNIT_H),  // one grid unit in px
+        sinA = Math.sin(a), cosA = Math.cos(a),
+        t = a * 34;                            // drives the breathing
+
+    // grid coord (gx, gz) + height y  ->  screen [x, y]
+    function iso(gx, gz, y) {
+      var rx = gx * cosA - gz * sinA,
+          rz = gx * sinA + gz * cosA;
+      return [ox + (rx - rz) * U * 0.94, oy + (rx + rz) * U * 0.5 - y * U * 0.78];
+    }
+
+    // painter's algorithm: farthest tower first
+    var order = blocks.map(function (b) {
+      var rx = b.gx * cosA - b.gz * sinA,
+          rz = b.gx * sinA + b.gz * cosA;
+      return { b: b, key: rx + rz };
+    }).sort(function (p, q) { return p.key - q.key; });
+
+    function face(pts, fill, stroke) {
+      ctx.beginPath();
+      for (var i = 0; i < pts.length; i++) {
+        if (i) ctx.lineTo(pts[i][0], pts[i][1]);
+        else ctx.moveTo(pts[i][0], pts[i][1]);
+      }
+      ctx.closePath();
+      if (fill)   { ctx.fillStyle = fill; ctx.fill(); }
+      if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = 1; ctx.stroke(); }
+    }
+
+    for (var i = 0; i < order.length; i++) {
+      var b = order[i].b,
+          hgt = b.h + Math.sin(t * 0.35 + b.phase) * b.amp,
+          x0 = b.gx - 0.42, x1 = b.gx + 0.42,
+          z0 = b.gz - 0.42, z1 = b.gz + 0.42,
+          acc = b.accent;
+
+      // left face (darkest)
+      face([iso(x0, z1, hgt), iso(x0, z1, 0), iso(x0, z0, 0), iso(x0, z0, hgt)],
+           acc ? 'rgba(128,32,44,0.42)'   : 'rgba(255,255,255,0.035)',
+           acc ? 'rgba(177,111,121,0.50)' : 'rgba(255,255,255,0.10)');
+
+      // right face
+      face([iso(x0, z1, hgt), iso(x0, z1, 0), iso(x1, z1, 0), iso(x1, z1, hgt)],
+           acc ? 'rgba(128,32,44,0.26)'   : 'rgba(255,255,255,0.018)',
+           acc ? 'rgba(177,111,121,0.34)' : 'rgba(255,255,255,0.07)');
+
+      // top face (brightest — reads as the light source)
+      face([iso(x0, z0, hgt), iso(x1, z0, hgt), iso(x1, z1, hgt), iso(x0, z1, hgt)],
+           acc ? 'rgba(177,111,121,0.30)' : 'rgba(255,255,255,0.055)',
+           acc ? 'rgba(209,115,127,0.75)' : 'rgba(255,255,255,0.20)');
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  // respect users who ask for reduced motion: render one static frame only
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    SPEED = 0;
+    draw();
+    cancelAnimationFrame(raf);
+  } else {
+    raf = requestAnimationFrame(draw);
+  }
+})();
+</script>
+
+</body>
+</html>

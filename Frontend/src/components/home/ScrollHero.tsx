@@ -4,28 +4,50 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 
 const TRUST_ITEMS = [
-  "Architecture & Engineering",
-  "VFX & Animation",
-  "AI & Machine Learning",
-  "Trading & Finance",
-  "Media & Production",
+  { label: "Architecture & Engineering", slug: "architecture-engineering" },
+  { label: "VFX & Animation", slug: "vfx-animation" },
+  { label: "AI & Machine Learning", slug: "ai-machine-learning" },
+  { label: "Trading & Finance", slug: "trading-finance" },
+  { label: "Media & Production", slug: "media-production" },
 ];
 
-type Pt = { x: number; y: number; z: number; j: number };
+type Block = { gx: number; gz: number; h: number; accent: boolean; phase: number; amp: number };
 
-function makePoints(n: number): Pt[] {
-  const pts: Pt[] = [];
-  for (let i = 0; i < n; i++) {
-    const u = Math.random() * 2 - 1;
-    const t = Math.random() * Math.PI * 2;
-    const r = Math.pow(Math.random(), 0.35);
-    const s = Math.sqrt(1 - u * u);
-    pts.push({ x: s * Math.cos(t) * r, y: u * r, z: s * Math.sin(t) * r, j: 0.4 + Math.random() * 0.6 });
-  }
-  return pts;
+// Deterministic per-cell pseudo-random, so the layout is identical every load.
+function hash(x: number, z: number) {
+  const s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453;
+  return s - Math.floor(s);
 }
 
-function SphereCanvas() {
+function makeBlocks(): Block[] {
+  const GRID = 9; // plate is GRID x GRID cells, corners trimmed to a circle
+  const DENSITY = 0.24; // cells below this random value are left empty
+  const MIN_H = 0.35; // shortest tower, in grid units
+  const MAX_H = 2.85; // tallest tower
+  const ACCENT_AT = 0.86; // cells above this random value render in maroon
+
+  const blocks: Block[] = [];
+  for (let gx = 0; gx < GRID; gx++) {
+    for (let gz = 0; gz < GRID; gz++) {
+      const cx = gx - (GRID - 1) / 2;
+      const cz = gz - (GRID - 1) / 2;
+      if (Math.sqrt(cx * cx + cz * cz) > GRID / 2 + 0.4) continue; // trim to a circle
+      const rnd = hash(gx, gz);
+      if (rnd < DENSITY) continue; // leave gaps
+      blocks.push({
+        gx: cx,
+        gz: cz,
+        h: MIN_H + rnd * (MAX_H - MIN_H),
+        accent: rnd > ACCENT_AT,
+        phase: rnd * Math.PI * 2, // offset so towers breathe out of sync
+        amp: 0.1 + rnd * 0.22, // how far each tower rises and falls
+      });
+    }
+  }
+  return blocks;
+}
+
+function IsometricCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -33,13 +55,16 @@ function SphereCanvas() {
     if (!canvas) return;
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reducedMotion) return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const N = 1600;
-    const pts = makePoints(N);
+    const SPEED = reducedMotion ? 0 : 0.00085; // radians per frame (~2 min per full rotation)
+    const START_ANGLE = 0.45; // initial rotation so it doesn't start axis-aligned
+    const UNIT_W = 0.052; // cell size as a fraction of hero width
+    const UNIT_H = 0.13; // …capped by this fraction of hero height
+
+    const blocks = makeBlocks();
 
     let w = 0;
     let h = 0;
@@ -58,42 +83,80 @@ function SphereCanvas() {
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
-    let a = 0;
+    let a = START_ANGLE;
     let raf = 0;
     let cancelled = false;
 
     const draw = () => {
       if (cancelled) return;
-      a += 0.0016;
+      a += SPEED;
       ctx.clearRect(0, 0, w, h);
-      const cx = w * 0.5;
-      const cy = h * 0.52;
-      const R = Math.min(w * 0.28, h * 0.62);
+
+      const ox = w * 0.5; // origin of the plate on screen
+      const oy = h * 0.56;
+      const U = Math.min(w * UNIT_W, h * UNIT_H); // one grid unit in px
       const sinA = Math.sin(a);
       const cosA = Math.cos(a);
-      const tilt = 0.28;
-      const sinT = Math.sin(tilt);
-      const cosT = Math.cos(tilt);
+      const t = a * 34; // drives the breathing
 
-      for (let i = 0; i < N; i++) {
-        const p = pts[i];
-        const x = p.x * cosA - p.z * sinA;
-        let z = p.x * sinA + p.z * cosA;
-        const y = p.y * cosT - z * sinT;
-        z = p.y * sinT + z * cosT;
-        const persp = 1 / (1.9 - z * 0.55);
-        const sx = cx + x * R * persp * 1.9;
-        const sy = cy + y * R * persp * 1.9;
-        const depth = (z + 1) / 2;
-        const alpha = (0.12 + depth * 0.78) * p.j;
-        const size = 0.7 + depth * 1.3;
-        ctx.fillStyle =
-          i % 9 === 0
-            ? `rgba(232, 249, 253, ${alpha.toFixed(3)})`
-            : `rgba(128, 32, 44, ${alpha.toFixed(3)})`;
-        ctx.fillRect(sx, sy, size, size);
+      // grid coord (gx, gz) + height y  ->  screen [x, y]
+      const iso = (gx: number, gz: number, y: number): [number, number] => {
+        const rx = gx * cosA - gz * sinA;
+        const rz = gx * sinA + gz * cosA;
+        return [ox + (rx - rz) * U * 0.94, oy + (rx + rz) * U * 0.5 - y * U * 0.78];
+      };
+
+      // painter's algorithm: farthest tower first
+      const order = blocks
+        .map((b) => {
+          const rx = b.gx * cosA - b.gz * sinA;
+          const rz = b.gx * sinA + b.gz * cosA;
+          return { b, key: rx + rz };
+        })
+        .sort((p, q) => p.key - q.key);
+
+      const face = (pts: [number, number][], fill: string, stroke: string) => {
+        ctx.beginPath();
+        pts.forEach((pt, i) => (i ? ctx.lineTo(pt[0], pt[1]) : ctx.moveTo(pt[0], pt[1])));
+        ctx.closePath();
+        ctx.fillStyle = fill;
+        ctx.fill();
+        ctx.strokeStyle = stroke;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      };
+
+      for (const { b } of order) {
+        const hgt = b.h + Math.sin(t * 0.35 + b.phase) * b.amp;
+        const x0 = b.gx - 0.42;
+        const x1 = b.gx + 0.42;
+        const z0 = b.gz - 0.42;
+        const z1 = b.gz + 0.42;
+        const acc = b.accent;
+
+        // left face (darkest)
+        face(
+          [iso(x0, z1, hgt), iso(x0, z1, 0), iso(x0, z0, 0), iso(x0, z0, hgt)],
+          acc ? "rgba(128,32,44,0.42)" : "rgba(255,255,255,0.035)",
+          acc ? "rgba(177,111,121,0.50)" : "rgba(255,255,255,0.10)",
+        );
+
+        // right face
+        face(
+          [iso(x0, z1, hgt), iso(x0, z1, 0), iso(x1, z1, 0), iso(x1, z1, hgt)],
+          acc ? "rgba(128,32,44,0.26)" : "rgba(255,255,255,0.018)",
+          acc ? "rgba(177,111,121,0.34)" : "rgba(255,255,255,0.07)",
+        );
+
+        // top face (brightest — reads as the light source)
+        face(
+          [iso(x0, z0, hgt), iso(x1, z0, hgt), iso(x1, z1, hgt), iso(x0, z1, hgt)],
+          acc ? "rgba(177,111,121,0.30)" : "rgba(255,255,255,0.055)",
+          acc ? "rgba(209,115,127,0.75)" : "rgba(255,255,255,0.20)",
+        );
       }
-      raf = requestAnimationFrame(draw);
+
+      if (!reducedMotion) raf = requestAnimationFrame(draw);
     };
     raf = requestAnimationFrame(draw);
 
@@ -128,7 +191,7 @@ export function ScrollHero() {
           }}
         />
 
-        {canAnimate && <SphereCanvas />}
+        {canAnimate && <IsometricCanvas />}
 
         <div className="container-page relative mx-auto max-w-[1240px] py-[90px] text-center sm:py-[110px] lg:py-[130px] lg:pb-[118px]">
           <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
@@ -160,12 +223,13 @@ export function ScrollHero() {
       <div className="border-b border-[#d9bcc1] bg-[#ecdcdf]">
         <div className="container-page flex flex-wrap items-center justify-center gap-x-14 gap-y-3 py-5">
           {TRUST_ITEMS.map((item) => (
-            <span
-              key={item}
-              className="text-[17px] font-medium tracking-wide text-[#5c4448]"
+            <Link
+              key={item.slug}
+              href={`/industries/${item.slug}`}
+              className="text-[17px] font-medium tracking-wide text-[#5c4448] transition-colors hover:text-accent"
             >
-              {item}
-            </span>
+              {item.label}
+            </Link>
           ))}
         </div>
       </div>
