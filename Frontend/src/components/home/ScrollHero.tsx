@@ -203,20 +203,6 @@ export function ScrollHero() {
             <br />
             <span className="text-[#eef1f3]">Our Infrastructure.</span>
           </h1>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/infrastructure"
-              className="inline-flex items-center justify-center rounded-full bg-accent px-7 py-3.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
-            >
-              Explore Solutions
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center rounded-full border border-[#5a6066] px-7 py-3.5 text-sm font-medium text-white transition-colors hover:border-[#eef1f3] hover:bg-white/5"
-            >
-              Talk to an Expert
-            </Link>
-          </div>
         </div>
       </section>
 

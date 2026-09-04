@@ -27,7 +27,10 @@ export function HowWeWork() {
           {STEPS.map((step, i) => (
             <RevealItem key={step.n}>
               <div className="flip-card h-[250px] w-full" style={{ perspective: "1200px" }}>
-                <div className="flip-card-inner h-full w-full">
+                <div
+                  className="flip-card-inner is-autoflip h-full w-full"
+                  style={{ animationDelay: `${i * 3}s` }}
+                >
                   <div
                     className="flip-card-face flip-card-front flex h-full w-full flex-col justify-between bg-ink-800 p-6"
                     style={{ borderTop: `2px solid ${i === 0 ? "#80202c" : "#43484d"}` }}
