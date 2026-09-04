@@ -49,6 +49,17 @@ const TARGETS = [
   },
 ];
 
+// Locally-saved real photography/renders that take priority over the
+// generated InfraIcon fallback and over any CMS image is absent — key by
+// the card's display name in TARGETS.
+const STATIC_IMAGE: Record<string, string> = {
+  DGX: "/dgx.png",
+  Workstations: "/workstation.jpg",
+  Servers: "/server.jpg",
+  Storage: "/storage.jpg",
+  Networking: "/networking.jpg",
+};
+
 export async function InfrastructureOverview() {
   const all = await getInfrastructure();
 
@@ -56,12 +67,14 @@ export async function InfrastructureOverview() {
     const found = all.find((i) =>
       t.match.some((m) => i.name?.toLowerCase().includes(m) || i.slug?.toLowerCase().includes(m)),
     );
+    const cmsImage =
+      typeof found?.heroImage === "object" && found?.heroImage?.url ? found.heroImage.url : null;
     return {
       slug: found?.slug || t.name.toLowerCase(),
       name: t.name,
       desc: found?.summary || t.desc,
       tags: t.tags,
-      image: typeof found?.heroImage === "object" && found?.heroImage?.url ? found.heroImage.url : null,
+      image: cmsImage || STATIC_IMAGE[t.name] || null,
     };
   });
 
