@@ -1,5 +1,6 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
+import { ProcessIcon } from "@/components/home/ProcessIcon";
 
 const STEPS = [
   { n: "01", title: "Understand", desc: "Your workload, goals and requirements." },
@@ -28,10 +29,13 @@ export function HowWeWork() {
               <div className="flip-card h-[250px] w-full" style={{ perspective: "1200px" }}>
                 <div className="flip-card-inner h-full w-full">
                   <div
-                    className="flip-card-face flip-card-front flex h-full w-full flex-col justify-end bg-ink-800 p-6"
+                    className="flip-card-face flip-card-front flex h-full w-full flex-col justify-between bg-ink-800 p-6"
                     style={{ borderTop: `2px solid ${i === 0 ? "#80202c" : "#43484d"}` }}
                   >
-                    <div className="font-display text-[34px] font-bold text-[#43484d]">{step.n}</div>
+                    <div className="flex items-start justify-between">
+                      <div className="font-display text-[34px] font-bold text-[#43484d]">{step.n}</div>
+                      <ProcessIcon title={step.title} />
+                    </div>
                     <div className="font-display mt-2 text-[19px] font-semibold text-white">{step.title}</div>
                   </div>
                   <div

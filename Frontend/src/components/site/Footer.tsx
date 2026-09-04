@@ -22,16 +22,23 @@ export async function Footer() {
             support the compute, storage, networking and data-protection infrastructure behind
             demanding workloads.
           </p>
-          {settings?.contact?.email && (
-            <p className="mt-4 text-sm text-ink-muted-2">
-              <a href={`mailto:${settings.contact.email}`} className="hover:text-white">
-                {settings.contact.email}
-              </a>
-            </p>
-          )}
-          {settings?.contact?.phone && (
-            <p className="mt-1 text-sm text-ink-muted-2">{settings.contact.phone}</p>
-          )}
+          <p className="mt-4 max-w-xs text-sm text-ink-muted-2">
+            207, Second Floor, Mansarovar Building, 90, Nehru Place, New Delhi, Delhi 110019
+          </p>
+          <p className="mt-4 text-sm text-ink-muted-2">
+            <a href={`mailto:${settings?.contact?.email || "sales@digibuggy.com"}`} className="hover:text-white">
+              {settings?.contact?.email || "sales@digibuggy.com"}
+            </a>
+          </p>
+          <div className="mt-1 space-y-1 text-sm text-ink-muted-2">
+            {["+91 9540073737", "+91 9311447394", "+91 8077121592"].map((phone) => (
+              <p key={phone}>
+                <a href={`tel:${phone.replace(/\s+/g, "")}`} className="hover:text-white">
+                  {phone}
+                </a>
+              </p>
+            ))}
+          </div>
         </div>
 
         {columns.map((col) => (
