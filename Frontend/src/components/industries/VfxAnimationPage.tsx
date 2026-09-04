@@ -25,32 +25,32 @@ const APP_TAGS = ["3D", "Animation", "Simulation", "Rendering", "Compositing", "
 
 export function VfxAnimationPage({ industry }: { industry: Industry }) {
   const heroImageUrl =
-    typeof industry.heroImage === "object" && industry.heroImage?.url ? industry.heroImage.url : null;
+    (typeof industry.heroImage === "object" && industry.heroImage?.url) || "/serve-vfx.png";
 
   return (
     <>
       {/* Hero */}
-      <section className="bg-[#202326]">
-        <div className="container-page grid min-h-[560px] gap-10 lg:grid-cols-2">
-          <div className="flex flex-col justify-center py-20">
+      <section
+        className="relative overflow-hidden bg-ink-800 bg-cover bg-center"
+        style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
+      >
+        <div className="absolute inset-0 bg-[#202326]/55" />
+        <div className="container-page relative py-20 sm:py-24">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-8 bg-accent" />
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
               VFX & Animation
             </span>
-            <h1 className="font-display mt-4 max-w-lg text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[58px]">
-              Create Without Limits.
-            </h1>
-            <p className="mt-5 max-w-md text-lg text-ink-muted-2">
+          </div>
+          <h1 className="font-display mt-4 max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[58px]">
+            Create Without Limits.
+          </h1>
+          <div className="mt-8 border-t border-white/15 pt-8">
+            <p className="max-w-md text-lg text-ink-muted-2">
               Technology built for demanding visual effects, animation and digital production
               workflows.
             </p>
-            <div className="mt-9">
-              <ButtonLink href="/contact">Talk to an Expert &rarr;</ButtonLink>
-            </div>
           </div>
-          <div
-            className="min-h-[280px] bg-ink-800 bg-cover bg-center"
-            style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
-          />
         </div>
       </section>
 

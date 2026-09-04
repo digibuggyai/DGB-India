@@ -24,7 +24,7 @@ const STAGES = [
 
 export function ArchitectureEngineeringPage({ industry }: { industry: Industry }) {
   const heroImageUrl =
-    typeof industry.heroImage === "object" && industry.heroImage?.url ? industry.heroImage.url : null;
+    (typeof industry.heroImage === "object" && industry.heroImage?.url) || "/serve-arch.png";
 
   return (
     <>
