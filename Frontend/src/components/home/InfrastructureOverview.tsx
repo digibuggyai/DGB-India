@@ -58,6 +58,17 @@ const STATIC_IMAGE: Record<string, string> = {
   Servers: "/server.jpg",
   Storage: "/storage.jpg",
   Networking: "/networking.jpg",
+  NAS: "/NAS.jpg",
+};
+
+// Product renders on plain/white backgrounds need `contain` so the object
+// isn't cropped in the short 170px card slot; full-bleed environment
+// photos look right cropped with `cover`. Defaults to "cover".
+const STATIC_IMAGE_FIT: Record<string, "cover" | "contain"> = {
+  DGX: "contain",
+  Servers: "contain",
+  Storage: "contain",
+  NAS: "contain",
 };
 
 export async function InfrastructureOverview() {
@@ -75,6 +86,7 @@ export async function InfrastructureOverview() {
       desc: found?.summary || t.desc,
       tags: t.tags,
       image: cmsImage || STATIC_IMAGE[t.name] || null,
+      fit: cmsImage ? "cover" : STATIC_IMAGE_FIT[t.name] || "cover",
     };
   });
 
@@ -101,8 +113,12 @@ export async function InfrastructureOverview() {
               {/* base card */}
               <div className="h-full overflow-hidden rounded-lg border border-[#e0e4e7] bg-white transition-opacity group-hover/card:opacity-0">
                 <div
-                  className="h-[170px] bg-[#f3f4f5] bg-cover bg-center"
-                  style={item.image ? { backgroundImage: `url(${item.image})` } : undefined}
+                  className="h-[170px] bg-[#f3f4f5] bg-center bg-no-repeat"
+                  style={
+                    item.image
+                      ? { backgroundImage: `url(${item.image})`, backgroundSize: item.fit }
+                      : undefined
+                  }
                 >
                   {!item.image && <InfraIcon name={item.name} />}
                 </div>
@@ -120,8 +136,12 @@ export async function InfrastructureOverview() {
               >
                 <div className="relative">
                   <div
-                    className="h-[210px] rounded-t-lg bg-[#f3f4f5] bg-cover bg-center"
-                    style={item.image ? { backgroundImage: `url(${item.image})` } : undefined}
+                    className="h-[210px] rounded-t-lg bg-[#f3f4f5] bg-center bg-no-repeat"
+                    style={
+                      item.image
+                        ? { backgroundImage: `url(${item.image})`, backgroundSize: item.fit }
+                        : undefined
+                    }
                   >
                     {!item.image && <InfraIcon name={item.name} size={104} />}
                   </div>
