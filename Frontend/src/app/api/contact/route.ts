@@ -2,6 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
+// Relationship ids arrive from <select> elements as strings ("5"), but the
+// Postgres relationship columns are integers and Payload rejects the string
+// form with "invalid relationships". Coerce here — this route is the single
+// chokepoint every lead form posts through.
+function toRelationId(value: unknown): number | string | undefined {
+  if (value === undefined || value === null || value === "") return undefined;
+  const asNumber = Number(value);
+  return Number.isInteger(asNumber) ? asNumber : (value as string);
+}
+
+function toRelationIds(value: unknown): (number | string)[] | undefined {
+  if (!Array.isArray(value)) {
+    const single = toRelationId(value);
+    return single === undefined ? undefined : [single];
+  }
+  const ids = value.map(toRelationId).filter((id): id is number | string => id !== undefined);
+  return ids.length > 0 ? ids : undefined;
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
 
@@ -44,8 +63,8 @@ export async function POST(req: NextRequest) {
       company: body.company,
       email: body.email,
       phone: body.phone || undefined,
-      industry: body.industry || undefined,
-      interestedInfrastructure: body.interestedInfrastructure || undefined,
+      industry: toRelationId(body.industry),
+      interestedInfrastructure: toRelationIds(body.interestedInfrastructure),
       workloadDescription: body.workloadDescription || undefined,
       applicationsUsed: body.applicationsUsed || undefined,
       companySize: body.companySize || undefined,

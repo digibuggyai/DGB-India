@@ -4,25 +4,57 @@ import { LogoutButton } from "./LogoutButton";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-type Lead = {
-  id: string;
+// Relationship fields come back populated (depth=1) as objects, or as a bare
+// id if the related doc was removed.
+type Rel = { id: number | string; name?: string | null } | number | string | null;
+
+type Query = {
+  id: number | string;
   name: string;
   company: string;
   email: string;
-  phone?: string;
-  workloadDescription?: string;
+  phone?: string | null;
+  industry?: Rel;
+  interestedInfrastructure?: Rel[] | null;
+  workloadDescription?: string | null;
+  applicationsUsed?: string | null;
+  companySize?: string | null;
+  message?: string | null;
+  source?: {
+    sourceUrl?: string | null;
+    referrer?: string | null;
+    utmSource?: string | null;
+    utmMedium?: string | null;
+    utmCampaign?: string | null;
+    utmTerm?: string | null;
+  } | null;
   status: string;
   createdAt: string;
 };
 
-async function getLeads(token: string): Promise<Lead[]> {
-  const res = await fetch(`${API_URL}/api/leads?limit=100&sort=-createdAt`, {
+async function getQueries(token: string): Promise<Query[]> {
+  // depth=1 so `industry` / `interestedInfrastructure` come back with names
+  // rather than bare relationship ids.
+  const res = await fetch(`${API_URL}/api/leads?limit=200&depth=1&sort=-createdAt`, {
     headers: { Authorization: `JWT ${token}` },
     cache: "no-store",
   });
   if (!res.ok) return [];
   const data = await res.json();
   return data.docs ?? [];
+}
+
+function relName(rel: Rel): string | null {
+  if (rel && typeof rel === "object" && "name" in rel) return rel.name ?? null;
+  return null;
+}
+
+// Explicit locale so the server-rendered string is deterministic.
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
+  const time = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" });
+  return `${date} · ${time}`;
 }
 
 const CONTENT_COLLECTIONS = [
@@ -60,13 +92,13 @@ export default async function AdminDashboardPage() {
   if (!user) redirect("/admin/login");
 
   const token = await getAdminToken();
-  const leads = token ? await getLeads(token) : [];
+  const queries = token ? await getQueries(token) : [];
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="font-display text-2xl font-bold">Leads</h1>
+          <h1 className="font-display text-2xl font-bold">Dashboard</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Signed in as {user.email} ({user.role})
           </p>
@@ -74,85 +106,132 @@ export default async function AdminDashboardPage() {
         <LogoutButton />
       </div>
 
-      <div className="mt-10">
+      {/* Queries */}
+      <section className="mt-10">
+        <div className="flex items-baseline justify-between gap-4">
+          <h2 className="font-display text-lg font-bold">Queries</h2>
+          <span className="text-sm text-ink-muted">
+            {queries.length} {queries.length === 1 ? "submission" : "submissions"}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-ink-muted">
+          Everything submitted through the site&rsquo;s contact and requirement forms.
+        </p>
+
+        {queries.length === 0 ? (
+          <div className="mt-4 rounded-lg border border-dashed border-[#43484d] px-6 py-12 text-center text-sm text-ink-muted">
+            No queries yet. Submissions from the contact form will appear here.
+          </div>
+        ) : (
+          <div className="mt-4 space-y-4">
+            {queries.map((q) => (
+              <QueryCard key={q.id} query={q} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Content management */}
+      <section className="mt-14">
         <h2 className="font-display text-lg font-bold">Manage Content</h2>
         <p className="mt-1 text-sm text-ink-muted">
           Opens the full editor (add, edit, upload images, manage relationships) in the CMS admin.
         </p>
         <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {CONTENT_COLLECTIONS.map((c) => (
+          {[
+            ...CONTENT_COLLECTIONS.map((c) => ({ ...c, kind: "collections" as const })),
+            ...CONTENT_GLOBALS.map((g) => ({ ...g, kind: "globals" as const })),
+          ].map((entry) => (
             <a
-              key={c.slug}
-              href={`${API_URL}/admin/collections/${c.slug}`}
+              key={entry.slug}
+              href={`${API_URL}/admin/${entry.kind}/${entry.slug}`}
               target="_blank"
               rel="noreferrer"
               className="rounded-md border border-[#43484d] bg-[#2e3236] px-4 py-3 text-sm text-white transition-colors hover:border-accent"
             >
-              {c.label}
-            </a>
-          ))}
-          {CONTENT_GLOBALS.map((g) => (
-            <a
-              key={g.slug}
-              href={`${API_URL}/admin/globals/${g.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className="rounded-md border border-[#43484d] bg-[#2e3236] px-4 py-3 text-sm text-white transition-colors hover:border-accent"
-            >
-              {g.label}
+              {entry.label}
             </a>
           ))}
         </div>
+      </section>
+    </div>
+  );
+}
+
+function QueryCard({ query: q }: { query: Query }) {
+  const industry = relName(q.industry ?? null);
+  const infrastructure = (q.interestedInfrastructure ?? [])
+    .map(relName)
+    .filter((n): n is string => Boolean(n));
+
+  const meta: { label: string; value: string }[] = [];
+  if (industry) meta.push({ label: "Industry", value: industry });
+  if (infrastructure.length) meta.push({ label: "Interested in", value: infrastructure.join(", ") });
+  if (q.companySize) meta.push({ label: "Company size", value: q.companySize });
+  if (q.applicationsUsed) meta.push({ label: "Applications", value: q.applicationsUsed });
+
+  const origin = q.source?.utmSource || q.source?.sourceUrl || q.source?.referrer;
+
+  return (
+    <article className="rounded-lg border border-[#43484d] bg-[#2e3236] p-5 sm:p-6">
+      <header className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="font-display text-lg font-bold text-white">{q.company}</h3>
+          <p className="mt-0.5 text-sm text-ink-muted-2">{q.name}</p>
+        </div>
+        <div className="flex flex-col items-start gap-2 sm:items-end">
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${
+              STATUS_STYLES[q.status] || STATUS_STYLES.new
+            }`}
+          >
+            {q.status}
+          </span>
+          <time className="text-xs text-ink-muted">{formatDate(q.createdAt)}</time>
+        </div>
+      </header>
+
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm">
+        <a href={`mailto:${q.email}`} className="text-ink-muted-2 hover:text-accent">
+          {q.email}
+        </a>
+        {q.phone && (
+          <a href={`tel:${q.phone.replace(/\s+/g, "")}`} className="text-ink-muted-2 hover:text-accent">
+            {q.phone}
+          </a>
+        )}
       </div>
 
-      <h2 className="font-display mt-10 text-lg font-bold">Recent Leads</h2>
-      <div className="mt-4 overflow-x-auto rounded-lg border border-[#43484d]">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-[#43484d] bg-[#2e3236] text-xs uppercase tracking-wide text-ink-muted">
-              <th className="px-4 py-3 font-medium">Company</th>
-              <th className="px-4 py-3 font-medium">Contact</th>
-              <th className="px-4 py-3 font-medium">Requirement</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Received</th>
-            </tr>
-          </thead>
-          <tbody>
-            {leads.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-ink-muted">
-                  No leads yet.
-                </td>
-              </tr>
-            )}
-            {leads.map((lead) => (
-              <tr key={lead.id} className="border-b border-[#3a3f44] last:border-0">
-                <td className="px-4 py-4 align-top font-medium text-white">{lead.company}</td>
-                <td className="px-4 py-4 align-top">
-                  <div className="text-white">{lead.name}</div>
-                  <a href={`mailto:${lead.email}`} className="text-ink-muted hover:text-accent">
-                    {lead.email}
-                  </a>
-                  {lead.phone && <div className="text-ink-muted">{lead.phone}</div>}
-                </td>
-                <td className="max-w-xs px-4 py-4 align-top text-ink-muted-2">
-                  {lead.workloadDescription || "—"}
-                </td>
-                <td className="px-4 py-4 align-top">
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLES[lead.status] || STATUS_STYLES.new}`}
-                  >
-                    {lead.status}
-                  </span>
-                </td>
-                <td className="px-4 py-4 align-top text-ink-muted">
-                  {new Date(lead.createdAt).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      {meta.length > 0 && (
+        <dl className="mt-4 grid gap-x-6 gap-y-3 border-t border-[#3a3f44] pt-4 sm:grid-cols-2">
+          {meta.map((m) => (
+            <div key={m.label}>
+              <dt className="text-xs uppercase tracking-wide text-ink-muted">{m.label}</dt>
+              <dd className="mt-0.5 text-sm text-ink-muted-2">{m.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {q.workloadDescription && (
+        <div className="mt-4 border-t border-[#3a3f44] pt-4">
+          <div className="text-xs uppercase tracking-wide text-ink-muted">Requirement</div>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-white">{q.workloadDescription}</p>
+        </div>
+      )}
+
+      {q.message && (
+        <div className="mt-4">
+          <div className="text-xs uppercase tracking-wide text-ink-muted">Additional details</div>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-ink-muted-2">{q.message}</p>
+        </div>
+      )}
+
+      {origin && (
+        <p className="mt-4 border-t border-[#3a3f44] pt-3 text-xs text-ink-muted">
+          Came from: <span className="break-all">{origin}</span>
+        </p>
+      )}
+    </article>
   );
 }
