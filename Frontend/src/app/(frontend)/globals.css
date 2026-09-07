@@ -241,6 +241,37 @@ h1, h2, h3, h4, .font-display {
   }
 }
 
+/* Partner logo marquee (Partners) — left to right.
+   The track holds the logo set twice, and every slot carries its spacing as
+   padding rather than a flex `gap`, so the track is exactly two equal halves
+   and the -50%..0 travel loops seamlessly with no half-gap jump. */
+@keyframes dgb-logos {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+
+.dgb-logos-track {
+  animation: dgb-logos 46s linear infinite;
+}
+
+.group\/marquee:hover .dgb-logos-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dgb-logos-track {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    animation: none;
+  }
+  /* The second copy only exists to make the loop seamless — with the
+     animation off it would just list every brand twice. */
+  .dgb-logos-track > [data-logo-clone] {
+    display: none;
+  }
+}
+
 /* 12-cell puzzle image reveal (Architecture & VFX pages) */
 @keyframes dgb-puzzle {
   0% { opacity: 1; transform: scale(1.06); }

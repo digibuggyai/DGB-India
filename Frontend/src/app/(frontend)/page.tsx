@@ -4,6 +4,7 @@ import { WhatWeSolve } from "@/components/home/WhatWeSolve";
 import { InfrastructureOverview } from "@/components/home/InfrastructureOverview";
 import { HowWeWork } from "@/components/home/HowWeWork";
 import { WhyDGB } from "@/components/home/WhyDGB";
+import { Partners } from "@/components/home/Partners";
 import { Proof } from "@/components/home/Proof";
 import { FinalCTA } from "@/components/home/FinalCTA";
 
@@ -16,6 +17,7 @@ export default function HomePage() {
       <InfrastructureOverview />
       <HowWeWork />
       <WhyDGB />
+      <Partners />
       <Proof />
       <FinalCTA />
     </>

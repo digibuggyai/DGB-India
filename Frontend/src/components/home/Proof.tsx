@@ -1,16 +1,13 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { SpotlightCard } from "@/components/ui/SpotlightCard";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
-import { getPartners, getCaseStudies, getTestimonials } from "@/lib/content";
+import { getCaseStudies, getTestimonials } from "@/lib/content";
 
 export async function Proof() {
-  const [partners, caseStudies, testimonials] = await Promise.all([
-    getPartners(),
+  const [caseStudies, testimonials] = await Promise.all([
     getCaseStudies(3),
     getTestimonials(1),
   ]);
-
-  const hasContent = partners.length > 0 || caseStudies.length > 0;
 
   return (
     <section className="border-b border-border bg-surface py-24">
@@ -21,16 +18,6 @@ export async function Proof() {
             Deployed, not just proposed.
           </h2>
         </Reveal>
-
-        {partners.length > 0 && (
-          <Reveal delay={0.1} className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-4 opacity-80">
-            {partners.map((p) => (
-              <span key={p.id} className="font-mono text-sm uppercase tracking-wider text-muted">
-                {p.name}
-              </span>
-            ))}
-          </Reveal>
-        )}
 
         {caseStudies.length > 0 ? (
           <RevealGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -50,18 +37,16 @@ export async function Proof() {
             ))}
           </RevealGroup>
         ) : (
-          !hasContent && (
-            <RevealGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {PLACEHOLDER_PROOF.map((p) => (
-                <RevealItem key={p.title}>
-                  <SpotlightCard className="h-full rounded-lg border border-dashed border-border p-6">
-                    <div className="text-sm font-medium text-foreground">{p.title}</div>
-                    <p className="mt-2 text-sm text-muted">{p.desc}</p>
-                  </SpotlightCard>
-                </RevealItem>
-              ))}
-            </RevealGroup>
-          )
+          <RevealGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {PLACEHOLDER_PROOF.map((p) => (
+              <RevealItem key={p.title}>
+                <SpotlightCard className="h-full rounded-lg border border-dashed border-border p-6">
+                  <div className="text-sm font-medium text-foreground">{p.title}</div>
+                  <p className="mt-2 text-sm text-muted">{p.desc}</p>
+                </SpotlightCard>
+              </RevealItem>
+            ))}
+          </RevealGroup>
         )}
 
         {testimonials[0] && (
