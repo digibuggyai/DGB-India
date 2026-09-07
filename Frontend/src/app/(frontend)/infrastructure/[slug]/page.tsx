@@ -77,9 +77,6 @@ export default async function InfrastructureDetailPage({
             {item.name}
           </h1>
           {item.summary && <p className="mt-4 max-w-xl text-muted">{item.summary}</p>}
-          <div className="mt-8">
-            <ButtonLink href="/contact">Talk to an Expert</ButtonLink>
-          </div>
         </div>
       </section>
 

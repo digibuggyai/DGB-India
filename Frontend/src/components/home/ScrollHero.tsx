@@ -203,6 +203,7 @@ export function ScrollHero() {
             <br />
             <span className="text-[#eef1f3]">Our Infrastructure.</span>
           </h1>
+          <div className="mt-10" aria-hidden />
         </div>
       </section>
 

@@ -11,7 +11,7 @@ const STEPS = [
 
 export function HowWeWork() {
   return (
-    <section className="border-b border-border bg-ink-800 py-24">
+    <section id="how-we-work" className="border-b border-border bg-ink-800 py-24">
       <div className="container-page">
         <Reveal>
           <Eyebrow>How We Work</Eyebrow>

@@ -65,9 +65,9 @@ export function HeaderClient({
       }`}
     >
 
-      <div className="container-page flex h-18 items-center justify-between py-4">
-        <Link href="/" className="font-display flex items-center gap-2.5 text-lg font-semibold tracking-tight" onClick={close}>
-          <Logo className="h-7 w-7 text-accent" />
+      <div className="container-page flex h-14 items-center justify-between py-2">
+        <Link href="/" className="font-display flex items-center gap-2.5 text-base font-semibold tracking-tight" onClick={close}>
+          <Logo className="h-6 w-6 text-accent" />
           {siteName}
         </Link>
 
@@ -111,7 +111,7 @@ export function HeaderClient({
             </div>
           </MenuTrigger>
 
-          <NavLink href="/how-we-work">How We Work</NavLink>
+          <NavLink href="/#how-we-work">How We Work</NavLink>
           <NavLink href="/about">About Us</NavLink>
 
           <MenuTrigger label="Resources" name="resources" openMenu={openMenu} setOpenMenu={setOpenMenu}>
@@ -171,7 +171,7 @@ export function HeaderClient({
               </Link>
             ))}
           </MobileGroup>
-          <MobileSection title="How We Work" href="/how-we-work" onNavigate={() => setMobileOpen(false)} />
+          <MobileSection title="How We Work" href="/#how-we-work" onNavigate={() => setMobileOpen(false)} />
           <MobileSection title="About Us" href="/about" onNavigate={() => setMobileOpen(false)} />
           <MobileGroup title="Resources" onNavigate={() => setMobileOpen(false)}>
             <Link href="/resources/blog" className="block py-1.5 text-sm text-muted">Blogs</Link>
