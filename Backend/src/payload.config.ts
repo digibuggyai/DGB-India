@@ -1,4 +1,4 @@
-import { sqliteAdapter } from "@payloadcms/db-sqlite";
+import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
 import path from "path";
 import { buildConfig } from "payload";
@@ -60,13 +60,8 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),
   },
-  // Dev default is SQLite (zero setup). Swap to @payloadcms/db-postgres +
-  // postgresAdapter({ pool: { connectionString: process.env.DATABASE_URI } })
-  // for production — see README "Going to production".
-  db: sqliteAdapter({
-    client: {
-      url: process.env.DATABASE_URI || "file:./dgb-enterprise.db",
-    },
+  db: postgresAdapter({
+    pool: { connectionString: process.env.DATABASE_URI },
   }),
   sharp,
   // Frontend is a separate app/origin now — it reads this API over HTTP
