@@ -62,6 +62,11 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI },
+    // No migration files exist yet — auto-sync the schema on boot instead.
+    // Fine while there's no real production data; switch to proper
+    // migrations (payload migrate:create / migrate) once the schema
+    // stabilizes and this DB holds real leads/content.
+    push: true,
   }),
   sharp,
   // Frontend is a separate app/origin now — it reads this API over HTTP
