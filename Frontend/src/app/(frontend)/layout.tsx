@@ -26,14 +26,14 @@ const archivo = Archivo({
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
-  const title = settings?.defaultSeo?.title || `${settings?.siteName || "Digibuggy Enterprise"} — Your Workload. Our Infrastructure.`;
+  const title = settings?.siteName || "DGB India Enterprise";
   const description =
     settings?.defaultSeo?.description ||
-    "Digibuggy Enterprise designs, engineers and supports the compute, storage, networking and data-protection infrastructure behind demanding enterprise workloads.";
+    "DGB India Enterprise designs, engineers and supports the compute, storage, networking and data-protection infrastructure behind demanding enterprise workloads.";
   return {
     title: {
       default: title,
-      template: `%s — ${settings?.siteName || "Digibuggy Enterprise"}`,
+      template: `%s — ${settings?.siteName || "DGB India Enterprise"}`,
     },
     description,
     metadataBase: new URL(process.env.NEXT_PUBLIC_SERVER_URL || "http://localhost:3000"),
@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: settings?.siteName || "Digibuggy Enterprise",
+    name: settings?.siteName || "DGB India Enterprise",
     alternateName: "DGB India",
     url: base,
     slogan: settings?.tagline || "Your Workload. Our Infrastructure.",

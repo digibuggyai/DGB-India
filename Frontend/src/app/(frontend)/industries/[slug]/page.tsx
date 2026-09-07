@@ -295,7 +295,7 @@ export default async function IndustryDetailPage({
       {/* Final CTA */}
       <section className="py-20">
         <div className="container-page">
-          <div className="flex flex-col items-start gap-8 rounded-2xl bg-accent px-8 py-14 sm:px-14 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col items-start gap-8 rounded-2xl bg-accent px-5 py-10 sm:px-8 sm:py-14 lg:flex-row lg:items-center lg:justify-between lg:px-14">
             <div>
               <h2 className="font-display max-w-xl text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                 Have a {industry.name} workload?

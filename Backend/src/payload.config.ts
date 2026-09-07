@@ -36,7 +36,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
     meta: {
-      titleSuffix: " — Digibuggy Enterprise CMS",
+      titleSuffix: " — DGB India Enterprise CMS",
     },
   },
   collections: [

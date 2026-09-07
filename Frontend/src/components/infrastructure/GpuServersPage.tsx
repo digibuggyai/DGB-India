@@ -40,39 +40,39 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
     <>
       {/* Hero */}
       <section
-        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-28"
+        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-28"
         style={
           heroImageUrl
             ? { backgroundImage: `linear-gradient(90deg, #202326f2 0%, #202326cc 55%, #20232655 100%), url(${heroImageUrl})` }
             : undefined
         }
       >
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
               Infrastructure &middot; GPU Servers
             </span>
-            <h1 className="font-display mt-4 max-w-xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[58px]">
+            <h1 className="font-display mt-4 max-w-xl text-3xl font-bold tracking-tight text-white sm:text-5xl lg:text-[58px]">
               Accelerate What Matters.
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-[#cbd0d4]">
+            <p className="mt-5 max-w-lg text-base text-[#cbd0d4] sm:text-lg">
               GPU-accelerated servers configured around the workloads that need the most compute
               &mdash; from AI to rendering to simulation.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[320px] border-[#43484d] bg-[#2e3236]" />
+          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
 
       {/* Built for Heavy Workloads */}
-      <section className="border-b border-[#e0e4e7] py-24">
+      <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page">
-          <ImagePanel url={heroImageUrl} className="h-[300px]" />
-          <div className="mt-12 grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <h2 className="font-display max-w-sm text-[32px] font-bold tracking-tight">
+          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
+          <div className="mt-8 grid gap-8 sm:mt-12 sm:gap-12 lg:grid-cols-2 lg:gap-16">
+            <h2 className="font-display max-w-sm text-2xl font-bold tracking-tight sm:text-[32px]">
               Built for Heavy Workloads.
             </h2>
-            <div className="border-l-2 border-accent pl-6">
+            <div className="border-l-2 border-accent pl-4 sm:pl-6">
               <p className="text-[#5c6166]">
                 GPU requirements vary widely depending on the workload &mdash; from training and
                 inference to rendering and simulation.
@@ -87,16 +87,16 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Where GPU Servers Make a Difference */}
-      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-24">
+      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[28px] font-bold text-[#2e3236]">
+          <h2 className="font-display text-2xl font-bold text-[#2e3236] sm:text-[28px]">
             Where GPU Servers Make a Difference
           </h2>
-          <div className="mt-10 space-y-5">
+          <div className="mt-6 space-y-5 sm:mt-10">
             {ROWS.map((r) => (
               <div
                 key={r.n}
-                className="grid gap-6 rounded-lg border border-[#d9bcc1] bg-white/60 p-6 sm:grid-cols-[120px_60px_1fr] sm:items-center"
+                className="grid gap-4 rounded-lg border border-[#d9bcc1] bg-white/60 p-6 sm:grid-cols-[120px_60px_1fr] sm:items-center sm:gap-6"
               >
                 <ImagePanel url={heroImageUrl} className="h-[90px] border-white bg-white" />
                 <div className="font-display text-2xl font-bold text-[#b06f79]">{r.n}</div>
@@ -111,10 +111,10 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* The Right GPU for the Right Work */}
-      <section className="bg-[#202326] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section className="bg-[#202326] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight text-white">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[32px]">
               The Right GPU for the Right Work.
             </h2>
             <p className="mt-5 text-[#a9b0b6]">
@@ -129,7 +129,7 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your GPU Workload &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[320px] border-[#43484d] bg-[#2e3236]" />
+          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

@@ -30,7 +30,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
     <>
       {/* Hero */}
       <section
-        className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-28 sm:py-36"
+        className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-16 sm:py-24 lg:py-28 xl:py-36"
         style={{
           backgroundImage: heroImageUrl
             ? `linear-gradient(90deg, #202326f2 0%, #202326cc 46%, #20232655 100%), url(${heroImageUrl})`
@@ -51,21 +51,21 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
       </section>
 
       {/* From Concept to Completion */}
-      <section className="border-b border-border bg-background py-24">
-        <div className="container-page grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
-          <h2 className="font-display max-w-sm text-[34px] font-bold tracking-tight">
+      <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+          <h2 className="font-display max-w-sm text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[34px]">
             From Concept to Completion
           </h2>
           <div className="max-w-2xl space-y-5">
-            <p className="text-lg text-[#5c6166]">
+            <p className="text-base text-[#5c6166] sm:text-lg">
               From the first concept to the final visualization, architecture and engineering
               workflows demand precision, speed and reliability.
             </p>
-            <p className="text-lg text-[#5c6166]">
+            <p className="text-base text-[#5c6166] sm:text-lg">
               As projects become more detailed and complex, the technology behind your work needs
               to keep pace.
             </p>
-            <p className="text-lg font-medium text-ink-800">
+            <p className="text-base font-medium text-ink-800 sm:text-lg">
               DGB India helps architecture and engineering teams work confidently across demanding
               digital workflows.
             </p>
@@ -74,12 +74,12 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
       </section>
 
       {/* Powering the Design Process */}
-      <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-24">
+      <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[32px] font-bold tracking-tight">
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
             Powering the Design Process
           </h2>
-          <div className="mt-10 grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))" }}>
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(210px,1fr))]">
             {DESIGN_CARDS.map((c) => (
               <div
                 key={c.title}
@@ -98,10 +98,10 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
       </section>
 
       {/* Built for Your Applications */}
-      <section className="border-b border-border bg-background py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:gap-16">
+      <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
               Built for Your Applications
             </h2>
             <p className="mt-5 max-w-lg text-[#5c6166]">
@@ -128,11 +128,11 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
       </section>
 
       {/* Designed for Every Stage */}
-      <section className="bg-ink-800 py-24">
+      <section className="bg-ink-800 py-14 sm:py-18 lg:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[26px] font-bold text-white">Designed for Every Stage</h2>
-          <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:items-center">
-            <div className="h-[320px] rounded-lg border border-[#4a4f54] bg-[#2e3236]" />
+          <h2 className="font-display text-xl font-bold text-white sm:text-2xl lg:text-[26px]">Designed for Every Stage</h2>
+          <div className="mt-8 grid grid-cols-1 gap-10 sm:mt-10 lg:grid-cols-2 lg:items-center">
+            <div className="hidden h-[220px] rounded-lg border border-[#4a4f54] bg-[#2e3236] sm:block sm:h-[260px] lg:h-[320px]" />
             <DeckStage cards={STAGES} />
           </div>
         </div>
@@ -140,7 +140,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
 
       {/* When Your Projects Get Complex */}
       <section
-        className="border-b border-border bg-background bg-cover bg-center py-24"
+        className="border-b border-border bg-background bg-cover bg-center py-14 sm:py-18 lg:py-24"
         style={
           heroImageUrl
             ? {
@@ -150,30 +150,30 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         }
       >
         <div className="container-page max-w-3xl">
-          <h2 className="font-display text-[38px] font-bold tracking-tight">
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px] lg:text-[38px]">
             When Your Projects Get Complex
           </h2>
-          <p className="font-display mt-4 text-[22px] font-semibold text-accent">
+          <p className="font-display mt-4 text-lg font-semibold text-accent sm:text-xl lg:text-[22px]">
             More detail. Larger models. More demanding workflows.
           </p>
-          <p className="mt-4 text-lg text-[#5c6166]">
+          <p className="mt-4 text-base text-[#5c6166] sm:text-lg">
             Modern architecture and engineering teams need technology that can handle increasing
             project complexity without getting in the way of creativity or productivity.
           </p>
-          <p className="font-display mt-10 border-t border-border pt-8 text-2xl font-bold">
+          <p className="font-display mt-8 border-t border-border pt-6 text-xl font-bold sm:mt-10 sm:pt-8 sm:text-2xl">
             Complexity shouldn&rsquo;t slow down your ideas.
           </p>
         </div>
       </section>
 
       {/* Built for Architects. Engineered for Performance. */}
-      <section className="bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+      <section className="bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>
-            <h2 className="font-display text-[36px] font-bold tracking-tight text-[#2e3236]">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-[#2e3236] sm:text-[30px] lg:text-[36px]">
               Built for Architects. Engineered for Performance.
             </h2>
-            <p className="mt-5 max-w-lg text-lg text-[#5c4448]">
+            <p className="mt-5 max-w-lg text-base text-[#5c4448] sm:text-lg">
               Whether you&rsquo;re designing a building, developing infrastructure or creating the
               next generation of engineered spaces, DGB India helps you work without technological
               limitations.
@@ -182,12 +182,12 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
               <ButtonLink href="/about#contact">Tell Us About Your Project &rarr;</ButtonLink>
             </div>
           </div>
-          <div className="border-l-[3px] border-[#d9bcc1] pl-8">
-            <p className="text-[17px] text-[#5c4448]">
+          <div className="border-l-[3px] border-[#d9bcc1] pl-6 sm:pl-8">
+            <p className="text-base text-[#5c4448] sm:text-[17px]">
               As projects become more detailed and complex, the technology behind your work needs
               to keep pace.
             </p>
-            <p className="mt-4 text-[17px] font-bold text-ink-800">
+            <p className="mt-4 text-base font-bold text-ink-800 sm:text-[17px]">
               DGB India helps architecture and engineering teams work confidently across demanding
               digital workflows.
             </p>

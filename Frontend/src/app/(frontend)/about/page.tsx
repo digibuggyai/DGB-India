@@ -6,7 +6,7 @@ import { getIndustries, getInfrastructure, getPartners, getSiteSettings } from "
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Digibuggy Enterprise (DGB India) designs, engineers and supports enterprise infrastructure for high-performance computing workloads. Get in touch to discuss your workload.",
+    "DGB India Enterprise designs, engineers and supports enterprise infrastructure for high-performance computing workloads. Get in touch to discuss your workload.",
 };
 
 export default async function AboutPage() {
@@ -26,7 +26,7 @@ export default async function AboutPage() {
             An infrastructure partner for demanding workloads.
           </h1>
           <p className="mt-4 max-w-2xl text-muted">
-            Digibuggy Enterprise (DGB India) exists because generic hardware doesn&rsquo;t serve
+            DGB India Enterprise exists because generic hardware doesn&rsquo;t serve
             specialized work. We design, engineer, deploy and support the compute, storage,
             networking and data-protection infrastructure behind rendering pipelines, ML training
             runs, trading systems, CAD/BIM workflows and broadcast production — built around the

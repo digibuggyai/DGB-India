@@ -38,7 +38,7 @@ export async function WhoWeServe() {
             <RevealItem key={ind.slug}>
               <Link
                 href={`/industries/${ind.slug}`}
-                className="flip-card group block h-[380px] rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="flip-card group block h-[300px] rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[340px] lg:h-[380px]"
               >
                 <div className="flip-card-inner h-full w-full">
                   {/* Front */}

@@ -36,7 +36,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
     <>
       {/* Hero — centered */}
       <section
-        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-32"
+        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-32"
         style={
           heroImageUrl
             ? { backgroundImage: `linear-gradient(180deg, #202326d9 0%, #202326f7 100%), url(${heroImageUrl})` }
@@ -47,10 +47,10 @@ export function ServersPage({ item }: { item: Infrastructure }) {
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
             Infrastructure &middot; Servers
           </span>
-          <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          <h1 className="font-display mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">
             The Foundation Behind Your Operations.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-[#cbd0d4]">
+          <p className="mx-auto mt-5 max-w-xl text-base text-[#cbd0d4] sm:text-lg">
             Server infrastructure configured around how your business actually operates &mdash;
             not a generic rack of hardware.
           </p>
@@ -58,11 +58,11 @@ export function ServersPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Built for Your Environment */}
-      <section className="border-b border-[#e0e4e7] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[320px]" />
+      <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight">Built for Your Environment.</h2>
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">Built for Your Environment.</h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">
               Every business runs differently.
             </p>
@@ -75,10 +75,10 @@ export function ServersPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Where Servers Fit */}
-      <section className="border-b border-[#e5e8ea] bg-[#f4f5f6] py-24">
+      <section className="border-b border-[#e5e8ea] bg-[#f4f5f6] py-12 sm:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[28px] font-bold">Where Servers Fit</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="font-display text-2xl font-bold sm:text-[28px]">Where Servers Fit</h2>
+          <div className="mt-6 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {CARDS.map((c) => (
               <div key={c.title} className="overflow-hidden rounded-lg border border-[#e0e4e7] bg-white">
                 <ImagePanel url={heroImageUrl} className="h-[150px] rounded-none border-0" />
@@ -94,10 +94,10 @@ export function ServersPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Built to Keep Business Moving */}
-      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight text-[#2e3236]">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-[#2e3236] sm:text-[32px]">
               Built to Keep Business Moving.
             </h2>
             <p className="mt-5 text-[#5c4448]">
@@ -112,7 +112,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your Server Requirements &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[320px] border-[#d9bcc1] bg-white/40" />
+          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

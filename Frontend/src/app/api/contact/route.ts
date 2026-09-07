@@ -88,7 +88,7 @@ async function notifyByEmail(lead: { name: string; company: string; email: strin
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      from: "Digibuggy Enterprise <leads@digibuggy.com>",
+      from: "DGB Enterprise <leads@digibuggy.com>",
       to,
       subject: `New requirement: ${lead.company}`,
       text: `${lead.name} (${lead.company}, ${lead.email}) submitted a new requirement. View it in the CMS under Leads.`,

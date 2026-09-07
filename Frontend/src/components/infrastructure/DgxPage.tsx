@@ -40,7 +40,7 @@ export function DgxPage({ item }: { item: Infrastructure }) {
     <>
       {/* Hero */}
       <section
-        className="relative overflow-hidden bg-[#202326] bg-cover bg-center py-28 sm:py-36"
+        className="relative overflow-hidden bg-[#202326] bg-cover bg-center py-16 sm:py-28 lg:py-36"
         style={{
           backgroundImage: heroImageUrl
             ? `linear-gradient(180deg, #202326d9 0%, #202326b3 40%, #202326f7 100%), url(${heroImageUrl})`
@@ -52,12 +52,12 @@ export function DgxPage({ item }: { item: Infrastructure }) {
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
               Infrastructure &middot; DGX
             </span>
-            <h1 className="font-display mt-4 max-w-2xl text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-[60px]">
+            <h1 className="font-display mt-4 max-w-2xl text-3xl font-bold tracking-tight text-white sm:text-5xl lg:text-[60px]">
               Built Around the Workload.
             </h1>
           </div>
-          <div className="border-l-2 border-accent pl-6">
-            <p className="text-[17px] text-[#cbd0d4]">
+          <div className="border-l-2 border-accent pl-4 sm:pl-6">
+            <p className="text-base text-[#cbd0d4] sm:text-[17px]">
               DGS systems are designed for demanding professional and computational workloads
               configured around how your team actually works.
             </p>
@@ -66,11 +66,11 @@ export function DgxPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* More Than a Standard System */}
-      <section className="border-b border-[#e0e4e7] py-24">
-        <div className="container-page grid gap-12 overflow-hidden rounded-lg border border-[#e0e4e7] lg:grid-cols-2 lg:gap-0">
-          <ImagePanel url={heroImageUrl} className="min-h-[320px] rounded-none border-0" />
-          <div className="bg-white p-10 sm:p-12">
-            <h2 className="font-display text-[32px] font-bold tracking-tight">
+      <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
+        <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#e0e4e7] sm:gap-12 lg:grid-cols-2 lg:gap-0">
+          <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
+          <div className="bg-white p-6 sm:p-10 lg:p-12">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">
               More Than a Standard System.
             </h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">
@@ -86,19 +86,19 @@ export function DgxPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Our Work Around DGS */}
-      <section className="bg-[#202326] py-24">
+      <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page">
-          <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
-            <h2 className="font-display max-w-sm text-[32px] font-bold tracking-tight text-white">
+          <div className="grid gap-6 sm:gap-10 lg:grid-cols-2 lg:gap-16">
+            <h2 className="font-display max-w-sm text-2xl font-bold tracking-tight text-white sm:text-[32px]">
               Our Work Around DGS
             </h2>
-            <p className="max-w-xl text-lg text-[#a9b0b6]">
+            <p className="max-w-xl text-base text-[#a9b0b6] sm:text-lg">
               DGS solutions are designed around demanding environments across architecture,
               engineering, VFX, AI, media and other performance-intensive workflows.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="mt-12 h-[320px] rounded-lg border-[#43484d] bg-[#2e3236]" />
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <ImagePanel url={heroImageUrl} className="mt-8 h-[200px] rounded-lg border-[#43484d] bg-[#2e3236] sm:mt-12 sm:h-[260px] lg:h-[320px]" />
+          <div className="mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {WORK_CARDS.map((c) => (
               <div key={c.n} className="rounded-lg border border-[#43484d] bg-[#2e3236] p-6">
                 <div className="font-display text-sm font-semibold text-[#8a9095]">{c.n}</div>
@@ -112,11 +112,11 @@ export function DgxPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* From Requirement to Ready-to-Work */}
-      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[320px] border-[#d9bcc1] bg-white/40" />
+      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[260px] lg:h-[320px]" />
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight text-[#2e3236]">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-[#2e3236] sm:text-[32px]">
               From Requirement to Ready-to-Work.
             </h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">

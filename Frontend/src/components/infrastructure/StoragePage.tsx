@@ -39,17 +39,17 @@ export function StoragePage({ item }: { item: Infrastructure }) {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[340px] border-[#d9bcc1] bg-white/40" />
+      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
+          <ImagePanel url={heroImageUrl} className="h-[220px] border-[#d9bcc1] bg-white/40 sm:h-[280px] lg:h-[340px]" />
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
               Infrastructure &middot; Storage
             </span>
-            <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-[#2e3236] sm:text-5xl lg:text-[54px]">
+            <h1 className="font-display mt-4 text-3xl font-bold tracking-tight text-[#2e3236] sm:text-5xl lg:text-[54px]">
               Storage for the Data You Depend On.
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-[#5c4448]">
+            <p className="mt-5 max-w-lg text-base text-[#5c4448] sm:text-lg">
               Storage infrastructure configured around your data types, growth rate and
               performance needs &mdash; not a fixed capacity figure.
             </p>
@@ -58,9 +58,9 @@ export function StoragePage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* More Than Just Capacity */}
-      <section className="border-b border-[#e0e4e7] py-24">
+      <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page mx-auto max-w-2xl text-center">
-          <h2 className="font-display text-[32px] font-bold tracking-tight">More Than Just Capacity.</h2>
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">More Than Just Capacity.</h2>
           <p className="mt-5 text-[#5c6166]">
             Storage isn&rsquo;t just about how much you can hold &mdash; it&rsquo;s about how fast
             you can access it, how reliably it&rsquo;s protected, and how well it fits your
@@ -74,18 +74,18 @@ export function StoragePage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Where Storage Matters */}
-      <section className="bg-[#202326] py-24">
+      <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[28px] font-bold text-white">Where Storage Matters</h2>
-          <div className="mt-12 space-y-16">
+          <h2 className="font-display text-2xl font-bold text-white sm:text-[28px]">Where Storage Matters</h2>
+          <div className="mt-8 space-y-10 sm:mt-12 sm:space-y-16">
             {ROWS.map((r, i) => (
               <div
                 key={r.n}
-                className={`grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-16 ${
+                className={`grid gap-6 sm:gap-10 lg:grid-cols-2 lg:items-center lg:gap-16 ${
                   i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""
                 }`}
               >
-                <ImagePanel url={heroImageUrl} className="h-[260px] border-[#43484d] bg-[#2e3236]" />
+                <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
                 <div>
                   <div className="font-display text-2xl font-bold text-[#8a9095]">{r.n}</div>
                   <div className="mt-3 h-0.5 w-8 bg-accent" />
@@ -99,10 +99,10 @@ export function StoragePage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Plan for the Data You Have */}
-      <section className="border-t border-[#e0e4e7] bg-white py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+      <section className="border-t border-[#e0e4e7] bg-white py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
-            <h2 className="font-display text-[30px] font-bold tracking-tight">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px]">
               Plan for the Data You Have. Prepare for the Data You&rsquo;ll Create.
             </h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">
@@ -116,7 +116,7 @@ export function StoragePage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your Storage Requirements &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[320px]" />
+          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

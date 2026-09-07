@@ -40,7 +40,7 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
     <>
       {/* Hero — centered, narrow */}
       <section
-        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-32"
+        className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-32"
         style={
           heroImageUrl
             ? { backgroundImage: `linear-gradient(180deg, #202326d9 0%, #202326f7 100%), url(${heroImageUrl})` }
@@ -51,10 +51,10 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
             Infrastructure &middot; Networking
           </span>
-          <h1 className="font-display mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+          <h1 className="font-display mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">
             Connect Everything. Keep Work Moving.
           </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-[#cbd0d4]">
+          <p className="mx-auto mt-5 max-w-xl text-base text-[#cbd0d4] sm:text-lg">
             Networking infrastructure configured around your users, applications and traffic
             &mdash; not a generic switch layout.
           </p>
@@ -62,11 +62,11 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Built Around Your Environment */}
-      <section className="border-b border-[#e0e4e7] bg-white py-24">
+      <section className="border-b border-[#e0e4e7] bg-white py-12 sm:py-24">
         <div className="container-page">
-          <ImagePanel url={heroImageUrl} className="h-[300px]" />
-          <div className="mt-12 grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
-            <h2 className="font-display text-[30px] font-bold tracking-tight">
+          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
+          <div className="mt-8 grid gap-6 sm:mt-12 sm:gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-16">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px]">
               Built Around Your Environment.
             </h2>
             <div>
@@ -83,13 +83,13 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Where Networking Matters */}
-      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
+      <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <div>
-            <h2 className="font-display text-[28px] font-bold text-[#2e3236]">
+            <h2 className="font-display text-2xl font-bold text-[#2e3236] sm:text-[28px]">
               Where Networking Matters
             </h2>
-            <ImagePanel url={heroImageUrl} className="mt-6 h-[300px] border-[#d9bcc1] bg-white/40" />
+            <ImagePanel url={heroImageUrl} className="mt-6 h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[250px] lg:h-[300px]" />
           </div>
           <div className="space-y-6">
             {ROWS.map((r) => (
@@ -106,10 +106,10 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Designed for How You Work */}
-      <section className="border-t border-[#e0e4e7] bg-white py-24">
-        <div className="container-page grid gap-12 overflow-hidden rounded-lg border border-[#e0e4e7] lg:grid-cols-2 lg:gap-0">
-          <div className="p-10 sm:p-12">
-            <h2 className="font-display text-[30px] font-bold tracking-tight">
+      <section className="border-t border-[#e0e4e7] bg-white py-12 sm:py-24">
+        <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#e0e4e7] sm:gap-12 lg:grid-cols-2 lg:gap-0">
+          <div className="p-6 sm:p-10 lg:p-12">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px]">
               Designed for How You Work.
             </h2>
             <p className="mt-4 text-[#5c6166]">
@@ -124,7 +124,7 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your Networking Requirements &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="min-h-[280px] rounded-none border-0" />
+          <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[240px] lg:h-auto lg:min-h-[280px]" />
         </div>
       </section>
     </>

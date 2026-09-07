@@ -3,11 +3,11 @@ import { Reveal } from "@/components/ui/Reveal";
 
 export function FinalCTA() {
   return (
-    <section className="bg-accent py-24">
+    <section className="bg-accent py-16 sm:py-24">
       <div className="container-page">
         <Reveal>
-          <div className="grid items-center gap-10 lg:grid-cols-[1.3fr_0.7fr]">
-            <h2 className="font-display text-4xl font-bold leading-[1.06] tracking-tight text-white sm:text-5xl">
+          <div className="grid items-center gap-6 sm:gap-10 lg:grid-cols-[1.3fr_0.7fr]">
+            <h2 className="font-display text-3xl font-bold leading-[1.1] tracking-tight text-white sm:text-4xl lg:text-5xl">
               Have a Complex Workload?
               <br />
               Let&rsquo;s Build the Right Solution.

@@ -33,7 +33,7 @@ export async function Proof() {
         )}
 
         {caseStudies.length > 0 ? (
-          <RevealGroup className="mt-12 grid gap-6 lg:grid-cols-3">
+          <RevealGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {caseStudies.map((cs) => (
               <RevealItem key={cs.id}>
                 <SpotlightCard className="h-full rounded-lg border border-border bg-background p-6">
@@ -51,7 +51,7 @@ export async function Proof() {
           </RevealGroup>
         ) : (
           !hasContent && (
-            <RevealGroup className="mt-12 grid gap-6 lg:grid-cols-3">
+            <RevealGroup className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {PLACEHOLDER_PROOF.map((p) => (
                 <RevealItem key={p.title}>
                   <SpotlightCard className="h-full rounded-lg border border-dashed border-border p-6">

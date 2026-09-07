@@ -5,7 +5,7 @@ export const SiteSettings: GlobalConfig = {
   admin: { group: "Site" },
   access: { read: () => true },
   fields: [
-    { name: "siteName", type: "text", defaultValue: "Digibuggy Enterprise" },
+    { name: "siteName", type: "text", defaultValue: "DGB India Enterprise" },
     { name: "tagline", type: "text", defaultValue: "Your Workload. Our Infrastructure." },
     { name: "logo", type: "upload", relationTo: "media" },
     { name: "logoDark", type: "upload", relationTo: "media" },

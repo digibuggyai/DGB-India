@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/Button";
 export const metadata: Metadata = {
   title: "How We Work",
   description:
-    "A consultative engineering process: Understand, Design, Engineer, Deploy, Support — how Digibuggy Enterprise turns a workload into infrastructure.",
+    "A consultative engineering process: Understand, Design, Engineer, Deploy, Support — how DGB India Enterprise turns a workload into infrastructure.",
 };
 
 const STEPS = [

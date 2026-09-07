@@ -193,12 +193,12 @@ export function ScrollHero() {
 
         {canAnimate && <IsometricCanvas />}
 
-        <div className="container-page relative mx-auto max-w-[1240px] py-[90px] text-center sm:py-[110px] lg:py-[130px] lg:pb-[118px]">
-          <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
+        <div className="container-page relative mx-auto max-w-[1240px] py-16 text-center sm:py-[90px] lg:py-[130px] lg:pb-[118px]">
+          <span className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted sm:text-xs">
             <span className="h-[3px] w-10 bg-accent" />
             Enterprise Infrastructure
           </span>
-          <h1 className="font-display mx-auto mt-8 max-w-4xl text-4xl font-bold leading-[1.04] tracking-[-0.02em] sm:text-5xl lg:text-[68px]">
+          <h1 className="font-display mx-auto mt-8 max-w-4xl text-[34px] font-bold leading-[1.08] tracking-[-0.02em] sm:text-5xl lg:text-[68px] lg:leading-[1.04]">
             <span className="text-white">Your Workload.</span>
             <br />
             <span className="text-[#eef1f3]">Our Infrastructure.</span>
@@ -208,12 +208,12 @@ export function ScrollHero() {
       </section>
 
       <div className="border-b border-[#d9bcc1] bg-[#ecdcdf]">
-        <div className="container-page flex flex-wrap items-center justify-center gap-x-14 gap-y-3 py-5">
+        <div className="container-page flex flex-wrap items-center justify-center gap-x-6 gap-y-3 py-5 sm:gap-x-10 lg:gap-x-14">
           {TRUST_ITEMS.map((item) => (
             <Link
               key={item.slug}
               href={`/industries/${item.slug}`}
-              className="text-[17px] font-medium tracking-wide text-[#5c4448] transition-colors hover:text-accent"
+              className="text-sm font-medium tracking-wide text-[#5c4448] transition-colors hover:text-accent sm:text-[17px]"
             >
               {item.label}
             </Link>

@@ -23,30 +23,30 @@ export function NasPage({ item }: { item: Infrastructure }) {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-[#e0e4e7] bg-white py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-16">
+      <section className="border-b border-[#e0e4e7] bg-white py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-16">
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
               Infrastructure &middot; NAS
             </span>
-            <h1 className="font-display mt-4 max-w-xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-[56px]">
+            <h1 className="font-display mt-4 max-w-xl text-3xl font-bold tracking-tight sm:text-5xl lg:text-[56px]">
               Your Data, Where Your Team Needs It.
             </h1>
-            <p className="mt-5 max-w-lg text-lg text-[#5c6166]">
+            <p className="mt-5 max-w-lg text-base text-[#5c6166] sm:text-lg">
               Centralized network storage configured around how your team shares, accesses and
               works with files &mdash; from anywhere on your network.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[360px]" />
+          <ImagePanel url={heroImageUrl} className="h-[220px] sm:h-[300px] lg:h-[360px]" />
         </div>
       </section>
 
       {/* One Place for Your Projects */}
-      <section className="bg-[#202326] py-24">
-        <div className="container-page grid gap-10 lg:grid-cols-[0.42fr_1fr] lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[260px] border-[#43484d] bg-[#2e3236]" />
+      <section className="bg-[#202326] py-12 sm:py-24">
+        <div className="container-page grid gap-8 sm:gap-10 lg:grid-cols-[0.42fr_1fr] lg:items-center lg:gap-16">
+          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight text-white">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[32px]">
               One Place for Your Projects.
             </h2>
             <p className="font-display mt-3 text-lg font-semibold text-[#b06f79]">
@@ -61,14 +61,14 @@ export function NasPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Where NAS Makes a Difference */}
-      <section className="bg-white py-24">
+      <section className="bg-white py-12 sm:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[28px] font-bold">Where NAS Makes a Difference</h2>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="font-display text-2xl font-bold sm:text-[28px]">Where NAS Makes a Difference</h2>
+          <div className="mt-6 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {CARDS.map((c) => (
               <div
                 key={c.title}
-                className="relative h-[280px] overflow-hidden rounded-lg border border-[#e0e4e7] bg-cover bg-center"
+                className="relative h-[220px] overflow-hidden rounded-lg border border-[#e0e4e7] bg-cover bg-center sm:h-[250px] lg:h-[280px]"
                 style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : { backgroundColor: "#eef1f3" }}
               >
                 <div
@@ -87,11 +87,11 @@ export function NasPage({ item }: { item: Infrastructure }) {
       </section>
 
       {/* Storage That Grows With Your Work */}
-      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-24">
-        <div className="container-page grid gap-12 overflow-hidden rounded-lg border border-[#d9bcc1] lg:grid-cols-2 lg:gap-0">
-          <ImagePanel url={heroImageUrl} className="min-h-[320px] rounded-none border-0" />
-          <div className="bg-white p-10 sm:p-12">
-            <h2 className="font-display text-[28px] font-bold tracking-tight">
+      <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
+        <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#d9bcc1] sm:gap-12 lg:grid-cols-2 lg:gap-0">
+          <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
+          <div className="bg-white p-6 sm:p-10 lg:p-12">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
               Storage That Grows With Your Work.
             </h2>
             <p className="mt-4 text-[#5c6166]">

@@ -23,9 +23,9 @@ export function WhatWeSolve() {
               {CELLS.map((c) => (
                 <div
                   key={c}
-                  className="flex min-h-[120px] items-center justify-center bg-[#ecdcdf] px-4 text-center"
+                  className="flex min-h-[90px] items-center justify-center bg-[#ecdcdf] px-4 text-center sm:min-h-[100px] lg:min-h-[120px]"
                 >
-                  <span className="font-display text-[22px] font-semibold text-ink-800">{c}</span>
+                  <span className="font-display text-lg font-semibold text-ink-800 sm:text-xl lg:text-[22px]">{c}</span>
                 </div>
               ))}
             </div>

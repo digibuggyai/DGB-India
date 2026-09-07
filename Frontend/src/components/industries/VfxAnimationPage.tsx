@@ -35,7 +35,7 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
       >
         <div className="absolute inset-0 bg-[#202326]/55" />
-        <div className="container-page relative py-20 sm:py-24">
+        <div className="container-page relative py-14 sm:py-20 lg:py-24">
           <div className="flex items-center gap-3">
             <span className="h-px w-8 bg-accent" />
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-ink-muted">
@@ -55,17 +55,17 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* From Imagination to Screen */}
-      <section className="border-b border-border bg-background py-24">
+      <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page mx-auto max-w-[860px] text-center">
-          <h2 className="font-display text-[38px] font-bold tracking-tight">
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px] lg:text-[38px]">
             From Imagination to Screen
           </h2>
-          <p className="mt-6 text-[18.5px] text-[#5c6166]">
+          <p className="mt-6 text-base text-[#5c6166] sm:text-lg lg:text-[18.5px]">
             Visual effects and animation demand more than creativity. Complex scenes, detailed
             assets, simulations and high-resolution output place enormous demands on the
             production workflow.
           </p>
-          <p className="mt-4 text-[18.5px] font-medium text-ink-800">
+          <p className="mt-4 text-base font-medium text-ink-800 sm:text-lg lg:text-[18.5px]">
             DGB India helps VFX and animation teams keep their creative process moving from
             concept to final frame.
           </p>
@@ -73,13 +73,13 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* Powering the Creative Pipeline */}
-      <section className="border-t border-[#e5e8ea] bg-background py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[0.62fr_1.38fr]">
+      <section className="border-t border-[#e5e8ea] bg-background py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[0.62fr_1.38fr] lg:gap-12">
           <div className="lg:sticky lg:top-[108px] lg:self-start">
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-accent">
               The pipeline
             </span>
-            <h2 className="font-display mt-4 text-[32px] font-bold tracking-tight">
+            <h2 className="font-display mt-4 text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
               Powering the Creative Pipeline
             </h2>
           </div>
@@ -87,15 +87,15 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
             {PIPELINE_ROWS.map((row, i) => (
               <div
                 key={row.title}
-                className={`grid grid-cols-[116px_1fr] items-center gap-6 border-t border-[#e5e8ea] py-6 transition-colors hover:bg-[#faf6f7] ${
+                className={`grid grid-cols-[72px_1fr] items-center gap-4 border-t border-[#e5e8ea] py-5 transition-colors hover:bg-[#faf6f7] sm:grid-cols-[116px_1fr] sm:gap-6 sm:py-6 ${
                   i === PIPELINE_ROWS.length - 1 ? "border-b" : ""
                 }`}
               >
-                <div className="h-[116px] w-[116px] shrink-0 rounded-lg bg-[#eef1f3]" />
+                <div className="h-[72px] w-[72px] shrink-0 rounded-lg bg-[#eef1f3] sm:h-[116px] sm:w-[116px]" />
                 <div>
                   <span className="text-xs font-bold text-accent">{String(i + 1).padStart(2, "0")}</span>
-                  <div className="font-display mt-1 text-[22px] font-bold">{row.title}</div>
-                  <p className="mt-1 text-[15.5px] text-[#5c6166]">{row.desc}</p>
+                  <div className="font-display mt-1 text-lg font-bold sm:text-[22px]">{row.title}</div>
+                  <p className="mt-1 text-sm text-[#5c6166] sm:text-[15.5px]">{row.desc}</p>
                 </div>
               </div>
             ))}
@@ -104,25 +104,25 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* Built for Demanding Productions */}
-      <section className="bg-[#202326] py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+      <section className="bg-[#202326] py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
           <div
-            className="h-[340px] rounded-lg bg-[#2e3236] bg-cover bg-center"
+            className="h-[200px] rounded-lg bg-[#2e3236] bg-cover bg-center sm:h-[260px] lg:h-[340px]"
             style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
           />
           <div>
-            <h2 className="font-display text-[34px] font-bold tracking-tight text-white">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[28px] lg:text-[34px]">
               Built for Demanding Productions
             </h2>
-            <p className="mt-5 text-[17.5px] text-[#cbd0d4]">
+            <p className="mt-5 text-base text-[#cbd0d4] sm:text-lg lg:text-[17.5px]">
               Modern VFX pipelines involve increasingly complex scenes, higher resolutions and
               larger assets.
             </p>
-            <p className="mt-4 text-[17.5px] text-[#cbd0d4]">
+            <p className="mt-4 text-base text-[#cbd0d4] sm:text-lg lg:text-[17.5px]">
               Teams need to move quickly between modelling, animation, simulation, rendering and
               compositing without technology becoming a bottleneck.
             </p>
-            <p className="font-display mt-8 border-t border-[#43484d] pt-6 text-[23px] font-bold text-white">
+            <p className="font-display mt-8 border-t border-[#43484d] pt-6 text-lg font-bold text-white sm:text-xl lg:text-[23px]">
               More detail. More frames. More to create.
             </p>
           </div>
@@ -130,22 +130,22 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* Every Frame Matters */}
-      <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-24">
+      <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
         <div className="container-page">
-          <h2 className="font-display text-[32px] font-bold tracking-tight">Every Frame Matters</h2>
-          <div className="mt-10 space-y-4">
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">Every Frame Matters</h2>
+          <div className="mt-8 space-y-4 sm:mt-10">
             {EVERY_FRAME_ROWS.map((row, i) => (
               <div
                 key={row.title}
-                className="grid grid-cols-[96px_1fr] items-center gap-6 border border-[#d9bcc1] bg-white p-7 transition-all hover:translate-x-2 hover:shadow-[-8px_0_0_0_#80202c]"
-                style={{ marginRight: MARGINS[i] }}
+                className="grid grid-cols-[56px_1fr] items-center gap-4 border border-[#d9bcc1] bg-white p-4 transition-all hover:translate-x-2 hover:shadow-[-8px_0_0_0_#80202c] sm:grid-cols-[96px_1fr] sm:gap-6 sm:p-7"
+                style={{ marginRight: `min(${MARGINS[i]}, 4vw)` }}
               >
-                <div className="font-display text-[30px] font-bold text-[#d9bcc1]">
+                <div className="font-display text-xl font-bold text-[#d9bcc1] sm:text-[30px]">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <div>
-                  <div className="font-display text-[22px] font-bold">{row.title}</div>
-                  <p className="mt-1 text-base text-[#4b5055]">{row.desc}</p>
+                  <div className="font-display text-lg font-bold sm:text-[22px]">{row.title}</div>
+                  <p className="mt-1 text-sm text-[#4b5055] sm:text-base">{row.desc}</p>
                 </div>
               </div>
             ))}
@@ -154,11 +154,11 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* Built Around Your Creative Tools */}
-      <section className="border-b border-border bg-background py-24">
-        <div className="container-page grid gap-12 lg:grid-cols-2 lg:items-center">
+      <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
+        <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
           <PuzzleReveal imageUrl={heroImageUrl} />
           <div>
-            <h2 className="font-display text-[32px] font-bold tracking-tight">
+            <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
               Built Around Your Creative Tools
             </h2>
             <p className="mt-5 text-lg text-[#5c6166]">
@@ -184,15 +184,15 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
       </section>
 
       {/* Bring Your Vision to Life */}
-      <section className="bg-[#202326] py-28">
+      <section className="bg-[#202326] py-16 sm:py-20 lg:py-28">
         <div className="container-page mx-auto max-w-[780px] text-center">
-          <h2 className="font-display text-[46px] font-bold tracking-tight text-white">
+          <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[46px]">
             Bring Your Vision to Life.
           </h2>
-          <p className="mt-6 text-[19px] text-[#d6dadd]">
+          <p className="mt-6 text-base text-[#d6dadd] sm:text-lg lg:text-[19px]">
             Your creativity shouldn&rsquo;t be limited by the technology behind it.
           </p>
-          <p className="mt-3 text-[17px] text-ink-muted">
+          <p className="mt-3 text-sm text-ink-muted sm:text-base lg:text-[17px]">
             DGB India helps VFX and animation teams build an environment that keeps pace with
             their creative ambitions.
           </p>

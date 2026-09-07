@@ -23,10 +23,10 @@ export function HowWeWork() {
           </p>
         </Reveal>
 
-        <RevealGroup className="mt-14 grid grid-cols-2 gap-px bg-[#43484d] lg:grid-cols-4">
+        <RevealGroup className="mt-10 grid grid-cols-1 gap-px bg-[#43484d] sm:grid-cols-2 lg:mt-14 lg:grid-cols-4">
           {STEPS.map((step, i) => (
             <RevealItem key={step.n}>
-              <div className="flip-card h-[250px] w-full" style={{ perspective: "1200px" }}>
+              <div className="flip-card h-[200px] w-full sm:h-[230px] lg:h-[250px]" style={{ perspective: "1200px" }}>
                 <div
                   className="flip-card-inner is-autoflip h-full w-full"
                   style={{ animationDelay: `${i * 3}s` }}

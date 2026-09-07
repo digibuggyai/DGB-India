@@ -20,7 +20,7 @@ export function DeckStage({ cards }: { cards: DeckCard[] }) {
 
   return (
     <div
-      className="relative h-[320px] w-full"
+      className="relative h-[230px] w-full sm:h-[270px] lg:h-[320px]"
       onMouseEnter={() => (hoveredRef.current = true)}
       onMouseLeave={() => (hoveredRef.current = false)}
     >
@@ -52,10 +52,9 @@ export function DeckStage({ cards }: { cards: DeckCard[] }) {
         return (
           <div
             key={card.title}
-            className="absolute left-0 top-0 border border-[#e0e4e7] bg-white"
+            className="absolute left-0 top-0 border border-[#e0e4e7] bg-white p-4 sm:p-6 lg:p-[26px_28px_30px]"
             style={{
               width: "82%",
-              padding: "26px 28px 30px",
               transition:
                 "transform 0.7s cubic-bezier(0.32,0,0.24,1), opacity 0.7s ease, box-shadow 0.4s ease",
               ...style,
@@ -64,8 +63,8 @@ export function DeckStage({ cards }: { cards: DeckCard[] }) {
             <span className="text-xs font-semibold tracking-widest text-accent">
               {String(i + 1).padStart(2, "0")}
             </span>
-            <div className="font-display mt-2 text-[22px] font-bold text-ink-800">{card.title}</div>
-            <p className="mt-2 text-[14.5px] font-medium text-[#4b5055]">{card.desc}</p>
+            <div className="font-display mt-2 text-lg font-bold text-ink-800 sm:text-xl lg:text-[22px]">{card.title}</div>
+            <p className="mt-2 text-sm font-medium text-[#4b5055] sm:text-[14.5px]">{card.desc}</p>
           </div>
         );
       })}
