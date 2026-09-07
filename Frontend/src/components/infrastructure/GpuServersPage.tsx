@@ -59,9 +59,6 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
               GPU-accelerated servers configured around the workloads that need the most compute
               &mdash; from AI to rendering to simulation.
             </p>
-            <div className="mt-8">
-              <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-            </div>
           </div>
           <ImagePanel url={heroImageUrl} className="h-[320px] border-[#43484d] bg-[#2e3236]" />
         </div>

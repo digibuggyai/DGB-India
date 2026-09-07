@@ -36,9 +36,6 @@ export function NasPage({ item }: { item: Infrastructure }) {
               Centralized network storage configured around how your team shares, accesses and
               works with files &mdash; from anywhere on your network.
             </p>
-            <div className="mt-8">
-              <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-            </div>
           </div>
           <ImagePanel url={heroImageUrl} className="h-[360px]" />
         </div>

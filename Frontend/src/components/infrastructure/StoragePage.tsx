@@ -53,9 +53,6 @@ export function StoragePage({ item }: { item: Infrastructure }) {
               Storage infrastructure configured around your data types, growth rate and
               performance needs &mdash; not a fixed capacity figure.
             </p>
-            <div className="mt-8">
-              <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-            </div>
           </div>
         </div>
       </section>

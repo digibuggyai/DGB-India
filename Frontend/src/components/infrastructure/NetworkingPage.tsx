@@ -58,9 +58,6 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
             Networking infrastructure configured around your users, applications and traffic
             &mdash; not a generic switch layout.
           </p>
-          <div className="mt-8 flex justify-center">
-            <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-          </div>
         </div>
       </section>
 

@@ -47,9 +47,6 @@ export function WorkstationsPage({ item }: { item: Infrastructure }) {
             Workstations configured around your applications, not a generic spec sheet &mdash; so
             performance matches how you actually work.
           </p>
-          <div className="mt-8">
-            <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-          </div>
           <ImagePanel url={heroImageUrl} className="mt-14 h-[360px] border-white/40" />
         </div>
       </section>

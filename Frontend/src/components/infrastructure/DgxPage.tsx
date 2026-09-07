@@ -61,9 +61,6 @@ export function DgxPage({ item }: { item: Infrastructure }) {
               DGS systems are designed for demanding professional and computational workloads
               configured around how your team actually works.
             </p>
-            <div className="mt-6">
-              <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-            </div>
           </div>
         </div>
       </section>

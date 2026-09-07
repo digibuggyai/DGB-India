@@ -47,9 +47,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
           <p className="mt-5 max-w-xl text-lg text-ink-muted-2">
             Infrastructure built for demanding design, visualization and engineering workflows.
           </p>
-          <div className="mt-9">
-            <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-          </div>
         </div>
       </section>
 

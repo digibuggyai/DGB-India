@@ -54,9 +54,6 @@ export function ServersPage({ item }: { item: Infrastructure }) {
             Server infrastructure configured around how your business actually operates &mdash;
             not a generic rack of hardware.
           </p>
-          <div className="mt-8 flex justify-center">
-            <ButtonLink href="/about#contact">Talk to an Expert &rarr;</ButtonLink>
-          </div>
         </div>
       </section>
 
