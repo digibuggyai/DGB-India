@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { Geist_Mono, Archivo, IBM_Plex_Sans } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { RouteProgress } from "@/components/ui/RouteProgress";
@@ -72,6 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        <Analytics />
       </body>
     </html>
   );
