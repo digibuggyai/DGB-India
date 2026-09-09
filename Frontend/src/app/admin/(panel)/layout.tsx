@@ -16,7 +16,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
       <header className="border-b border-border bg-background">
         <div className="container-page flex flex-wrap items-center justify-between gap-4 py-4">
           <Link href="/admin" className="font-display flex items-center gap-2.5 text-base font-semibold tracking-tight">
-            <Logo className="h-6 w-6 text-accent" />
+            <Logo className="h-7 w-auto" />
             DGB India Enterprise
           </Link>
           <div className="flex items-center gap-4">

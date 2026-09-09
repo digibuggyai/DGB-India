@@ -1,16 +1,20 @@
-export function Logo({ className = "" }: { className?: string }) {
+import Image from "next/image";
+
+// Source asset is 1774x887 (2:1) with a baked-in off-white background — it has
+// no alpha channel, so it only sits cleanly on light surfaces. Size it by
+// height and let the width follow, or it squashes.
+//
+// next/image handles the heavy source: it serves a resized, modern-format
+// version rather than shipping the original 830 KB PNG to every visitor.
+export function Logo({ className = "", priority = false }: { className?: string; priority?: boolean }) {
   return (
-    <svg
-      viewBox="0 0 32 32"
+    <Image
+      src="/dgb_logo.png"
+      alt="DGB India"
+      width={1774}
+      height={887}
+      priority={priority}
       className={className}
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden
-    >
-      <rect x="2" y="6" width="28" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-      <rect x="2" y="19" width="28" height="7" rx="1.5" stroke="currentColor" strokeWidth="2" />
-      <circle cx="7" cy="9.5" r="1.4" fill="var(--accent-2)" />
-      <circle cx="7" cy="22.5" r="1.4" fill="var(--accent-2)" />
-    </svg>
+    />
   );
 }
