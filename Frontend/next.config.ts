@@ -5,6 +5,9 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const apiHost = new URL(apiUrl);
 
 const nextConfig: NextConfig = {
+  // Hide the floating Next.js dev-tools badge in the corner. It never shipped
+  // to production anyway — this just keeps it out of the way while developing.
+  devIndicators: false,
   // A stray package-lock.json in the user's home dir (an ancestor of this
   // OneDrive path) made Next guess the wrong workspace root. Pin it.
   outputFileTracingRoot: path.resolve(__dirname),
