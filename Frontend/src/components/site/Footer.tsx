@@ -13,13 +13,14 @@ export async function Footer() {
     <footer className="bg-ink-900 text-ink-muted">
       <div className="container-page grid gap-10 py-16 lg:grid-cols-5">
         <div className="lg:col-span-2">
-          <Link href="/" className="font-display flex items-center gap-3 text-lg font-semibold text-white">
+          <Link
+            href="/"
+            className="inline-flex items-center rounded bg-white px-3 py-2"
+            aria-label={settings?.siteName || "DGB India Enterprise"}
+          >
             {/* The logo PNG has no alpha channel, so against this dark footer it
                 sits on a light chip rather than showing as a bare white block. */}
-            <span className="inline-flex items-center rounded bg-white px-2 py-1.5">
-              <Logo className="h-6 w-auto" />
-            </span>
-            {settings?.siteName || "DGB India Enterprise"}
+            <Logo className="h-9 w-auto" />
           </Link>
           <p className="mt-4 max-w-sm text-sm text-ink-muted">
             {settings?.tagline || "Your Workload. Our Infrastructure."} We design, engineer and

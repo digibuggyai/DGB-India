@@ -43,11 +43,8 @@ export default function AdminLoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-6 py-12">
       <div className="w-full max-w-sm">
-        <div className="mb-10 flex items-center gap-2.5">
-          <Logo priority className="h-8 w-auto" />
-          <span className="font-display text-lg font-semibold tracking-tight">
-            DGB India Enterprise
-          </span>
+        <div className="mb-10 flex items-center">
+          <Logo priority className="h-11 w-auto" />
         </div>
 
         <div className="rounded-lg border border-border bg-background p-8">

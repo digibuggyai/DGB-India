@@ -66,9 +66,8 @@ export function HeaderClient({
     >
 
       <div className="container-page flex h-14 items-center justify-between py-2">
-        <Link href="/" className="font-display flex min-w-0 shrink items-center gap-2 text-sm font-semibold tracking-tight sm:gap-2.5 sm:text-base" onClick={close}>
-          <Logo priority className="h-7 w-auto shrink-0" />
-          <span className="truncate">{siteName}</span>
+        <Link href="/" className="flex shrink-0 items-center" aria-label={siteName} onClick={close}>
+          <Logo priority className="h-9 w-auto sm:h-10" />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" onMouseLeave={close}>
