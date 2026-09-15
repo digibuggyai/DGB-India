@@ -110,6 +110,7 @@ export function HeaderClient({
             </div>
           </MenuTrigger>
 
+          <NavLink href="/nas-config">NAS Configurator</NavLink>
           <NavLink href="/#how-we-work">How We Work</NavLink>
           <NavLink href="/about">About Us</NavLink>
 
@@ -170,6 +171,7 @@ export function HeaderClient({
               </Link>
             ))}
           </MobileGroup>
+          <MobileSection title="NAS Configurator" href="/nas-config" onNavigate={() => setMobileOpen(false)} />
           <MobileSection title="How We Work" href="/#how-we-work" onNavigate={() => setMobileOpen(false)} />
           <MobileSection title="About Us" href="/about" onNavigate={() => setMobileOpen(false)} />
           <MobileGroup title="Resources" onNavigate={() => setMobileOpen(false)}>
