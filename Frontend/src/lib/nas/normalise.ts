@@ -1,18 +1,16 @@
 import "server-only";
 import type { HddPricing, NasModel, NasPricing, RaidLevel, Upgrade } from "./types";
 
-/* Turns the DigiBuggy pricing service's response into the shape the
- * configurator reads.
+/* Turns the price list read from the CMS into the shape the configurator reads.
  *
- * Every object is rebuilt field by field, never spread from the upstream
- * payload. That is the point of this file. /api/pricing/public already omits the
- * minimum price, but if this proxy were ever pointed at the internal
- * /api/pricing by mistake, a `min` or `minTax` would still not be copied across
- * — there is no line here that reads one.
+ * Every object is rebuilt field by field, never spread from the input. That is
+ * the point of this file. The CMS already withholds minimum prices from public
+ * reads, but if an admin read were ever passed in by mistake, a `min` or
+ * `minPrice` would still not be copied across — there is no line here that
+ * reads one.
  *
- * Unlike the sales tool, there is no built-in fallback price list: that snapshot
- * carries real minimums in client code, and a public page shouldn't quote stale
- * figures anyway. Unusable data is reported as a failure instead. */
+ * There is no built-in fallback price list: a public page shouldn't quote stale
+ * figures. Unusable data is reported as a failure instead. */
 
 const RAID_LEVELS = new Set<string>(["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"]);
 

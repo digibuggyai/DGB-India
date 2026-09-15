@@ -18,10 +18,15 @@ import { FAQs } from "@/collections/FAQs";
 import { Testimonials } from "@/collections/Testimonials";
 import { Partners } from "@/collections/Partners";
 import { Leads } from "@/collections/Leads";
+import { NasModels } from "@/collections/NasModels";
+import { NasDrives } from "@/collections/NasDrives";
+import { NasUpgrades } from "@/collections/NasUpgrades";
+import { NasPriceLogs } from "@/collections/NasPriceLogs";
 
 import { SiteSettings } from "@/globals/SiteSettings";
 import { Navigation } from "@/globals/Navigation";
 import { CTABlocks } from "@/globals/CTABlocks";
+import { NasSettings } from "@/globals/NasSettings";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -53,8 +58,12 @@ export default buildConfig({
     Testimonials,
     Partners,
     Leads,
+    NasModels,
+    NasDrives,
+    NasUpgrades,
+    NasPriceLogs,
   ],
-  globals: [SiteSettings, Navigation, CTABlocks],
+  globals: [SiteSettings, Navigation, CTABlocks, NasSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || "dev-secret-change-me",
   typescript: {
