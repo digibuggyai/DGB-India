@@ -12,6 +12,7 @@
     "generate:importmap": "payload generate:importmap",
     "seed": "tsx src/seed/seed.ts",
     "seed:nas": "tsx src/seed/seed-nas.ts",
+    "seed:nas-drives": "tsx src/seed/seed-nas-drives.ts",
     "postinstall": "patch-package"
   },
   "dependencies": {

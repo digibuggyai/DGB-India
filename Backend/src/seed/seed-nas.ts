@@ -7,6 +7,7 @@
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
+import { DRIVES } from "./nas-drive-prices";
 
 const config = (importedConfig as any)?.default ?? importedConfig;
 
@@ -29,23 +30,6 @@ const MODELS = [
   { model: "DS1825+", brand: "Synology", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "up to 25GbE via PCIe add-in card", quotePrice: 180000, minPrice: 171100 },
   { model: "TS-832PX-4G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: false, network: "10GbE SFP+ ×2 + 2.5GbE ×2", networkUpgrade: "", quotePrice: 108000, minPrice: 103250 },
   { model: "TS-873A-8G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: false, network: "2.5GbE ×2", networkUpgrade: "5GbE/10GbE via PCIe Gen3 card", quotePrice: 130000, minPrice: 123900 },
-];
-
-// [capacity TB, line, quote, with-tax minimum]
-const DRIVES: [number, string, number, number][] = [
-  [2, "Exos", 21000, 20060],
-  [2, "IronWolf", 19000, 18054],
-  [4, "Exos", 27010.2, 25724],
-  [4, "IronWolf", 22000, 21004],
-  [6, "WD Ultrastar", 35000, 28320],
-  [8, "Exos", 45000, 43070],
-  [10, "Exos", 52000, 49560],
-  [10, "IronWolf", 50000, 47200],
-  [10, "WD Ultrastar", 50000, 47790],
-  [12, "Exos", 68000, 64900],
-  [12, "WD Ultrastar", 65000, 62540],
-  [16, "Exos", 82000, 78470],
-  [16, "WD Ultrastar", 82000, 79060],
 ];
 
 const SETTINGS = { installQuote: 5900, installMin: 4130, amcQuotePercent: 10, amcMinPercent: 7 };
