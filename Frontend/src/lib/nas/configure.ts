@@ -195,6 +195,13 @@ export type Feasible = {
  * Bays are worked out as if no size were pinned: with the pinned size filtered
  * in, every other tier would look unreachable and there'd be no way back.
  *
+ * Only chassis sizes the array actually fills are offered. A 4-bay unit will
+ * hold two drives perfectly well, but at 4 TB every size from 2 to 8 bays then
+ * reads the identical "2× 2 TB" and the extra ones look like duplicates rather
+ * than a more expensive box with empty bays. Where nothing fits exactly — a
+ * three-drive RAID 5 has no three-bay chassis to live in — the sizes that waste
+ * the fewest bays are offered instead, so there is always something to pick.
+ *
  * Drive size and line follow pickBuild's precedence, so what's offered is
  * exactly what will be honoured: sizes are judged against the whole pool, and
  * lines against the chosen size — a line that can't be had in that size greys
@@ -204,8 +211,17 @@ export function feasibleOptions(a: Answers, P: NasPricing, d: Derived): Feasible
   const bayPool = a.bays == null ? d.builds : derive({ ...a, bays: null }, P).builds;
   const byCap = a.driveCap == null ? d.builds : d.builds.filter((b) => b.driveCap === a.driveCap);
 
+  // The tightest fit each chassis size can manage, in bays left empty per unit.
+  const spare = new Map<number, number>();
+  for (const b of bayPool) {
+    const empty = b.model.bays - b.drivesPerUnit;
+    const best = spare.get(b.model.bays);
+    if (best == null || empty < best) spare.set(b.model.bays, empty);
+  }
+  const tightest = spare.size ? Math.min(...spare.values()) : 0;
+
   return {
-    bays: new Set(bayPool.map((b) => b.model.bays)),
+    bays: new Set([...spare].filter(([, empty]) => empty === tightest).map(([tier]) => tier)),
     caps: new Set(d.builds.map((b) => b.driveCap)),
     lines: new Set((byCap.length ? byCap : d.builds).map((b) => b.driveLine)),
     bayPool,

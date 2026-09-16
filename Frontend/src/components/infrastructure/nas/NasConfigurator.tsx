@@ -99,9 +99,13 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
   // that can't are greyed out rather than accepted and then refused.
   const can = useMemo(() => feasibleOptions(a, P, d), [a, P, d]);
   const cantLabel = d.mode === "budget" ? "Doesn't fit your budget" : "Can't reach this target";
+  // The tightest fit at that size — the same build the size is offered for.
   const reach = (tier: number) => {
-    const best = can.bayPool.find((b) => b.model.bays === tier);
-    return best ? `${best.drivesPerUnit}× ${best.driveCap} TB${best.units > 1 ? ` · ${best.units} units` : ""}` : cantLabel;
+    const fits = can.bayPool.filter((b) => b.model.bays === tier);
+    if (!fits.length) return cantLabel;
+    const best = fits.reduce((a, b) => (b.model.bays - b.drivesPerUnit < a.model.bays - a.drivesPerUnit ? b : a));
+    const spare = best.model.bays - best.drivesPerUnit;
+    return `${best.drivesPerUnit}× ${best.driveCap} TB${best.units > 1 ? ` · ${best.units} units` : ""}${spare > 0 ? ` · ${spare} spare` : ""}`;
   };
   // A pinned choice stays clickable even when it stops working, so there's always a way back.
   const blocked = (ok: boolean, isChecked: boolean) => !ok && !isChecked && !d.error;
