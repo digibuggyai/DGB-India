@@ -134,6 +134,7 @@ export default async function AboutPage() {
                 .map((i) => ({ id: String(i.id), name: i.name }))}
             />
           </div>
+          
         </div>
       </section>
     </>
