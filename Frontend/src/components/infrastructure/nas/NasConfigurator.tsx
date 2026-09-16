@@ -12,6 +12,7 @@ import {
   derive,
   estimateLines,
   estimateRef,
+  feasibleOptions,
   leadSummary,
   priceFor,
   selectedUpgrade,
@@ -21,6 +22,7 @@ import {
 import { RAID_INFO, RAID_LEVELS, bestNetworkAmong, inr, labelForSpeed, linesForCapacity, nearestBuildable } from "@/lib/nas/logic";
 import type { Build, CompanyInfo, Estimate, NasPricing } from "@/lib/nas/types";
 import { Alert, Badge, CheckTile, Chip, Field, Label, Note, Step, Tile, btnPrimary, btnSecondary, inputClass, linkBtn } from "./ui";
+import { CompareDialog, InfoButton, SpecsDialog } from "./specs";
 
 /* The NAS configurator on the NAS infrastructure page.
  *
@@ -61,6 +63,8 @@ type Details = { name: string; company: string; email: string; phone: string; lo
 
 const EMPTY_DETAILS: Details = { name: "", company: "", email: "", phone: "", location: "" };
 const MODELS_SHOWN = 5;
+/** Columns the comparison table can hold before it stops being readable. */
+const MODELS_COMPARED = 5;
 
 function Configurator({ pricing: P, company, infrastructureId }: Props & { pricing: NasPricing }) {
   const [a, setA] = useState<Answers>(INITIAL_ANSWERS);
@@ -70,6 +74,8 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
   const [downloading, setDownloading] = useState(false);
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showAllModels, setShowAllModels] = useState(false);
+  const [specsFor, setSpecsFor] = useState<Build | null>(null);
+  const [comparing, setComparing] = useState(false);
 
   const update = (patch: Partial<Answers>) => setA((prev) => ({ ...prev, ...patch }));
 
@@ -89,13 +95,16 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
   const nicOptions = P.upgrades.filter((u) => u.category === "NIC");
   const hasUpgrades = ramOptions.length + nicOptions.length > 0;
 
-  // What each chassis size can reach, worked out as if no size were pinned —
-  // otherwise every size except the pinned one reads "won't reach it".
-  const reachBuilds = useMemo(() => (a.bays == null ? d.builds : derive({ ...a, bays: null }, P).builds), [a, P, d.builds]);
+  // Which bay sizes, drive sizes and drive lines can actually be built. Options
+  // that can't are greyed out rather than accepted and then refused.
+  const can = useMemo(() => feasibleOptions(a, P, d), [a, P, d]);
+  const cantLabel = d.mode === "budget" ? "Doesn't fit your budget" : "Can't reach this target";
   const reach = (tier: number) => {
-    const best = reachBuilds.find((b) => b.model.bays === tier);
-    return best ? `${best.drivesPerUnit}× ${best.driveCap} TB${best.units > 1 ? ` · ${best.units} units` : ""}` : "Won't reach it";
+    const best = can.bayPool.find((b) => b.model.bays === tier);
+    return best ? `${best.drivesPerUnit}× ${best.driveCap} TB${best.units > 1 ? ` · ${best.units} units` : ""}` : cantLabel;
   };
+  // A pinned choice stays clickable even when it stops working, so there's always a way back.
+  const blocked = (ok: boolean, isChecked: boolean) => !ok && !isChecked && !d.error;
 
   const capacityPresets = useMemo(
     () => CAPACITY_PRESETS.map((p) => nearestBuildable(p, d.sizes)).filter((v, i, arr): v is number => v != null && arr.indexOf(v) === i),
@@ -364,7 +373,16 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
             <div className="grid grid-cols-3 gap-2">
               <Tile compact name="bays" checked={a.bays == null} onSelect={() => update({ bays: null, speed: null })} title="Auto" sub="Best fit" />
               {tiers.map((t) => (
-                <Tile compact key={t} name="bays" checked={a.bays === t} onSelect={() => update({ bays: t, speed: null })} title={`${t}-bay`} sub={reach(t)} />
+                <Tile
+                  compact
+                  key={t}
+                  name="bays"
+                  checked={a.bays === t}
+                  disabled={blocked(can.bays.has(t), a.bays === t)}
+                  onSelect={() => update({ bays: t, speed: null })}
+                  title={`${t}-bay`}
+                  sub={reach(t)}
+                />
               ))}
             </div>
             {a.bays != null && !d.options.length && !d.error ? (
@@ -449,14 +467,22 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                       chosen={b.model.id === build?.model.id}
                       targetTB={d.targetTB}
                       onSelect={() => update({ modelId: b.model.id, autoPick: false, speed: null })}
+                      onSpecs={() => setSpecsFor(b)}
                     />
                   ))}
                 </div>
-                {hiddenCount > 0 || showAllModels ? (
-                  <button type="button" onClick={() => setShowAllModels((v) => !v)} className={`${linkBtn} text-sm`}>
-                    {showAllModels ? "Show fewer" : `Show ${hiddenCount} more unit${hiddenCount === 1 ? "" : "s"}`}
-                  </button>
-                ) : null}
+                <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                  {hiddenCount > 0 || showAllModels ? (
+                    <button type="button" onClick={() => setShowAllModels((v) => !v)} className={`${linkBtn} text-sm`}>
+                      {showAllModels ? "Show fewer" : `Show ${hiddenCount} more unit${hiddenCount === 1 ? "" : "s"}`}
+                    </button>
+                  ) : null}
+                  {d.options.length > 1 ? (
+                    <button type="button" onClick={() => setComparing(true)} className={`${linkBtn} text-sm`}>
+                      Compare {Math.min(d.options.length, MODELS_COMPARED)} units side by side
+                    </button>
+                  ) : null}
+                </div>
               </>
             )}
           </Step>
@@ -518,9 +544,21 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
               <Label>Drive size</Label>
               <div className="grid grid-cols-4 gap-2">
                 <Tile compact name="driveCap" checked={a.driveCap == null} onSelect={() => update({ driveCap: null })} title="Auto" />
-                {P.capacities.map((c) => (
-                  <Tile compact key={c} name="driveCap" checked={a.driveCap === c} onSelect={() => update({ driveCap: c })} title={`${c} TB`} />
-                ))}
+                {P.capacities.map((c) => {
+                  const off = blocked(can.caps.has(c), a.driveCap === c);
+                  return (
+                    <Tile
+                      compact
+                      key={c}
+                      name="driveCap"
+                      checked={a.driveCap === c}
+                      disabled={off}
+                      onSelect={() => update({ driveCap: c })}
+                      title={`${c} TB`}
+                      sub={off ? cantLabel : undefined}
+                    />
+                  );
+                })}
               </div>
             </div>
             <div>
@@ -528,15 +566,17 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
               <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 <Tile name="driveLine" checked={a.driveLine == null} onSelect={() => update({ driveLine: null })} title="Auto" sub="Best value" />
                 {driveLines.map((l) => {
+                  const off = blocked(can.lines.has(l), a.driveLine === l);
                   const rate = a.driveCap != null ? P.hddPricing[a.driveCap]?.[l]?.quote : undefined;
                   return (
                     <Tile
                       key={l}
                       name="driveLine"
                       checked={a.driveLine === l}
+                      disabled={off}
                       onSelect={() => update({ driveLine: l })}
                       title={l}
-                      sub={rate ? `${inr(rate)} each` : undefined}
+                      sub={off ? cantLabel : rate ? `${inr(rate)} each` : undefined}
                     />
                   );
                 })}
@@ -777,6 +817,32 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
       </div>
 
       <MobileBar visible={stepsInView && !panelInView} total={priced && price ? price.total : null} onView={() => scrollToId("nas-estimate")} />
+
+      {specsFor ? (
+        <SpecsDialog
+          build={specsFor}
+          raid={d.raid}
+          chosen={specsFor.model.id === build?.model.id}
+          onChoose={() => {
+            update({ modelId: specsFor.model.id, autoPick: false, speed: null });
+            setSpecsFor(null);
+          }}
+          onClose={() => setSpecsFor(null)}
+        />
+      ) : null}
+
+      {comparing ? (
+        <CompareDialog
+          builds={d.options.slice(0, MODELS_COMPARED)}
+          raid={d.raid}
+          chosenId={build?.model.id ?? null}
+          onChoose={(modelId) => {
+            update({ modelId, autoPick: false, speed: null });
+            setComparing(false);
+          }}
+          onClose={() => setComparing(false)}
+        />
+      ) : null}
     </>
   );
 }
@@ -787,12 +853,14 @@ function ModelCard({
   chosen,
   targetTB,
   onSelect,
+  onSpecs,
 }: {
   build: Build;
   recommended: boolean;
   chosen: boolean;
   targetTB: number;
   onSelect: () => void;
+  onSpecs: () => void;
 }) {
   const extra = b.totalUsable - targetTB;
   return (
@@ -809,6 +877,7 @@ function ModelCard({
           {recommended ? <Badge tone="accent">Recommended</Badge> : null}
           {b.model.expandable ? <Badge tone="tint">Expandable</Badge> : null}
           {b.units > 1 ? <Badge tone="dark">{b.units} units</Badge> : null}
+          <InfoButton build={b} onOpen={onSpecs} />
         </span>
         <span className="mt-1.5 block text-sm leading-relaxed text-muted">
           {b.drivesPerUnit}× {b.driveCap} TB {b.driveLine} in {b.model.bays} bays

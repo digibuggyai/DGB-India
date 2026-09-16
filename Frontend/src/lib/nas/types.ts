@@ -19,6 +19,25 @@ export type NasModel = {
   /** Free text such as "2.5GbE ×2" — link speed is parsed out of it. */
   network: string;
   networkUpgrade: string;
+
+  /* Detailed specifications, as the manufacturer words them. Every one is
+   * optional: a unit with none of them still prices and quotes, it just shows
+   * less on its specifications card. Empty string / null means "not recorded",
+   * which the UI says outright rather than inventing a figure. */
+  cpu: string;
+  cpuCores: string;
+  memory: string;
+  memoryMax: string;
+  m2Slots: number | null;
+  /** Total bays once expansion units are attached. */
+  baysWithExpansion: number | null;
+  maxRawTb: number | null;
+  usbPorts: string;
+  dimensions: string;
+  weightKg: number | null;
+  warranty: string;
+  /** Manufacturer's spec page. Https only — see normalisePricing. */
+  specsUrl: string;
 };
 
 /** Drive capacity (TB) → drive line (e.g. "IronWolf") → GST-inclusive price per drive. */

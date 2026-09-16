@@ -16,6 +16,18 @@ export type CmsModel = {
   expandable: boolean;
   network?: string | null;
   networkUpgrade?: string | null;
+  cpu?: string | null;
+  cpuCores?: string | null;
+  memory?: string | null;
+  memoryMax?: string | null;
+  m2Slots?: number | null;
+  baysWithExpansion?: number | null;
+  maxRawTb?: number | null;
+  usbPorts?: string | null;
+  dimensions?: string | null;
+  weightKg?: number | null;
+  warranty?: string | null;
+  specsUrl?: string | null;
   quotePrice: number;
   minPrice?: number | null;
   active: boolean;

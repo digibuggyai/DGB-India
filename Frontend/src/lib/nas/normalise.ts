@@ -19,6 +19,17 @@ type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 const toStr = (v: unknown): string => String(v ?? "").trim();
 
+/** An optional figure: absent, blank or nonsensical all become null. */
+const toNum = (v: unknown): number | null => {
+  if (v == null || v === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : null;
+};
+
+/** Only an https link is passed on — a spec URL is rendered as a link, and
+ *  javascript: or data: has no business reaching an anchor. */
+const toUrl = (v: unknown): string => (/^https:\/\/\S+$/i.test(toStr(v)) ? toStr(v) : "");
+
 export type NormaliseResult = { ok: true; pricing: NasPricing } | { ok: false; reason: string };
 
 export function normalisePricing(raw: unknown): NormaliseResult {
@@ -35,6 +46,18 @@ export function normalisePricing(raw: unknown): NormaliseResult {
       expandable: Boolean(m.expandable),
       network: toStr(m.network),
       networkUpgrade: toStr(m.networkUpgrade),
+      cpu: toStr(m.cpu),
+      cpuCores: toStr(m.cpuCores),
+      memory: toStr(m.memory),
+      memoryMax: toStr(m.memoryMax),
+      m2Slots: toNum(m.m2Slots),
+      baysWithExpansion: toNum(m.baysWithExpansion),
+      maxRawTb: toNum(m.maxRawTb),
+      usbPorts: toStr(m.usbPorts),
+      dimensions: toStr(m.dimensions),
+      weightKg: toNum(m.weightKg),
+      warranty: toStr(m.warranty),
+      specsUrl: toUrl(m.specsUrl),
     }))
     .filter((m) => m.id && m.raid.length && Number.isFinite(m.bays) && Number.isFinite(m.quote));
 

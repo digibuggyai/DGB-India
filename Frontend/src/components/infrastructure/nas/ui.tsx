@@ -56,7 +56,10 @@ export function Step({
   );
 }
 
-/** A radio choice. `row` lays title and subtitle side by side for list-style groups. */
+/** A radio choice. `row` lays title and subtitle side by side for list-style
+ *  groups. `disabled` is for a choice nothing in the price list can build: it
+ *  greys out and can't be picked, rather than accepting the click and failing
+ *  afterwards. */
 export function Tile({
   name,
   checked,
@@ -65,6 +68,7 @@ export function Tile({
   sub,
   compact = false,
   row = false,
+  disabled = false,
 }: {
   name: string;
   checked: boolean;
@@ -73,21 +77,22 @@ export function Tile({
   sub?: ReactNode;
   compact?: boolean;
   row?: boolean;
+  disabled?: boolean;
 }) {
   return (
     <label
       className={[
-        "relative flex cursor-pointer rounded-lg border transition-colors",
+        "relative flex rounded-lg border transition-colors",
         focusRing,
         row ? "flex-row items-center justify-between gap-3" : "flex-col",
         compact ? "px-3 py-2.5" : "px-4 py-3",
-        checked ? selected : unselected,
+        disabled ? "cursor-not-allowed border-border bg-surface opacity-60" : `cursor-pointer ${checked ? selected : unselected}`,
       ].join(" ")}
     >
-      <input type="radio" name={name} checked={checked} onChange={onSelect} className="sr-only" />
-      <span className={`text-sm font-semibold ${checked ? "text-tint-foreground" : "text-foreground"}`}>{title}</span>
+      <input type="radio" name={name} checked={checked} disabled={disabled} onChange={onSelect} className="sr-only" />
+      <span className={`text-sm font-semibold ${disabled ? "text-muted" : checked ? "text-tint-foreground" : "text-foreground"}`}>{title}</span>
       {sub ? (
-        <span className={`${row ? "text-right" : "mt-0.5"} text-xs leading-snug ${checked ? "text-tint-muted" : "text-muted"}`}>{sub}</span>
+        <span className={`${row ? "text-right" : "mt-0.5"} text-xs leading-snug ${checked && !disabled ? "text-tint-muted" : "text-muted"}`}>{sub}</span>
       ) : null}
     </label>
   );

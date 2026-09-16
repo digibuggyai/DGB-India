@@ -94,12 +94,17 @@ export type Derived = {
 };
 
 /** Narrow by any drive choice, then settle on a unit: the visitor's pick if it
- *  still qualifies, otherwise the recommendation. */
+ *  still qualifies, otherwise the recommendation.
+ *
+ *  Size is applied first, then line, and a choice nothing can satisfy is
+ *  dropped on its own. Filtering on both at once meant an impossible drive
+ *  size still pinned would swallow a perfectly good drive line: the click
+ *  registered and the recommendation didn't move. */
 function pickBuild(a: Answers, builds: Build[]): Pick<Derived, "options" | "build" | "autoPick"> {
-  const narrowed = builds.filter(
-    (b) => (a.driveCap == null || b.driveCap === a.driveCap) && (a.driveLine == null || b.driveLine === a.driveLine),
-  );
-  const pool = narrowed.length ? narrowed : builds;
+  const byCap = a.driveCap == null ? builds : builds.filter((b) => b.driveCap === a.driveCap);
+  const capPool = byCap.length ? byCap : builds;
+  const byLine = a.driveLine == null ? capPool : capPool.filter((b) => b.driveLine === a.driveLine);
+  const pool = byLine.length ? byLine : capPool;
   const options = bestBuildPerModel(pool);
   const pinned = a.autoPick ? null : (pool.find((b) => b.model.id === a.modelId) ?? null);
   return { options, build: pinned ?? options[0] ?? null, autoPick: !pinned };
@@ -169,6 +174,41 @@ export function derive(a: Answers, P: NasPricing): Derived {
     raid: a.raid,
     builds,
     ...pickBuild(a, builds),
+  };
+}
+
+/* ---------------- which options can actually be built ---------------- */
+
+export type Feasible = {
+  /** Chassis sizes that can reach the target, ignoring any pinned size. */
+  bays: Set<number>;
+  caps: Set<number>;
+  lines: Set<string>;
+  /** The builds the bay figures came from, for the "4× 10 TB" hints. */
+  bayPool: Build[];
+};
+
+/**
+ * The options worth offering, read off the same build pool the recommendation
+ * engine uses — so the pickers can't drift from the catalogue.
+ *
+ * Bays are worked out as if no size were pinned: with the pinned size filtered
+ * in, every other tier would look unreachable and there'd be no way back.
+ *
+ * Drive size and line follow pickBuild's precedence, so what's offered is
+ * exactly what will be honoured: sizes are judged against the whole pool, and
+ * lines against the chosen size — a line that can't be had in that size greys
+ * out. An impossible size is ignored rather than grey out every line.
+ */
+export function feasibleOptions(a: Answers, P: NasPricing, d: Derived): Feasible {
+  const bayPool = a.bays == null ? d.builds : derive({ ...a, bays: null }, P).builds;
+  const byCap = a.driveCap == null ? d.builds : d.builds.filter((b) => b.driveCap === a.driveCap);
+
+  return {
+    bays: new Set(bayPool.map((b) => b.model.bays)),
+    caps: new Set(d.builds.map((b) => b.driveCap)),
+    lines: new Set((byCap.length ? byCap : d.builds).map((b) => b.driveLine)),
+    bayPool,
   };
 }
 

@@ -18,7 +18,11 @@ type RaidInfo = {
 export const RAID_LEVELS: RaidLevel[] = ["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"];
 
 export const RAID_INFO: Record<RaidLevel, RaidInfo> = {
-  RAID0: { minDrives: 1, step: 1, title: "RAID 0", sub: "Striping · no redundancy", label: "RAID 0 — striping (full capacity, zero redundancy)" },
+  // RAID 0 stripes across drives, so it takes at least two: one drive is a
+  // plain single-disk volume ("Basic"), not an array. The sales tool this was
+  // ported from allowed one, which quoted things like "1× 4 TB at RAID 0" in a
+  // 2-bay unit.
+  RAID0: { minDrives: 2, step: 1, title: "RAID 0", sub: "Striping · no redundancy", label: "RAID 0 — striping (full capacity, zero redundancy)" },
   RAID1: { minDrives: 2, step: 1, title: "RAID 1", sub: "Mirrored · 50% usable", label: "RAID 1 — mirroring (50% usable, survives 1 drive failure)" },
   RAID5: { minDrives: 3, step: 1, title: "RAID 5", sub: "Parity · survives 1 failure", label: "RAID 5 — parity (survives 1 drive failure)" },
   RAID6: { minDrives: 4, step: 1, title: "RAID 6", sub: "Dual parity · survives 2", label: "RAID 6 — dual parity (survives 2 drive failures)" },
@@ -66,6 +70,11 @@ export function computeDrives(raid: RaidLevel, driveTB: number, targetTB: number
   const info = RAID_INFO[raid];
   if (!(maxBays >= 2)) throw new Error("maxBays must be at least 2");
 
+  // The chassis can't host this array at all — RAID 5 needs three bays, RAID 6
+  // and RAID 10 need four. Infinite units keeps it out of every search, which
+  // filter on unit count.
+  if (maxBays < info.minDrives) return { drivesPerUnit: 0, units: Infinity, totalUsable: 0 };
+
   if (raid === "RAID1") {
     const usable = usableForN(raid, 2, driveTB);
     const units = Math.max(1, Math.ceil(targetTB / usable));
@@ -100,6 +109,9 @@ type Catalogue = {
 
 function modelMatches(model: NasModel, raid: RaidLevel, { brand = "any", bays = null, expandableOnly = false }: Filters): boolean {
   if (!model.raid.includes(raid)) return false;
+  // Belt and braces: the catalogue shouldn't list a RAID level a chassis has
+  // too few bays for, but if it ever does, don't quote it.
+  if (model.bays < RAID_INFO[raid].minDrives) return false;
   if (brand !== "any" && model.brand.toLowerCase() !== brand.toLowerCase()) return false;
   if (bays != null && model.bays !== Number(bays)) return false;
   if (expandableOnly && !model.expandable) return false;

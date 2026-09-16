@@ -41,6 +41,20 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
     { key: "raid", label: "RAID levels", type: "raid", required: true, wide: true },
     { key: "expandable", label: "Expandable", type: "checkbox" },
     { key: "active", label: "Active in configurator", type: "checkbox" },
+    // Shown on the configurator's specifications card. Optional — blanks are
+    // left out there rather than shown as gaps.
+    { key: "cpu", label: "Processor", type: "text", placeholder: "AMD Ryzen V1500B" },
+    { key: "cpuCores", label: "Cores", type: "text", placeholder: "4 cores / 8 threads, 2.2 GHz" },
+    { key: "memory", label: "Memory", type: "text", placeholder: "4 GB DDR4 ECC" },
+    { key: "memoryMax", label: "Maximum memory", type: "text", placeholder: "32 GB" },
+    { key: "m2Slots", label: "M.2 NVMe slots", type: "number", step: 1 },
+    { key: "baysWithExpansion", label: "Bays with expansion", type: "number", step: 1 },
+    { key: "maxRawTb", label: "Max raw capacity (TB)", type: "number", step: 1 },
+    { key: "usbPorts", label: "USB ports", type: "text", placeholder: "2 × USB 3.2 Gen 1" },
+    { key: "dimensions", label: "Dimensions (mm)", type: "text", placeholder: "166 × 199 × 223 mm" },
+    { key: "weightKg", label: "Weight (kg)", type: "number", step: 0.01 },
+    { key: "warranty", label: "Warranty", type: "text", placeholder: "3 years, extendable to 5" },
+    { key: "specsUrl", label: "Manufacturer spec page (https)", type: "text", placeholder: "https://…", wide: true },
   ],
   drives: [
     { key: "capacityTb", label: "Capacity (TB)", type: "number", required: true, step: 1 },
