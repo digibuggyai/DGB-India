@@ -23,13 +23,13 @@ const MODELS = [
   { model: "DS425+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 67000, minPrice: 63720 },
   { model: "DS925+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "", quotePrice: 97000, minPrice: 92630 },
   { model: "TS-433-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 45000, minPrice: 42480 },
-  { model: "TS-462-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1", networkUpgrade: "10GbE via PCIe card", quotePrice: 57000, minPrice: 54280 },
-  { model: "TS-464-8G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 69000, minPrice: 66080 },
+  { model: "TS-462-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×1", networkUpgrade: "10GbE via PCIe card", quotePrice: 57000, minPrice: 54280 },
+  { model: "TS-464-8G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 69000, minPrice: 66080 },
   { model: "DS1525+", brand: "Synology", bays: 5, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via E10G22-T1-Mini module", quotePrice: 142000, minPrice: 135700 },
-  { model: "TS-664-8G", brand: "QNAP", bays: 6, raid: ALL_RAID, expandable: false, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 87000, minPrice: 82600 },
+  { model: "TS-664-8G", brand: "QNAP", bays: 6, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 87000, minPrice: 82600 },
   { model: "DS1825+", brand: "Synology", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "up to 25GbE via PCIe add-in card", quotePrice: 180000, minPrice: 171100 },
-  { model: "TS-832PX-4G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: false, network: "10GbE SFP+ ×2 + 2.5GbE ×2", networkUpgrade: "", quotePrice: 108000, minPrice: 103250 },
-  { model: "TS-873A-8G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: false, network: "2.5GbE ×2", networkUpgrade: "5GbE/10GbE via PCIe Gen3 card", quotePrice: 130000, minPrice: 123900 },
+  { model: "TS-832PX-4G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "10GbE SFP+ ×2 + 2.5GbE ×2", networkUpgrade: "", quotePrice: 108000, minPrice: 103250 },
+  { model: "TS-873A-8G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "5GbE/10GbE via PCIe Gen3 card", quotePrice: 130000, minPrice: 123900 },
 ];
 
 const SETTINGS = { installQuote: 5900, installMin: 4130, amcQuotePercent: 10, amcMinPercent: 7 };

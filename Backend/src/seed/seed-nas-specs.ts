@@ -16,7 +16,7 @@ const config = (importedConfig as any)?.default ?? importedConfig;
 const SYN = (m: string) => `https://www.synology.com/en-us/products/${m}`;
 const QNAP = (m: string) => `https://www.qnap.com/en-us/product/${m}/specs/hardware`;
 
-type Specs = Record<string, string | number>;
+type Specs = Record<string, string | number | boolean>;
 
 const SPECS: Record<string, Specs> = {
   DS223J: {
@@ -140,12 +140,18 @@ const SPECS: Record<string, Specs> = {
     usbPorts: "1 × USB 3.2 Gen 1, 2 × USB 2.0",
     specsUrl: QNAP("ts-433"),
   },
+  /* QNAP's expansion enclosures (TR- and TL- series) attach over USB or SATA
+   * rather than a dedicated port, and QNAP names the supported enclosures on
+   * each of these product pages. The three ARM entry models below are left as
+   * not expandable: their pages don't say either way, and "probably" isn't
+   * good enough to quote. */
   "TS-462-4G": {
     cpu: "Intel Celeron N4505",
     cpuCores: "2 cores, up to 2.9 GHz",
     memory: "4 GB DDR4",
     memoryMax: "16 GB",
     m2Slots: 2,
+    expandable: true,
     specsUrl: QNAP("ts-462"),
   },
   "TS-464-8G": {
@@ -154,6 +160,9 @@ const SPECS: Record<string, Specs> = {
     memory: "8 GB DDR4",
     memoryMax: "16 GB",
     m2Slots: 2,
+    expandable: true,
+    baysWithExpansion: 12,
+    maxRawTb: 72,
     specsUrl: QNAP("ts-464"),
   },
   "TS-664-8G": {
@@ -162,6 +171,7 @@ const SPECS: Record<string, Specs> = {
     memory: "8 GB DDR4",
     memoryMax: "16 GB",
     m2Slots: 2,
+    expandable: true,
     maxRawTb: 120,
     specsUrl: QNAP("ts-664"),
   },
@@ -171,6 +181,8 @@ const SPECS: Record<string, Specs> = {
     memory: "4 GB DDR4",
     memoryMax: "16 GB",
     m2Slots: 0,
+    expandable: true,
+    baysWithExpansion: 16,
     specsUrl: QNAP("ts-832px"),
   },
   "TS-873A-8G": {
@@ -179,6 +191,8 @@ const SPECS: Record<string, Specs> = {
     memory: "8 GB DDR4",
     memoryMax: "64 GB",
     m2Slots: 2,
+    expandable: true,
+    baysWithExpansion: 16,
     specsUrl: QNAP("ts-873a"),
   },
 };
