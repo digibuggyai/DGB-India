@@ -159,6 +159,7 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
             {t.count != null ? <span className="ml-1.5 opacity-70">{t.count}</span> : null}
           </button>
         ))}
+
       </div>
 
       {notice ? (

@@ -27,7 +27,7 @@ const LOGO_URL = "/dgb_logo.png";
 const MARGIN = 42;
 const FOOTER_RESERVE = 70;
 
-type Logo = { data: string; w: number; h: number };
+export type Logo = { data: string; w: number; h: number };
 
 export async function downloadEstimatePdf(estimate: Estimate, company: CompanyInfo): Promise<void> {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
@@ -284,7 +284,7 @@ function filename(e: Estimate): string {
  *  The source is ~1774×887 and ~830 KB — far more than a letterhead needs. A
  *  missing or unreadable logo isn't an error: the header falls back to the
  *  company name, so an estimate can always be produced. */
-async function loadLogo(): Promise<Logo | null> {
+export async function loadLogo(): Promise<Logo | null> {
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const el = new Image();

@@ -2,6 +2,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getAdminToken, getAdminUser } from "@/lib/admin-auth";
 import { loadCatalogue } from "@/lib/nas/cms";
 import type { Catalogue } from "@/lib/nas/cms-types";
+import { PriceSheetDownloads } from "../../_components/PriceSheetDownloads";
 import { PricingManager } from "../../_components/PricingManager";
 
 export const dynamic = "force-dynamic";
@@ -21,12 +22,17 @@ export default async function PricingPage() {
 
   return (
     <div className="container-page py-10">
-      <Eyebrow>Pricing</Eyebrow>
-      <h1 className="font-display mt-4 text-3xl font-bold tracking-tight sm:text-4xl">NAS Configurator Pricing</h1>
-      <p className="mt-3 max-w-2xl text-muted">
-        Every item the NAS configurator quotes — units, drives, upgrades, installation and AMC. Add, update or
-        remove anything here and the live configurator uses it straight away.
-      </p>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <Eyebrow>Pricing</Eyebrow>
+          <h1 className="font-display mt-4 text-3xl font-bold tracking-tight sm:text-4xl">NAS Configurator Pricing</h1>
+          <p className="mt-3 max-w-2xl text-muted">
+            Every item the NAS configurator quotes — units, drives, upgrades, installation and AMC. Add, update or
+            remove anything here and the live configurator uses it straight away.
+          </p>
+        </div>
+        {catalogue ? <PriceSheetDownloads catalogue={catalogue} /> : null}
+      </div>
 
       <div className="mt-8">
         {user?.role !== "admin" ? (
