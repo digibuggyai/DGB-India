@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Logo } from "@/components/site/Logo";
 import { Eyebrow } from "@/components/ui/Eyebrow";
+import { Toast, type ToastKind } from "@/components/ui/Toast";
 
 const inputClass =
   "w-full rounded-md border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none";
@@ -13,13 +14,13 @@ export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<{ kind: ToastKind; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setError(null);
+    setNotice(null);
 
     try {
       const res = await fetch("/api/admin/login", {
@@ -29,14 +30,18 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Login failed.");
+        setNotice({ kind: "error", message: data.error || "Login failed." });
         setLoading(false);
         return;
       }
-      router.push("/admin");
-      router.refresh();
+      // Confirm it worked before the page changes under them.
+      setNotice({ kind: "success", message: "Signed in. Opening the admin panel…" });
+      window.setTimeout(() => {
+        router.push("/admin");
+        router.refresh();
+      }, 700);
     } catch {
-      setError("Something went wrong. Please try again.");
+      setNotice({ kind: "error", message: "Couldn’t reach the server. Please try again." });
       setLoading(false);
     }
   }
@@ -94,8 +99,6 @@ export default function AdminLoginPage() {
               </div>
             </div>
 
-            {error && <p className="text-sm text-accent">{error}</p>}
-
             <button
               type="submit"
               disabled={loading}
@@ -106,6 +109,15 @@ export default function AdminLoginPage() {
           </form>
         </div>
       </div>
+
+      {notice ? (
+        <Toast
+          kind={notice.kind}
+          message={notice.message}
+          onClose={() => setNotice(null)}
+          duration={notice.kind === "error" ? 8000 : undefined}
+        />
+      ) : null}
     </div>
   );
 }
