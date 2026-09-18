@@ -355,18 +355,30 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
             )}
           </Step>
 
-          {/* 2 · brand */}
-          <Step n={2} title="Brand" desc="Leave it open unless you have a preference — it widens what we can recommend.">
-            <div className="grid grid-cols-3 gap-2">
-              <Tile name="brand" checked={a.brand === "any"} onSelect={() => update({ brand: "any", speed: null })} title="Any" sub="Recommend from all" />
-              {brands.map((b) => (
+          {/* 2 · RAID */}
+          <Step n={2} title="RAID level" desc="How drives are arranged: how much raw capacity is usable, and how many drive failures the array survives.">
+            {a.storageMode === "budget" ? (
+              a.raidAuto ? (
+                <Note>Picked for you — the most protective level your budget allows.</Note>
+              ) : (
+                <Note>
+                  Chosen by you.{" "}
+                  <button type="button" onClick={() => update({ raidAuto: true, speed: null })} className={linkBtn}>
+                    Let us choose again
+                  </button>
+                </Note>
+              )
+            ) : null}
+            <div className="grid gap-2">
+              {RAID_LEVELS.map((r) => (
                 <Tile
-                  key={b}
-                  name="brand"
-                  checked={a.brand.toLowerCase() === b.toLowerCase()}
-                  onSelect={() => update({ brand: b, speed: null })}
-                  title={b}
-                  sub={`${P.models.filter((m) => m.brand === b).length} units`}
+                  row
+                  key={r}
+                  name="raid"
+                  checked={d.raid === r}
+                  onSelect={() => update({ raid: r, speed: null, ...(a.storageMode === "budget" ? { raidAuto: false } : {}) })}
+                  title={RAID_INFO[r].title}
+                  sub={RAID_INFO[r].sub}
                 />
               ))}
             </div>
@@ -394,30 +406,18 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
             ) : null}
           </Step>
 
-          {/* 4 · RAID */}
-          <Step n={4} title="RAID level" desc="How drives are arranged: how much raw capacity is usable, and how many drive failures the array survives.">
-            {a.storageMode === "budget" ? (
-              a.raidAuto ? (
-                <Note>Picked for you — the most protective level your budget allows.</Note>
-              ) : (
-                <Note>
-                  Chosen by you.{" "}
-                  <button type="button" onClick={() => update({ raidAuto: true, speed: null })} className={linkBtn}>
-                    Let us choose again
-                  </button>
-                </Note>
-              )
-            ) : null}
-            <div className="grid gap-2">
-              {RAID_LEVELS.map((r) => (
+          {/* 4 · brand */}
+          <Step n={4} title="Brand" desc="Leave it open unless you have a preference — it widens what we can recommend.">
+            <div className="grid grid-cols-3 gap-2">
+              <Tile name="brand" checked={a.brand === "any"} onSelect={() => update({ brand: "any", speed: null })} title="Any" sub="Recommend from all" />
+              {brands.map((b) => (
                 <Tile
-                  row
-                  key={r}
-                  name="raid"
-                  checked={d.raid === r}
-                  onSelect={() => update({ raid: r, speed: null, ...(a.storageMode === "budget" ? { raidAuto: false } : {}) })}
-                  title={RAID_INFO[r].title}
-                  sub={RAID_INFO[r].sub}
+                  key={b}
+                  name="brand"
+                  checked={a.brand.toLowerCase() === b.toLowerCase()}
+                  onSelect={() => update({ brand: b, speed: null })}
+                  title={b}
+                  sub={`${P.models.filter((m) => m.brand === b).length} units`}
                 />
               ))}
             </div>
@@ -729,6 +729,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
               </form>
             )}
           </Step>
+
         </div>
 
         {/* live estimate */}
