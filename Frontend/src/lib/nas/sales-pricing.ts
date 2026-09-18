@@ -11,6 +11,9 @@ import type { HddPricing, NasPricing, RaidLevel } from "./types";
  * catalogue passed in must have been loaded with a staff token, since the CMS
  * withholds minimums from anyone else.
  */
+/** A percentage as a fraction, without floating-point noise. */
+const pct = (v: number | null | undefined) => Math.round((v ?? 0) * 100) / 10000;
+
 export function toSalesPricing(c: Catalogue): NasPricing {
   const hddPricing: HddPricing = {};
   for (const d of c.drives) {
@@ -52,8 +55,10 @@ export function toSalesPricing(c: Catalogue): NasPricing {
     hddPricing,
     install: { quote: c.settings.installQuote ?? 0, min: c.settings.installMin ?? null },
     amcRate: {
-      quote: (c.settings.amcQuotePercent ?? 0) / 100,
-      min: c.settings.amcMinPercent == null ? null : c.settings.amcMinPercent / 100,
+      // Rounded because 7 / 100 is 0.07000000000000001 in binary floating point,
+      // which would surface as "7.000000000000001%" on screen.
+      quote: pct(c.settings.amcQuotePercent),
+      min: c.settings.amcMinPercent == null ? null : pct(c.settings.amcMinPercent),
     },
     upgrades: c.upgrades
       .filter((u) => u.active)
