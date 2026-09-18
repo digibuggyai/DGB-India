@@ -2,7 +2,8 @@ import type { Access, CollectionConfig, FieldAccess } from "payload";
 import { logChanges } from "../hooks/nasPriceLog";
 
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
-const adminOnly: FieldAccess = ({ req }) => req.user?.role === "admin";
+// Admins and sales staff: sales quote against the floor, so they can read it.
+const staffOnly: FieldAccess = ({ req }) => req.user?.role === "admin" || req.user?.role === "sales";
 
 /* Optional per-unit add-ons offered in the configurator: RAM kits and network
  * cards. Nothing here is checked for compatibility — that's a sales call. */
@@ -45,7 +46,7 @@ export const NasUpgrades: CollectionConfig = {
       name: "minPrice",
       type: "number",
       min: 0,
-      access: { read: adminOnly },
+      access: { read: staffOnly },
       admin: { description: "With-tax minimum (₹). Admins only." },
     },
     { name: "active", type: "checkbox", defaultValue: true, admin: { description: "Untick to hide from the configurator." } },

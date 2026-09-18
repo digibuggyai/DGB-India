@@ -7,8 +7,6 @@ import {
   BUDGET_PRESETS,
   CAPACITY_PRESETS,
   INITIAL_ANSWERS,
-  SPEED_LABELS,
-  SPEED_UNSURE,
   derive,
   estimateLines,
   estimateRef,
@@ -31,16 +29,22 @@ import { CompareDialog, InfoButton, SpecsDialog } from "./specs";
  * sales-rep fields, and the quotation step files a lead in the CMS instead of
  * printing a rep's name. */
 
-type Props = { company: CompanyInfo; infrastructureId: number | string | null };
+type Props = {
+  company: CompanyInfo;
+  infrastructureId: number | string | null;
+  /** "sales" reads the staff price list and shows the internal floor beside
+   *  every quote. The public page never passes it. */
+  source?: "public" | "sales";
+};
 
 type Load = { status: "loading" } | { status: "error" } | { status: "ready"; pricing: NasPricing };
 
-export function NasConfigurator({ company, infrastructureId }: Props) {
+export function NasConfigurator({ company, infrastructureId, source = "public" }: Props) {
   const [load, setLoad] = useState<Load>({ status: "loading" });
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/nas-pricing")
+    fetch(source === "sales" ? "/api/admin/nas/pricing" : "/api/nas-pricing")
       .then((res) => (res.ok ? (res.json() as Promise<NasPricing>) : Promise.reject(new Error(`HTTP ${res.status}`))))
       .then((pricing) => {
         if (!cancelled) setLoad({ status: "ready", pricing });
@@ -51,11 +55,11 @@ export function NasConfigurator({ company, infrastructureId }: Props) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [source]);
 
   if (load.status === "loading") return <LoadingState />;
   if (load.status === "error") return <UnavailableState />;
-  return <Configurator pricing={load.pricing} company={company} infrastructureId={infrastructureId} />;
+  return <Configurator pricing={load.pricing} company={company} infrastructureId={infrastructureId} source={source} />;
 }
 
 type LeadState = { status: "idle" } | { status: "sending" } | { status: "sent"; ref: string };
@@ -66,7 +70,8 @@ const MODELS_SHOWN = 5;
 /** Columns the comparison table can hold before it stops being readable. */
 const MODELS_COMPARED = 5;
 
-function Configurator({ pricing: P, company, infrastructureId }: Props & { pricing: NasPricing }) {
+function Configurator({ pricing: P, company, infrastructureId, source = "public" }: Props & { pricing: NasPricing }) {
+  const sales = source === "sales";
   const [a, setA] = useState<Answers>(INITIAL_ANSWERS);
   const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
   const [lead, setLead] = useState<LeadState>({ status: "idle" });
@@ -84,7 +89,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
   const price = useMemo(() => priceFor(build, a, P), [build, a, P]);
   const ram = selectedUpgrade(P, "RAM", a.ramSku);
   const nic = selectedUpgrade(P, "NIC", a.nicSku);
-  const { net, nicTopGb, topGb, speed } = speedFor(build, nic, a.speed);
+  const { net, nicTopGb, speed } = speedFor(build, nic);
   const priced = Boolean(build && price && !d.error);
   const raid = RAID_INFO[d.raid];
 
@@ -241,12 +246,12 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
   const panelRows =
     build && price
       ? [
-          { label: "NAS unit", basis: `${build.units} × ${inr(build.model.quote)}`, amount: price.nas },
-          { label: "Hard drives", basis: `${price.totalDrives} × ${inr(price.driveRate)}`, amount: price.hdd },
-          ...(ram ? [{ label: "RAM upgrade", basis: `${build.units} × ${inr(ram.quote)}`, amount: price.ram }] : []),
-          ...(nic ? [{ label: "Network card", basis: `${build.units} × ${inr(nic.quote)}`, amount: price.nic }] : []),
-          ...(a.includeInstall ? [{ label: "Installation & setup", basis: `${build.units} × ${inr(P.install.quote)}`, amount: price.install }] : []),
-          ...(a.includeAMC ? [{ label: "Annual maintenance", basis: `${Math.round(P.amcRate.quote * 100)}% of hardware`, amount: price.amc }] : []),
+          { label: "NAS unit", basis: `${build.units} × ${inr(build.model.quote)}`, amount: price.nas, floor: price.floor?.nas ?? null },
+          { label: "Hard drives", basis: `${price.totalDrives} × ${inr(price.driveRate)}`, amount: price.hdd, floor: price.floor?.hdd ?? null },
+          ...(ram ? [{ label: "RAM upgrade", basis: `${build.units} × ${inr(ram.quote)}`, amount: price.ram, floor: price.floor?.ram ?? null }] : []),
+          ...(nic ? [{ label: "Network card", basis: `${build.units} × ${inr(nic.quote)}`, amount: price.nic, floor: price.floor?.nic ?? null }] : []),
+          ...(a.includeInstall ? [{ label: "Installation & setup", basis: `${build.units} × ${inr(P.install.quote)}`, amount: price.install, floor: price.floor?.install ?? null }] : []),
+          ...(a.includeAMC ? [{ label: "Annual maintenance", basis: `${Math.round(P.amcRate.quote * 100)}% of hardware`, amount: price.amc, floor: price.floor?.amc ?? null }] : []),
         ]
       : [];
 
@@ -363,7 +368,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
               ) : (
                 <Note>
                   Chosen by you.{" "}
-                  <button type="button" onClick={() => update({ raidAuto: true, speed: null })} className={linkBtn}>
+                  <button type="button" onClick={() => update({ raidAuto: true })} className={linkBtn}>
                     Let us choose again
                   </button>
                 </Note>
@@ -376,7 +381,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                   key={r}
                   name="raid"
                   checked={d.raid === r}
-                  onSelect={() => update({ raid: r, speed: null, ...(a.storageMode === "budget" ? { raidAuto: false } : {}) })}
+                  onSelect={() => update({ raid: r, ...(a.storageMode === "budget" ? { raidAuto: false } : {}) })}
                   title={RAID_INFO[r].title}
                   sub={RAID_INFO[r].sub}
                 />
@@ -387,7 +392,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
           {/* 3 · bays */}
           <Step n={3} title="Drive bays" desc="How many drives the unit holds. Auto picks the size that fits best.">
             <div className="grid grid-cols-3 gap-2">
-              <Tile compact name="bays" checked={a.bays == null} onSelect={() => update({ bays: null, speed: null })} title="Auto" sub="Best fit" />
+              <Tile compact name="bays" checked={a.bays == null} onSelect={() => update({ bays: null })} title="Auto" sub="Best fit" />
               {tiers.map((t) => (
                 <Tile
                   compact
@@ -395,7 +400,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                   name="bays"
                   checked={a.bays === t}
                   disabled={blocked(can.bays.has(t), a.bays === t)}
-                  onSelect={() => update({ bays: t, speed: null })}
+                  onSelect={() => update({ bays: t })}
                   title={`${t}-bay`}
                   sub={reach(t)}
                 />
@@ -409,13 +414,13 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
           {/* 4 · brand */}
           <Step n={4} title="Brand" desc="Leave it open unless you have a preference — it widens what we can recommend.">
             <div className="grid grid-cols-3 gap-2">
-              <Tile name="brand" checked={a.brand === "any"} onSelect={() => update({ brand: "any", speed: null })} title="Any" sub="Recommend from all" />
+              <Tile name="brand" checked={a.brand === "any"} onSelect={() => update({ brand: "any" })} title="Any" sub="Recommend from all" />
               {brands.map((b) => (
                 <Tile
                   key={b}
                   name="brand"
                   checked={a.brand.toLowerCase() === b.toLowerCase()}
-                  onSelect={() => update({ brand: b, speed: null })}
+                  onSelect={() => update({ brand: b })}
                   title={b}
                   sub={`${P.models.filter((m) => m.brand === b).length} units`}
                 />
@@ -457,7 +462,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                 ) : (
                   <Note>
                     Chosen by you.{" "}
-                    <button type="button" onClick={() => update({ autoPick: true, speed: null })} className={linkBtn}>
+                    <button type="button" onClick={() => update({ autoPick: true })} className={linkBtn}>
                       Use our recommendation
                     </button>
                   </Note>
@@ -470,7 +475,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                       recommended={b === d.options[0]}
                       chosen={b.model.id === build?.model.id}
                       targetTB={d.targetTB}
-                      onSelect={() => update({ modelId: b.model.id, autoPick: false, speed: null })}
+                      onSelect={() => update({ modelId: b.model.id, autoPick: false })}
                       onSpecs={() => setSpecsFor(b)}
                     />
                   ))}
@@ -522,15 +527,16 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                 ) : null}
               </>
             )}
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-              {SPEED_LABELS.map((label) => {
-                const gb = parseFloat(label);
-                const sub =
-                  topGb >= gb ? (nicTopGb >= gb && (net?.topGb ?? 0) < gb ? "With the network card" : "Supported") : "Needs a faster unit or card";
-                return <Tile key={label} name="speed" checked={speed === label} onSelect={() => update({ speed: label })} title={label} sub={sub} />;
-              })}
-              <Tile name="speed" checked={speed === SPEED_UNSURE} onSelect={() => update({ speed: SPEED_UNSURE })} title="Not sure" sub="We'll advise" />
-            </div>
+            {build && speed ? (
+              <div className="rounded-lg border border-border-strong bg-surface px-4 py-3">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Connects at</p>
+                <p className="font-display mt-1 text-xl font-bold tracking-tight text-foreground">{speed}</p>
+                <p className="mt-1 text-xs text-muted">
+                  {net?.builtIn ? `${net.builtIn} built in` : "Ports to be confirmed"}
+                  {nic ? ` · with the ${nic.name}` : ""}
+                </p>
+              </div>
+            ) : null}
           </Step>
 
           {/* 8 · drives */}
@@ -607,7 +613,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                 <div>
                   <Label>Network card</Label>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                    <Tile name="nicSku" checked={a.nicSku == null} onSelect={() => update({ nicSku: null, speed: null })} title="None" sub="Not needed" />
+                    <Tile name="nicSku" checked={a.nicSku == null} onSelect={() => update({ nicSku: null })} title="None" sub="Not needed" />
                     {nicOptions.map((u) => {
                       const cardSpeed = labelForSpeed(parseFloat(`${u.name} ${u.spec}`.match(/(\d+(?:\.\d+)?)\s*GbE/i)?.[1] ?? "0"));
                       return (
@@ -615,7 +621,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                           key={u.sku}
                           name="nicSku"
                           checked={a.nicSku === u.sku}
-                          onSelect={() => update({ nicSku: u.sku, speed: null })}
+                          onSelect={() => update({ nicSku: u.sku })}
                           title={u.name}
                           sub={`${cardSpeed ? `${cardSpeed} · ` : ""}${inr(u.quote)} per unit`}
                         />
@@ -741,7 +747,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
         >
           <div className="overflow-hidden rounded-lg border border-border bg-background shadow-[0_24px_48px_-32px_rgba(16,21,28,0.35)]">
             <div className="bg-ink-800 px-5 py-5 text-white">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">Your estimate</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-muted">{sales ? "Internal estimate" : "Your estimate"}</p>
               {build ? (
                 <>
                   <p className="font-display mt-2 text-2xl font-bold tracking-tight">
@@ -762,7 +768,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                 ["Usable", build ? `${build.totalUsable} TB` : "—"],
                 ["RAID", raid.title],
                 ["Drives", build && price ? `${price.totalDrives}× ${build.driveCap} TB` : "—"],
-                ["Network", speed === SPEED_UNSURE ? "To advise" : (speed ?? "—")],
+                ["Network", speed ?? "—"],
               ].map(([k, v]) => (
                 <div key={k} className="bg-background px-4 py-3">
                   <dt className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">{k}</dt>
@@ -774,6 +780,15 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
             <div className="border-t border-border px-5 py-4">
               {priced ? (
                 <table className="w-full text-sm">
+                  {sales ? (
+                    <thead>
+                      <tr className="border-b border-border text-[10px] uppercase tracking-[0.12em] text-muted">
+                        <th scope="col" className="pb-1.5 text-left font-semibold">Line</th>
+                        <th scope="col" className="pb-1.5 text-right font-semibold">Quote</th>
+                        <th scope="col" className="pb-1.5 pl-3 text-right font-semibold">Floor</th>
+                      </tr>
+                    </thead>
+                  ) : null}
                   <tbody>
                     {panelRows.map((r) => (
                       <tr key={r.label} className="border-b border-border last:border-0">
@@ -782,6 +797,9 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                           <span className="block text-xs text-muted">{r.basis}</span>
                         </td>
                         <td className="py-2.5 text-right align-top font-medium tabular-nums text-foreground">{inr(r.amount)}</td>
+                        {sales ? (
+                          <td className="py-2.5 pl-3 text-right align-top tabular-nums text-muted">{r.floor != null ? inr(r.floor) : "—"}</td>
+                        ) : null}
                       </tr>
                     ))}
                   </tbody>
@@ -797,6 +815,21 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
                   {priced && price ? inr(price.total) : "—"}
                 </span>
               </div>
+
+              {sales && priced && price?.floor ? (
+                <div className="mt-3 rounded-md border border-border-strong bg-surface px-3 py-2.5">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">Floor · internal</span>
+                    <span className="font-display text-lg font-bold tabular-nums text-foreground">{inr(price.floor.total)}</span>
+                  </div>
+                  <div className="mt-1 flex items-baseline justify-between gap-3 text-xs text-muted">
+                    <span>Room to negotiate</span>
+                    <span className="tabular-nums">
+                      {inr(price.total - price.floor.total)} · {Math.round(((price.total - price.floor.total) / price.total) * 100)}%
+                    </span>
+                  </div>
+                </div>
+              ) : null}
             </div>
 
             <div className="space-y-2.5 border-t border-border bg-surface px-5 py-4">
@@ -829,7 +862,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
           raid={d.raid}
           chosen={specsFor.model.id === build?.model.id}
           onChoose={() => {
-            update({ modelId: specsFor.model.id, autoPick: false, speed: null });
+            update({ modelId: specsFor.model.id, autoPick: false });
             setSpecsFor(null);
           }}
           onClose={() => setSpecsFor(null)}
@@ -842,7 +875,7 @@ function Configurator({ pricing: P, company, infrastructureId }: Props & { prici
           raid={d.raid}
           chosenId={build?.model.id ?? null}
           onChoose={(modelId) => {
-            update({ modelId, autoPick: false, speed: null });
+            update({ modelId, autoPick: false });
             setComparing(false);
           }}
           onClose={() => setComparing(false)}

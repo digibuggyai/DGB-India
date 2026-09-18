@@ -18,6 +18,23 @@ const QNAP = (m: string) => `https://www.qnap.com/en-us/product/${m}/specs/hardw
 
 type Specs = Record<string, string | number | boolean>;
 
+/* The largest single drive each brand's units accept. Maximum raw capacity
+ * follows from it — bays × this — so the two can never disagree, and a new
+ * model needs only its bay count.
+ *
+ * Checked against both manufacturers in September 2026:
+ *  - Synology sells nothing larger than the HAT5320-24T, and its own product
+ *    pages compute capacity "using 24 TB drives" (DS925+ 216 TB over 9 bays,
+ *    DS1825+ 432 TB over 18 — both exactly bays × 24).
+ *  - QNAP publishes no per-drive ceiling at all; the limit is whatever is on
+ *    its compatibility list, and 32 TB (Seagate IronWolf Pro ST32000NT000,
+ *    sold in QNAP's own store) is the largest NAS drive made. Revisit when
+ *    36 TB drives reach retail. */
+const MAX_DRIVE_TB: Record<string, number> = {
+  Synology: 24,
+  QNAP: 32,
+};
+
 const SPECS: Record<string, Specs> = {
   DS223J: {
     cpu: "Realtek RTD1619B",
@@ -37,7 +54,6 @@ const SPECS: Record<string, Specs> = {
     memory: "2 GB DDR4 non-ECC",
     memoryMax: "6 GB",
     m2Slots: 0,
-    maxRawTb: 40,
     usbPorts: "2 × USB 3.2 Gen 1",
     dimensions: "165 × 108 × 232.2 mm",
     weightKg: 1.3,
@@ -51,7 +67,6 @@ const SPECS: Record<string, Specs> = {
     memoryMax: "32 GB",
     m2Slots: 2,
     baysWithExpansion: 7,
-    maxRawTb: 48,
     usbPorts: "1 × USB 3.2 Gen 1",
     dimensions: "166 × 106 × 223 mm",
     weightKg: 1.51,
@@ -64,7 +79,6 @@ const SPECS: Record<string, Specs> = {
     memory: "2 GB DDR4",
     memoryMax: "6 GB",
     m2Slots: 2,
-    maxRawTb: 96,
     usbPorts: "2 × USB 3.2 Gen 1",
     dimensions: "166 × 199 × 223 mm",
     weightKg: 2.18,
@@ -104,7 +118,6 @@ const SPECS: Record<string, Specs> = {
     memoryMax: "32 GB",
     m2Slots: 2,
     baysWithExpansion: 18,
-    maxRawTb: 160,
     usbPorts: "3 × USB 3.2 Gen 1",
     dimensions: "166 × 343 × 243 mm",
     weightKg: 6,
@@ -162,7 +175,6 @@ const SPECS: Record<string, Specs> = {
     m2Slots: 2,
     expandable: true,
     baysWithExpansion: 12,
-    maxRawTb: 72,
     specsUrl: QNAP("ts-464"),
   },
   "TS-664-8G": {
@@ -172,7 +184,6 @@ const SPECS: Record<string, Specs> = {
     memoryMax: "16 GB",
     m2Slots: 2,
     expandable: true,
-    maxRawTb: 120,
     specsUrl: QNAP("ts-664"),
   },
   "TS-832PX-4G": {
@@ -211,7 +222,9 @@ async function main() {
       continue;
     }
 
-    const changes = Object.fromEntries(Object.entries(specs).filter(([k, v]) => doc[k] !== v));
+    const perDrive = MAX_DRIVE_TB[doc.brand as string];
+    const wanted: Specs = perDrive ? { ...specs, maxDriveTb: perDrive, maxRawTb: doc.bays * perDrive } : specs;
+    const changes = Object.fromEntries(Object.entries(wanted).filter(([k, v]) => doc[k] !== v));
     if (!Object.keys(changes).length) {
       unchanged++;
       continue;

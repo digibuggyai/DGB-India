@@ -48,6 +48,7 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
     { key: "memory", label: "Memory", type: "text", placeholder: "4 GB DDR4 ECC" },
     { key: "memoryMax", label: "Maximum memory", type: "text", placeholder: "32 GB" },
     { key: "m2Slots", label: "M.2 NVMe slots", type: "number", step: 1 },
+    { key: "maxDriveTb", label: "Largest drive (TB)", type: "number", step: 1 },
     { key: "baysWithExpansion", label: "Bays with expansion", type: "number", step: 1 },
     { key: "maxRawTb", label: "Max raw capacity (TB)", type: "number", step: 1 },
     { key: "usbPorts", label: "USB ports", type: "text", placeholder: "2 × USB 3.2 Gen 1" },

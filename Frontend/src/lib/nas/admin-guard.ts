@@ -9,6 +9,14 @@ export async function requireAdmin() {
   return user && user.role === "admin" && token ? { user, token } : null;
 }
 
+/** Admins and sales staff. Sales see floor prices and quote from them, but
+ *  cannot change the price list. */
+export async function requireStaff() {
+  const [user, token] = await Promise.all([getAdminUser(), getAdminToken()]);
+  const allowed = user && (user.role === "admin" || user.role === "sales");
+  return allowed && token ? { user, token } : null;
+}
+
 export function forbidden() {
   return NextResponse.json({ error: "Only admins can manage NAS pricing." }, { status: 403 });
 }

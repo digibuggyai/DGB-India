@@ -6,8 +6,8 @@
  * touched: derive() returns the effective values instead, so React state stays
  * what the visitor actually chose. That also removes a staleness bug: the
  * original wrote the auto-picked network speed into state, so changing the
- * target could leave "2.5GbE" on a unit that now ships with 10GbE. Speed follows
- * the unit here until someone picks one by hand. */
+ * target could leave "2.5GbE" on a unit that now ships with 10GbE. Network speed
+ * is never stored — it is always read off the unit that is currently chosen. */
 
 import {
   MAX_UNITS,
@@ -44,8 +44,6 @@ export type Answers = {
   autoPick: boolean;
   driveCap: number | null;
   driveLine: string | null;
-  /** A speed chosen by hand; null follows the recommended unit. */
-  speed: string | null;
   ramSku: string | null;
   nicSku: string | null;
   includeInstall: boolean;
@@ -65,7 +63,6 @@ export const INITIAL_ANSWERS: Answers = {
   autoPick: true,
   driveCap: null,
   driveLine: null,
-  speed: null,
   ramSku: null,
   nicSku: null,
   includeInstall: true,
@@ -74,8 +71,6 @@ export const INITIAL_ANSWERS: Answers = {
 
 export const BUDGET_PRESETS = [100000, 150000, 200000, 300000, 500000];
 export const CAPACITY_PRESETS = [10, 20, 50, 100];
-export const SPEED_LABELS = ["1GbE", "2.5GbE", "10GbE"];
-export const SPEED_UNSURE = "Not sure — please advise";
 
 export type Derived = {
   mode: StorageMode;
@@ -230,6 +225,20 @@ export function feasibleOptions(a: Answers, P: NasPricing, d: Derived): Feasible
 
 /* ---------------- pricing ---------------- */
 
+/** The same money at the internal floor. Null wherever a floor is unknown —
+ *  which is always the case on the public site. */
+export type Floor = {
+  driveRate: number;
+  nas: number;
+  hdd: number;
+  ram: number;
+  nic: number;
+  install: number;
+  amc: number;
+  hardware: number;
+  total: number;
+};
+
 export type Price = {
   totalDrives: number;
   driveRate: number;
@@ -241,6 +250,7 @@ export type Price = {
   amc: number;
   hardware: number;
   total: number;
+  floor: Floor | null;
 };
 
 /** The RAM/NIC product chosen, or null once it stops existing in the price list. */
@@ -267,19 +277,44 @@ export function priceFor(build: Build | null, a: Answers, P: NasPricing): Price 
   const hardware = nas + hdd + ramAmount + nicAmount;
   const amc = a.includeAMC ? hardware * P.amcRate.quote : 0;
 
-  return { totalDrives, driveRate, nas, hdd, ram: ramAmount, nic: nicAmount, install, amc, hardware, total: hardware + install + amc };
+  // A floor needs a minimum on both the unit and the drive; without either
+  // there is no honest figure, so none is offered.
+  const modelMin = build.model.min ?? null;
+  const driveMin = P.hddPricing[build.driveCap]?.[build.driveLine]?.min ?? null;
+  let floor: Floor | null = null;
+  if (modelMin != null && driveMin != null) {
+    const nasFloor = modelMin * build.units;
+    const hddFloor = driveMin * totalDrives;
+    const ramFloor = ram ? (ram.min ?? ram.quote) * build.units : 0;
+    const nicFloor = nic ? (nic.min ?? nic.quote) * build.units : 0;
+    const installFloor = a.includeInstall ? (P.install.min ?? P.install.quote) * build.units : 0;
+    const hardwareFloor = nasFloor + hddFloor + ramFloor + nicFloor;
+    const amcFloor = a.includeAMC ? hardwareFloor * (P.amcRate.min ?? P.amcRate.quote) : 0;
+    floor = {
+      driveRate: driveMin,
+      nas: nasFloor,
+      hdd: hddFloor,
+      ram: ramFloor,
+      nic: nicFloor,
+      install: installFloor,
+      amc: amcFloor,
+      hardware: hardwareFloor,
+      total: hardwareFloor + installFloor + amcFloor,
+    };
+  }
+
+  return { totalDrives, driveRate, nas, hdd, ram: ramAmount, nic: nicAmount, install, amc, hardware, total: hardware + install + amc, floor };
 }
 
 /** What the build can do on the network, and the speed to show. */
 export function speedFor(
   build: Build | null,
   nic: Upgrade | null,
-  pinned: string | null,
 ): { net: NetworkInfo | null; nicTopGb: number; topGb: number; speed: string | null } {
   const net = networkFor(build?.model);
   const nicTopGb = nic ? topSpeed(`${nic.name} ${nic.spec}`) : 0;
   const topGb = Math.max(net?.topGb ?? 0, nicTopGb);
-  return { net, nicTopGb, topGb, speed: pinned ?? labelForSpeed(topGb) ?? net?.quotable ?? null };
+  return { net, nicTopGb, topGb, speed: labelForSpeed(topGb) ?? net?.quotable ?? null };
 }
 
 /* ---------------- estimate & lead ---------------- */

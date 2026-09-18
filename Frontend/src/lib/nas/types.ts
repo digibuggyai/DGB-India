@@ -14,6 +14,8 @@ export type NasModel = {
   bays: number;
   /** GST-inclusive price per unit. */
   quote: number;
+  /** Internal floor price. Only ever present on the sales-side payload. */
+  min?: number | null;
   raid: RaidLevel[];
   expandable: boolean;
   /** Free text such as "2.5GbE ×2" — link speed is parsed out of it. */
@@ -29,6 +31,8 @@ export type NasModel = {
   memory: string;
   memoryMax: string;
   m2Slots: number | null;
+  /** Largest drive the unit accepts, in TB. Nothing bigger is ever quoted in it. */
+  maxDriveTb: number | null;
   /** Total bays once expansion units are attached. */
   baysWithExpansion: number | null;
   maxRawTb: number | null;
@@ -41,7 +45,7 @@ export type NasModel = {
 };
 
 /** Drive capacity (TB) → drive line (e.g. "IronWolf") → GST-inclusive price per drive. */
-export type HddPricing = Record<number, Record<string, { quote: number }>>;
+export type HddPricing = Record<number, Record<string, { quote: number; min?: number | null }>>;
 
 export type Upgrade = {
   sku: string;
@@ -50,6 +54,7 @@ export type Upgrade = {
   brand: string;
   spec: string;
   quote: number;
+  min?: number | null;
 };
 
 export type NasPricing = {
@@ -57,9 +62,9 @@ export type NasPricing = {
   models: NasModel[];
   capacities: number[];
   hddPricing: HddPricing;
-  install: { quote: number };
+  install: { quote: number; min?: number | null };
   /** AMC as a fraction of hardware value — 0.1 is 10%. */
-  amcRate: { quote: number };
+  amcRate: { quote: number; min?: number | null };
   upgrades: Upgrade[];
 };
 

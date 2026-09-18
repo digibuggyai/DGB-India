@@ -21,6 +21,7 @@ export type CmsModel = {
   memory?: string | null;
   memoryMax?: string | null;
   m2Slots?: number | null;
+  maxDriveTb?: number | null;
   baysWithExpansion?: number | null;
   maxRawTb?: number | null;
   usbPorts?: string | null;

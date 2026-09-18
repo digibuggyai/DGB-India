@@ -107,6 +107,12 @@ type Catalogue = {
   maxUnits?: number;
 };
 
+/** A unit only takes drives up to its own per-drive ceiling. No ceiling on
+ *  record means no restriction — the catalogue decides. */
+function fitsDrive(model: NasModel, cap: number): boolean {
+  return !model.maxDriveTb || cap <= model.maxDriveTb;
+}
+
 function modelMatches(model: NasModel, raid: RaidLevel, { brand = "any", bays = null, expandableOnly = false }: Filters): boolean {
   if (!model.raid.includes(raid)) return false;
   // Belt and braces: the catalogue shouldn't list a RAID level a chassis has
@@ -149,6 +155,7 @@ export function suggestBuilds({
     if (!modelMatches(model, raid, filters)) continue;
 
     for (const cap of capacities) {
+      if (!fitsDrive(model, cap)) continue;
       const lines = hddPricing[cap] || {};
       for (const line of Object.keys(lines)) {
         const drive = lines[line];
@@ -258,7 +265,7 @@ export function buildableSizes({
     if (!modelMatches(model, raid, filters)) continue;
 
     for (const cap of capacities) {
-      if (!Object.keys(hddPricing[cap] || {}).length) continue;
+      if (!fitsDrive(model, cap) || !Object.keys(hddPricing[cap] || {}).length) continue;
 
       // RAID 1 is always a single mirrored pair, whatever the chassis holds.
       const counts = raid === "RAID1" ? [2] : range(info.minDrives, model.bays, info.step);
@@ -306,6 +313,7 @@ export function suggestBuildsForBudget({
     if (!modelMatches(model, raid, filters)) continue;
 
     for (const cap of capacities) {
+      if (!fitsDrive(model, cap)) continue;
       const lines = hddPricing[cap] || {};
       for (const line of Object.keys(lines)) {
         const drive = lines[line];

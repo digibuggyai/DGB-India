@@ -2,7 +2,8 @@ import type { Access, CollectionConfig, FieldAccess } from "payload";
 import { logChanges } from "../hooks/nasPriceLog";
 
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
-const adminOnly: FieldAccess = ({ req }) => req.user?.role === "admin";
+// Admins and sales staff: sales quote against the floor, so they can read it.
+const staffOnly: FieldAccess = ({ req }) => req.user?.role === "admin" || req.user?.role === "sales";
 
 /* NAS units the configurator (/nas-config) can quote.
  *
@@ -51,6 +52,13 @@ export const NasModels: CollectionConfig = {
     { name: "memory", label: "Memory (installed)", type: "text", admin: { description: "e.g. \"4 GB DDR4 ECC\"." } },
     { name: "memoryMax", label: "Memory (maximum)", type: "text", admin: { description: "e.g. \"32 GB\"." } },
     { name: "m2Slots", label: "M.2 NVMe slots", type: "number", min: 0 },
+    {
+      name: "maxDriveTb",
+      label: "Largest drive supported (TB)",
+      type: "number",
+      min: 0,
+      admin: { description: "Per-drive ceiling for this unit. The configurator will not quote a bigger drive in it." },
+    },
     { name: "baysWithExpansion", label: "Bays with expansion units", type: "number", min: 0, admin: { description: "Total bays once expansion units are attached. Leave blank if it takes none." } },
     { name: "maxRawTb", label: "Maximum raw capacity (TB)", type: "number", min: 0 },
     { name: "usbPorts", label: "USB ports", type: "text" },
@@ -69,7 +77,7 @@ export const NasModels: CollectionConfig = {
       name: "minPrice",
       type: "number",
       min: 0,
-      access: { read: adminOnly },
+      access: { read: staffOnly },
       admin: { description: "With-tax minimum (₹). Admins only — never sent to the public site." },
     },
     { name: "active", type: "checkbox", defaultValue: true, admin: { description: "Untick to hide from the configurator." } },

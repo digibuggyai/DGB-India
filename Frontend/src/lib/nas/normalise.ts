@@ -51,6 +51,7 @@ export function normalisePricing(raw: unknown): NormaliseResult {
       memory: toStr(m.memory),
       memoryMax: toStr(m.memoryMax),
       m2Slots: toNum(m.m2Slots),
+      maxDriveTb: toNum(m.maxDriveTb),
       baysWithExpansion: toNum(m.baysWithExpansion),
       maxRawTb: toNum(m.maxRawTb),
       usbPorts: toStr(m.usbPorts),
