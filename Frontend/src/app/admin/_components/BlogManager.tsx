@@ -1,9 +1,21 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Toast, type ToastKind } from "@/components/ui/Toast";
-import { postPath, postStatus, type AdminAuthor, type AdminPost, type PostStatus, type PostType } from "@/lib/blog-types";
+import {
+  IMAGE_MAX_BYTES,
+  IMAGE_TYPES,
+  imageIdsIn,
+  imageToken,
+  postPath,
+  postStatus,
+  type AdminAuthor,
+  type AdminImage,
+  type AdminPost,
+  type PostStatus,
+  type PostType,
+} from "@/lib/blog-types";
 
 /* The admin Blog tab: every post, draft and scheduled post, and an editor that
  * writes in Markdown. The CMS converts it to its own rich text on save, so a
@@ -203,6 +215,102 @@ function PostEditor({
   const [publish, setPublish] = useState<Publish>(status === "published" ? "keep" : status === "scheduled" ? "schedule" : "draft");
   const [scheduleAt, setScheduleAt] = useState(status === "scheduled" ? toLocalInput(post?.publishedAt ?? null) : "");
   const [busy, setBusy] = useState<"save" | "delete" | null>(null);
+  const [cover, setCover] = useState<AdminImage | null>(post?.cover ?? null);
+  const [coverAlt, setCoverAlt] = useState(post?.cover?.alt ?? "");
+  const [uploading, setUploading] = useState<"cover" | "inline" | null>(null);
+  // Images written into the article, by id, and any alt text edited here.
+  const [images, setImages] = useState<Record<number, AdminImage>>({});
+  const [altEdits, setAltEdits] = useState<Record<number, string>>({});
+  const bodyRef = useRef<HTMLTextAreaElement>(null);
+
+  const inlineIds = useMemo(() => imageIdsIn(body), [body]);
+
+  // Thumbnails for images already in the article when it's opened.
+  useEffect(() => {
+    const missing = imageIdsIn(post?.bodyMarkdown ?? "");
+    if (!missing.length) return;
+    let cancelled = false;
+    fetch(`/api/admin/blog/media?ids=${missing.join(",")}`)
+      .then((r) => (r.ok ? r.json() : { images: [] }))
+      .then((d: { images?: AdminImage[] }) => {
+        if (!cancelled) setImages((prev) => ({ ...prev, ...Object.fromEntries((d.images ?? []).map((i) => [i.id, i])) }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [post?.bodyMarkdown]);
+
+  async function upload(file: File, alt: string): Promise<AdminImage> {
+    if (!IMAGE_TYPES.includes(file.type)) throw new Error("Use a JPEG, PNG or WebP image.");
+    if (file.size > IMAGE_MAX_BYTES) throw new Error("That image is over 4 MB. Save it smaller and try again.");
+    const form = new FormData();
+    form.append("file", file);
+    form.append("alt", alt);
+    const res = await fetch("/api/admin/blog/media", { method: "POST", body: form });
+    const data = (await res.json().catch(() => ({}))) as { image?: AdminImage; error?: string };
+    if (!res.ok || !data.image) throw new Error(data.error || "Couldn't upload the image.");
+    return data.image;
+  }
+
+  async function chooseCover(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading("cover");
+    try {
+      const image = await upload(file, coverAlt.trim() || title.trim());
+      setCover(image);
+      setCoverAlt(image.alt);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Couldn't upload the image.");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  async function insertImage(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setUploading("inline");
+    try {
+      const image = await upload(file, "");
+      setImages((prev) => ({ ...prev, [image.id]: image }));
+      // Drop it in where the cursor was, on a line of its own.
+      const el = bodyRef.current;
+      const at = el ? el.selectionStart : body.length;
+      const before = body.slice(0, at).replace(/\s*$/, "");
+      const after = body.slice(at).replace(/^\s*/, "");
+      setBody(`${before}${before ? "\n\n" : ""}${imageToken(image.id)}${after ? "\n\n" : "\n"}${after}`);
+    } catch (err) {
+      onError(err instanceof Error ? err.message : "Couldn't upload the image.");
+    } finally {
+      setUploading(null);
+    }
+  }
+
+  /** Saves any image descriptions changed since they were uploaded. */
+  async function saveAltText() {
+    const edits: [number, string][] = Object.entries(altEdits)
+      .map(([id, alt]) => [Number(id), alt.trim()] as [number, string])
+      .filter(([id, alt]) => alt && images[id] && images[id].alt !== alt && inlineIds.includes(id));
+    if (cover && coverAlt.trim() && coverAlt.trim() !== cover.alt) edits.push([cover.id, coverAlt.trim()]);
+    for (const [id, alt] of edits) {
+      const res = await fetch(`/api/admin/blog/media/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alt }),
+      });
+      if (!res.ok) throw new Error("Couldn't save an image description.");
+    }
+    if (cover && coverAlt.trim()) setCover({ ...cover, alt: coverAlt.trim() });
+    setImages((prev) => {
+      const next = { ...prev };
+      for (const [id, alt] of edits) if (next[id]) next[id] = { ...next[id], alt };
+      return next;
+    });
+  }
 
   const words = body.split(/\s+/).filter(Boolean).length;
 
@@ -220,6 +328,7 @@ function PostEditor({
 
     setBusy("save");
     try {
+      await saveAltText();
       const res = await fetch(post ? `/api/admin/blog/${post.id}` : "/api/admin/blog", {
         method: post ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -231,6 +340,7 @@ function PostEditor({
           bodyMarkdown: body,
           tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
           authorId: authorId ? Number(authorId) : null,
+          coverId: cover?.id ?? null,
           publishedAt: publishedAt(),
         }),
       });
@@ -322,7 +432,16 @@ function PostEditor({
                 {words.toLocaleString("en-IN")} words · about {Math.max(1, Math.round(words / 200))} min read
               </span>
             </span>
+            <div className="mb-2 flex flex-wrap items-center gap-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent">
+                {uploading === "inline" ? <Spinner className="h-3.5 w-3.5" /> : null}
+                {uploading === "inline" ? "Uploading…" : "Insert image"}
+                <input type="file" accept={IMAGE_TYPES.join(",")} onChange={insertImage} disabled={uploading !== null} className="sr-only" />
+              </label>
+              <span className="text-xs text-muted">Goes where the cursor is.</span>
+            </div>
             <textarea
+              ref={bodyRef}
               id="post-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
@@ -332,6 +451,36 @@ function PostEditor({
               className={`${inputClass} font-mono text-[13px] leading-relaxed`}
             />
           </label>
+
+          {inlineIds.length ? (
+            <div className="rounded-md border border-border bg-background p-4">
+              <p className="text-xs font-medium text-foreground/80">Images in this article</p>
+              <ul className="mt-3 space-y-3">
+                {inlineIds.map((id) => {
+                  const image = images[id];
+                  return (
+                    <li key={id} className="flex items-center gap-3">
+                      {image ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- a CMS preview, not page content
+                        <img src={image.url} alt="" className="h-12 w-20 shrink-0 rounded border border-border object-cover" />
+                      ) : (
+                        <span className="h-12 w-20 shrink-0 rounded border border-border bg-surface" />
+                      )}
+                      <input
+                        value={altEdits[id] ?? image?.alt ?? ""}
+                        onChange={(e) => setAltEdits((prev) => ({ ...prev, [id]: e.target.value }))}
+                        placeholder="Describe this image"
+                        aria-label={`Description for image ${id}`}
+                        className={inputClass}
+                      />
+                      <code className="shrink-0 text-[11px] text-muted">{imageToken(id)}</code>
+                    </li>
+                  );
+                })}
+              </ul>
+              <p className="mt-3 text-xs text-muted">To remove an image, delete its line from the article.</p>
+            </div>
+          ) : null}
 
           <details className="rounded-md border border-border bg-surface px-4 py-3 text-sm">
             <summary className="cursor-pointer font-medium text-foreground">Formatting help</summary>
@@ -348,6 +497,8 @@ function PostEditor({
               <dd className="font-sans">Link</dd>
               <dt>&gt; quote</dt>
               <dd className="font-sans">Quote</dd>
+              <dt>![media:12]()</dt>
+              <dd className="font-sans">An uploaded image — use Insert image rather than typing it</dd>
               <dt>blank line</dt>
               <dd className="font-sans">Starts a new paragraph</dd>
             </dl>
@@ -356,6 +507,50 @@ function PostEditor({
 
         {/* settings */}
         <aside className="space-y-5 rounded-lg border border-border bg-background p-5 lg:self-start">
+          <div>
+            <span className={labelClass}>Banner image</span>
+            {cover ? (
+              <div className="space-y-2">
+                {/* eslint-disable-next-line @next/next/no-img-element -- a CMS preview, not page content */}
+                <img src={cover.url} alt={coverAlt || cover.alt} className="aspect-video w-full rounded-md border border-border object-cover" />
+                <input
+                  id="post-cover-alt"
+                  value={coverAlt}
+                  onChange={(e) => setCoverAlt(e.target.value)}
+                  placeholder="Describe the image"
+                  aria-label="Banner image description"
+                  className={inputClass}
+                />
+                <div className="flex gap-2">
+                  <label className="flex-1 cursor-pointer rounded-full border border-border px-3 py-1.5 text-center text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent">
+                    {uploading === "cover" ? "Uploading…" : "Replace"}
+                    <input type="file" accept={IMAGE_TYPES.join(",")} onChange={chooseCover} disabled={uploading !== null} className="sr-only" />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setCover(null)}
+                    className="flex-1 rounded-full px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-tint"
+                  >
+                    Remove
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <label className="flex aspect-video cursor-pointer flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border-strong bg-surface px-4 text-center transition-colors hover:border-accent">
+                {uploading === "cover" ? (
+                  <Spinner className="h-5 w-5" />
+                ) : (
+                  <>
+                    <span className="text-sm font-medium text-foreground">Upload banner</span>
+                    <span className="text-xs text-muted">Without one, a drawn cover is used</span>
+                  </>
+                )}
+                <input type="file" accept={IMAGE_TYPES.join(",")} onChange={chooseCover} disabled={uploading !== null} className="sr-only" />
+              </label>
+            )}
+            <span className="mt-1.5 block text-xs text-muted">JPEG, PNG or WebP, up to 4 MB. Landscape (16:9) looks best.</span>
+          </div>
+
           <fieldset>
             <legend className={labelClass}>Visibility</legend>
             <div className="space-y-2 text-sm">

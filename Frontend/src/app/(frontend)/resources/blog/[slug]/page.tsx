@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostDetail } from "@/components/resources/PostDetail";
+import { coverOf } from "@/components/resources/postMeta";
 import { getPosts, getPostBySlug } from "@/lib/content";
 
 // Built ahead of time where possible; a CMS outage at build time shouldn't fail
@@ -17,7 +18,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.seo?.title || post.title,
     description: post.seo?.description || post.excerpt || undefined,
-    openGraph: { type: "article", publishedTime: post.publishedAt ?? undefined },
+    openGraph: {
+      type: "article",
+      publishedTime: post.publishedAt ?? undefined,
+      // The banner doubles as the preview image when the post is shared.
+      images: coverOf(post, "hero") ? [{ url: coverOf(post, "hero")!.url, alt: coverOf(post, "hero")!.alt }] : undefined,
+    },
   };
 }
 

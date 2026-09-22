@@ -18,10 +18,12 @@ export function postTags(post: Post): string[] {
   return (post.tags ?? []).map((t) => t.tag).filter(Boolean);
 }
 
-/** The cover image, when one was uploaded and resolved (depth ≥ 1). */
-export function coverOf(post: Post): { url: string; alt: string } | null {
+/** The banner image, when one was uploaded and resolved (depth ≥ 1). The CMS
+ *  keeps a card size (800 px) for listings and a hero size (1920 px) for the
+ *  article itself; the original is the fallback when a size wasn't made. */
+export function coverOf(post: Post, size: "card" | "hero" = "card"): { url: string; alt: string } | null {
   const media = post.coverImage && typeof post.coverImage === "object" ? (post.coverImage as Media) : null;
-  const url = media?.sizes?.card?.url || media?.url;
+  const url = media?.sizes?.[size]?.url || media?.url;
   return url ? { url, alt: media?.alt || post.title } : null;
 }
 

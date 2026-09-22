@@ -20,7 +20,7 @@ export function PostDetail({
   related?: Post[];
 }) {
   const author = authorOf(post);
-  const cover = coverOf(post);
+  const cover = coverOf(post, "hero");
   const tags = postTags(post);
   const meta = [postDate(post), readingLabel(post)].filter(Boolean);
 
@@ -74,7 +74,7 @@ export function PostDetail({
       <div className="container-page max-w-3xl py-12 sm:py-16">
         <RichText
           data={post.body}
-          className="prose-lg prose-headings:font-display prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:font-medium prose-a:underline-offset-4 prose-blockquote:border-l-accent prose-blockquote:text-foreground prose-code:rounded prose-code:bg-surface prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none"
+          className="prose-lg prose-headings:font-display prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:font-medium prose-a:underline-offset-4 prose-blockquote:border-l-accent prose-blockquote:text-foreground prose-code:rounded prose-code:bg-surface prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-img:w-full prose-img:rounded-lg prose-img:border prose-img:border-border"
         />
 
         <aside className="mt-14 rounded-lg border border-border bg-tint/60 p-6 sm:p-8">
