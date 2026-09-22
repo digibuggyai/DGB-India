@@ -620,6 +620,14 @@ export interface Post {
   relatedIndustries?: (number | Industry)[] | null;
   relatedInfrastructure?: (number | Infrastructure)[] | null;
   publishedAt?: string | null;
+  /**
+   * Markdown copy of the body, kept in step with it by the CMS.
+   */
+  bodyMarkdown?: string | null;
+  /**
+   * Worked out from the length of the post.
+   */
+  readingMinutes?: number | null;
   seo?: {
     /**
      * Overrides the default <title>. ~60 characters.

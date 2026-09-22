@@ -3,32 +3,29 @@ import { notFound } from "next/navigation";
 import { PostDetail } from "@/components/resources/PostDetail";
 import { getPosts, getPostBySlug } from "@/lib/content";
 
+// Built ahead of time where possible; a CMS outage at build time shouldn't fail
+// the whole deploy — the pages then render on first visit instead.
 export async function generateStaticParams() {
-  const posts = await getPosts("insight", 100);
+  const posts = await getPosts("insight", 100).catch(() => []);
   return posts.map((p) => ({ slug: p.slug ?? "" }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return {};
   return {
     title: post.seo?.title || post.title,
     description: post.seo?.description || post.excerpt || undefined,
+    openGraph: { type: "article", publishedTime: post.publishedAt ?? undefined },
   };
 }
 
-export default async function InsightDetailPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function InsightDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post || post.type !== "insight") notFound();
-  return <PostDetail post={post} kicker="Insight" />;
+
+  const related = (await getPosts("insight", 4).catch(() => [])).filter((p) => p.id !== post.id).slice(0, 3);
+  return <PostDetail post={post} kicker="Insight" basePath="/resources/insights" related={related} />;
 }

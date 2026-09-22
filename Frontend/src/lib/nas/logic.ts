@@ -100,6 +100,10 @@ type Filters = {
   expandableOnly?: boolean;
 };
 
+/** Money spent on top of the hardware — installation, AMC — for a build of this
+ *  hardware value and unit count. */
+export type ExtraCost = (hardware: number, units: number) => number;
+
 type Catalogue = {
   models: NasModel[];
   hddPricing: HddPricing;
@@ -302,8 +306,9 @@ export function suggestBuildsForBudget({
   hddPricing,
   capacities,
   maxUnits = MAX_UNITS,
+  extraCost,
   ...filters
-}: Catalogue & Filters & { budget: number; raid: RaidLevel }): Build[] {
+}: Catalogue & Filters & { budget: number; raid: RaidLevel; extraCost?: ExtraCost }): Build[] {
   const info = RAID_INFO[raid];
   if (!(budget > 0)) return [];
 
@@ -328,7 +333,9 @@ export function suggestBuildsForBudget({
           // every larger unit count will too.
           for (let units = 1; units <= maxUnits; units++) {
             const totalQuote = perUnitQuote * units;
-            if (totalQuote > budget) break;
+            // What the customer actually pays: hardware plus anything they've
+            // asked for on top, so a budget means the whole quote.
+            if (totalQuote + (extraCost ? extraCost(totalQuote, units) : 0) > budget) break;
             builds.push({
               model,
               driveCap: cap,
@@ -362,10 +369,46 @@ export function suggestBudgetPlan({
   budget,
   raidPool = RAID_REDUNDANCY_ORDER,
   ...rest
-}: Catalogue & Filters & { budget: number; raidPool?: RaidLevel[] }): { raid: RaidLevel; builds: Build[] } | null {
+}: Catalogue & Filters & { budget: number; raidPool?: RaidLevel[]; extraCost?: ExtraCost }): { raid: RaidLevel; builds: Build[] } | null {
+  // Among the levels that survive a drive failure, take the one that turns the
+  // budget into the most usable space. Trying them most-protective-first and
+  // stopping at the first that fits sounds safer but spends the budget badly:
+  // RAID 6 hands a second drive to parity, so at the same money it can deliver
+  // far less than RAID 5 — 12 TB against 20 TB at ₹2,00,000 on this catalogue.
+  // Ties go to the more protective level, which is what the pool order gives.
+  let best: { raid: RaidLevel; builds: Build[]; usable: number } | null = null;
   for (const raid of raidPool) {
+    if (raid === "RAID0") continue;
     const builds = suggestBuildsForBudget({ ...rest, budget, raid });
-    if (builds.length) return { raid, builds };
+    if (!builds.length) continue;
+    const usable = builds[0].totalUsable;
+    if (!best || usable > best.usable) best = { raid, builds, usable };
+  }
+  if (best) return { raid: best.raid, builds: best.builds };
+
+  // Nothing redundant is affordable. RAID 0 still beats telling someone their
+  // budget buys nothing, and the configurator says plainly that it has no
+  // redundancy.
+  if (raidPool.includes("RAID0")) {
+    const builds = suggestBuildsForBudget({ ...rest, budget, raid: "RAID0" });
+    if (builds.length) return { raid: "RAID0", builds };
   }
   return null;
+}
+
+/** The least anything on the price list can be built for, so a budget that is
+ *  too small can say what would be enough instead of only "nothing fits". */
+export function cheapestOutlay({
+  raidPool = RAID_REDUNDANCY_ORDER,
+  extraCost,
+  ...rest
+}: Catalogue & Filters & { raidPool?: RaidLevel[]; extraCost?: ExtraCost }): number | null {
+  let cheapest: number | null = null;
+  for (const raid of raidPool) {
+    for (const b of suggestBuildsForBudget({ ...rest, budget: Number.MAX_SAFE_INTEGER, raid, extraCost })) {
+      const outlay = b.totalQuote + (extraCost ? extraCost(b.totalQuote, b.units) : 0);
+      if (cheapest == null || outlay < cheapest) cheapest = outlay;
+    }
+  }
+  return cheapest;
 }

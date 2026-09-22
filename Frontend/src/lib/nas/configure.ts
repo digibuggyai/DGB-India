@@ -18,6 +18,7 @@ import {
   labelForSpeed,
   nearestBuildable,
   networkFor,
+  cheapestOutlay,
   suggestBudgetPlan,
   suggestBuilds,
   suggestBuildsForBudget,
@@ -36,7 +37,7 @@ export type Answers = {
   brand: string;
   bays: number | null;
   raid: RaidLevel;
-  /** Budget mode only: pick the most protective level that fits. */
+  /** Budget mode only: let the tool choose the RAID level. */
   raidAuto: boolean;
   expandable: boolean;
   modelId: string | null;
@@ -124,19 +125,38 @@ export function derive(a: Answers, P: NasPricing): Derived {
     const budget = a.budget;
     if (budget == null || !(budget > 0)) return unbuilt(a, "budget", "Enter a budget to size against.");
 
+    // A budget covers the whole quote, so anything ticked on top of the
+    // hardware comes out of it rather than surprising the customer later.
+    const extraCost = (hardware: number, units: number) =>
+      (a.includeInstall ? P.install.quote * units : 0) + (a.includeAMC ? hardware * P.amcRate.quote : 0);
+
     let raid = a.raid;
     let builds: Build[];
     if (a.raidAuto) {
-      const plan = suggestBudgetPlan({ budget, ...catalogue });
+      const plan = suggestBudgetPlan({ budget, extraCost, ...catalogue });
       if (!plan) {
-        return unbuilt(a, "budget", `Nothing fits ${inr(budget)} with these choices — widen the brand or bays, or raise the budget.`);
+        const least = cheapestOutlay({ extraCost, ...catalogue });
+        return unbuilt(
+          a,
+          "budget",
+          least == null
+            ? "Nothing on our price list can be built with these choices — widen the brand, bays or RAID level."
+            : `${inr(budget)} doesn't cover a complete configuration. The least we can build with these choices is ${inr(least)}.`,
+        );
       }
       raid = plan.raid;
       builds = plan.builds;
     } else {
-      builds = suggestBuildsForBudget({ budget, raid, ...catalogue });
+      builds = suggestBuildsForBudget({ budget, raid, extraCost, ...catalogue });
       if (!builds.length) {
-        return unbuilt(a, "budget", `No ${RAID_INFO[raid].title} build fits ${inr(budget)} — let us choose the RAID level, or try another.`);
+        const least = cheapestOutlay({ raidPool: [raid], extraCost, ...catalogue });
+        return unbuilt(
+          a,
+          "budget",
+          least == null
+            ? `No ${RAID_INFO[raid].title} build is possible with these choices — try another level.`
+            : `No ${RAID_INFO[raid].title} build fits ${inr(budget)} — the cheapest is ${inr(least)}. Let us choose the level, or raise the budget.`,
+        );
       }
     }
 

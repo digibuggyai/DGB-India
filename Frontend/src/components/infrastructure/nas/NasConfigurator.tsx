@@ -354,7 +354,10 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                     </Chip>
                   ))}
                 </div>
-                <Note>Your budget covers the NAS unit and drives. Installation and AMC, if you add them, come on top.</Note>
+                <Note>
+                  Your budget covers everything you&rsquo;ve asked for — the unit and drives, plus installation and AMC
+                  once those are ticked below.
+                </Note>
                 {d.error ? <Alert tone="error">{d.error}</Alert> : null}
               </>
             )}
@@ -364,7 +367,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
           <Step n={2} title="RAID level" desc="How drives are arranged: how much raw capacity is usable, and how many drive failures the array survives.">
             {a.storageMode === "budget" ? (
               a.raidAuto ? (
-                <Note>Picked for you — the most protective level your budget allows.</Note>
+                <Note>Picked for you — the level that turns this budget into the most usable space while still surviving a drive failure.</Note>
               ) : (
                 <Note>
                   Chosen by you.{" "}
