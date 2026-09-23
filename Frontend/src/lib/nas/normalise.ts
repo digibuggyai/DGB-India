@@ -1,5 +1,5 @@
 import "server-only";
-import type { HddPricing, NasModel, NasPricing, RaidLevel, Upgrade } from "./types";
+import type { DriveLine, HddPricing, NasModel, NasPricing, RaidLevel, Upgrade } from "./types";
 
 /* Turns the price list read from the CMS into the shape the configurator reads.
  *
@@ -82,6 +82,29 @@ export function normalisePricing(raw: unknown): NormaliseResult {
     .filter((c) => Number.isFinite(c) && hddPricing[c])
     .sort((a, b) => a - b);
 
+  // Drive specifications. No price is carried here, so nothing to strip — but
+  // they're rebuilt field by field like everything else in this file.
+  const driveLines: DriveLine[] = (Array.isArray(d.driveLines) ? d.driveLines : [])
+    .filter(isObj)
+    .map((l) => ({
+      name: toStr(l.name),
+      brand: toStr(l.brand),
+      driveClass: toStr(l.driveClass) === "enterprise" ? ("enterprise" as const) : ("nas" as const),
+      madeForBrand: toStr(l.madeForBrand),
+      series: toStr(l.series),
+      rpm: toStr(l.rpm),
+      cache: toStr(l.cache),
+      interface: toStr(l.interface),
+      recording: toStr(l.recording),
+      workloadTbYear: toStr(l.workloadTbYear),
+      mtbf: toStr(l.mtbf),
+      warrantyYears: toNum(l.warrantyYears),
+      bestFor: toStr(l.bestFor),
+      extras: toStr(l.extras),
+      specsUrl: toUrl(l.specsUrl),
+    }))
+    .filter((l) => l.name);
+
   const install = { quote: Number(isObj(d.install) ? d.install.quote : NaN) };
 
   // `rmaRate` is what the field was called before it was renamed to AMC.
@@ -112,6 +135,7 @@ export function normalisePricing(raw: unknown): NormaliseResult {
       models,
       capacities,
       hddPricing,
+      driveLines,
       install,
       amcRate,
       upgrades,

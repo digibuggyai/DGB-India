@@ -1,9 +1,18 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
-import { buildSpecs, compareRows, keySpecs, modelSpecs, type Spec } from "@/lib/nas/specs";
+import {
+  buildSpecs,
+  compareRows,
+  driveLineSpecs,
+  driveNotes,
+  keyDriveSpecs,
+  keySpecs,
+  modelSpecs,
+  type Spec,
+} from "@/lib/nas/specs";
 import { inr } from "@/lib/nas/logic";
-import type { Build, RaidLevel } from "@/lib/nas/types";
+import type { Build, DriveLine, NasModel, RaidLevel } from "@/lib/nas/types";
 import { Badge, btnPrimary, btnSecondary } from "./ui";
 
 /* Specifications for a recommended unit: a hover card on the ⓘ, the full list
@@ -12,12 +21,12 @@ import { Badge, btnPrimary, btnSecondary } from "./ui";
 /** The ⓘ on a model card. Hover or keyboard focus shows the summary; clicking
  *  opens the full specifications. It sits inside the card's label, so the click
  *  must be kept from selecting the unit underneath. */
-export function InfoButton({ build, onOpen }: { build: Build; onOpen: () => void }) {
+function InfoDot({ name, specs, onOpen }: { name: string; specs: Spec[]; onOpen: () => void }) {
   return (
     <span className="group/info relative inline-flex">
       <button
         type="button"
-        aria-label={`Specifications for ${build.model.id}`}
+        aria-label={`Specifications for ${name}`}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -31,9 +40,9 @@ export function InfoButton({ build, onOpen }: { build: Build; onOpen: () => void
         role="tooltip"
         className="pointer-events-none absolute left-1/2 top-7 z-20 hidden w-60 -translate-x-1/2 rounded-md border border-border bg-background p-3 text-left shadow-[0_16px_32px_-16px_rgba(16,21,28,0.45)] group-focus-within/info:block group-hover/info:block sm:left-0 sm:translate-x-0"
       >
-        <span className="font-display block text-sm font-bold tracking-tight text-foreground">{build.model.id}</span>
+        <span className="font-display block text-sm font-bold tracking-tight text-foreground">{name}</span>
         <span className="mt-1.5 block space-y-1">
-          {keySpecs(build.model).map((s) => (
+          {specs.map((s) => (
             <span key={s.label} className="flex justify-between gap-3 text-xs leading-snug">
               <span className="text-muted">{s.label}</span>
               <span className="text-right font-medium text-foreground">{s.value}</span>
@@ -44,6 +53,15 @@ export function InfoButton({ build, onOpen }: { build: Build; onOpen: () => void
       </span>
     </span>
   );
+}
+
+export function InfoButton({ build, onOpen }: { build: Build; onOpen: () => void }) {
+  return <InfoDot name={build.model.id} specs={keySpecs(build.model)} onOpen={onOpen} />;
+}
+
+/** The same ⓘ on a drive line tile. */
+export function DriveInfoButton({ line, onOpen }: { line: DriveLine; onOpen: () => void }) {
+  return <InfoDot name={line.name} specs={keyDriveSpecs(line)} onOpen={onOpen} />;
 }
 
 function Modal({ title, onClose, wide = false, children }: { title: string; onClose: () => void; wide?: boolean; children: ReactNode }) {
@@ -141,6 +159,104 @@ export function SpecsDialog({ build, raid, chosen, onChoose, onClose }: { build:
         {chosen ? null : (
           <button type="button" className={btnPrimary} onClick={onChoose}>
             Choose this unit
+          </button>
+        )}
+        <button type="button" className={btnSecondary} onClick={onClose}>
+          Close
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
+/** What's worth knowing about this drive in this unit. Warnings first — a
+ *  customer who reads only the first line should read the one that matters. */
+export function DriveNotes({ model, line, drivesPerUnit }: { model: NasModel; line: DriveLine; drivesPerUnit: number }) {
+  const notes = driveNotes(model, line, drivesPerUnit).sort((a, b) => (a.tone === b.tone ? 0 : a.tone === "warn" ? -1 : 1));
+  if (!notes.length) return null;
+  return (
+    <ul className="mt-3 space-y-2">
+      {notes.map((n) => (
+        <li
+          key={n.text}
+          className={`flex gap-2 rounded-md border px-3 py-2 text-xs leading-relaxed ${
+            n.tone === "warn" ? "border-[#f2e0bd] bg-[#fdf3e3] text-[#6b4a10]" : "border-border bg-surface text-muted"
+          }`}
+        >
+          <span aria-hidden className="mt-px font-bold">
+            {n.tone === "warn" ? "!" : "i"}
+          </span>
+          <span>{n.text}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Full specifications for a drive family, with how it suits the chosen unit. */
+export function DriveSpecsDialog({
+  line,
+  model,
+  drivesPerUnit,
+  price,
+  chosen,
+  onChoose,
+  onClose,
+}: {
+  line: DriveLine;
+  model: NasModel | null;
+  drivesPerUnit: number;
+  price?: number;
+  chosen: boolean;
+  onChoose: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <Modal title={`${line.name} drives`} onClose={onClose}>
+      <div className="px-5 py-4">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <Badge>{line.brand}</Badge>
+          <Badge tone="tint">{line.driveClass === "enterprise" ? "Enterprise class" : "NAS class"}</Badge>
+          {chosen ? <Badge tone="accent">Selected</Badge> : null}
+        </div>
+
+        {line.bestFor ? <p className="mt-3 text-sm leading-relaxed text-foreground">{line.bestFor}</p> : null}
+
+        <h4 className="mt-4 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Specifications</h4>
+        <SpecTable specs={driveLineSpecs(line)} />
+
+        {price ? (
+          <>
+            <h4 className="mt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">Price</h4>
+            <SpecTable specs={[{ label: "Per drive, incl. GST", value: inr(price) }]} />
+          </>
+        ) : null}
+
+        {model ? (
+          <>
+            <h4 className="mt-5 text-[11px] font-semibold uppercase tracking-[0.14em] text-muted">In the {model.id}</h4>
+            <DriveNotes model={model} line={line} drivesPerUnit={drivesPerUnit} />
+          </>
+        ) : null}
+
+        <p className="mt-4 text-xs leading-relaxed text-muted">
+          Figures are as the manufacturer publishes them and cover the whole family; a specific capacity can differ.
+          {line.specsUrl ? (
+            <>
+              {" "}
+              Specifications from{" "}
+              <a href={line.specsUrl} target="_blank" rel="noreferrer noopener" className="font-medium text-accent underline-offset-2 hover:underline">
+                {line.brand}
+              </a>
+              .
+            </>
+          ) : null}
+        </p>
+      </div>
+      <div className="flex flex-col gap-2 border-t border-border bg-surface px-5 py-4 sm:flex-row">
+        {chosen ? null : (
+          <button type="button" className={btnPrimary} onClick={onChoose}>
+            Use {line.name} drives
           </button>
         )}
         <button type="button" className={btnSecondary} onClick={onClose}>

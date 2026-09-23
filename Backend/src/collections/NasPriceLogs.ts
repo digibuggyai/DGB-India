@@ -37,6 +37,7 @@ export const NasPriceLogs: CollectionConfig = {
         { label: "NAS model", value: "model" },
         { label: "Hard drive", value: "drive" },
         { label: "Upgrade", value: "upgrade" },
+        { label: "Drive line specs", value: "driveLine" },
         { label: "Installation & AMC", value: "settings" },
       ],
     },

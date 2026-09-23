@@ -1,5 +1,5 @@
 import { RAID_INFO, inr } from "./logic";
-import type { Build, NasModel, RaidLevel } from "./types";
+import type { Build, DriveLine, NasModel, RaidLevel } from "./types";
 
 /* The specification of a unit, and of the configuration built on it, as
  * label/value pairs — one source for the hover card, the full specifications
@@ -49,6 +49,98 @@ export function keySpecs(model: NasModel): Spec[] {
   const picked = KEY_LABELS.map((label) => all.find((s) => s.label === label)).filter((s): s is Spec => s != null);
   // A unit with almost nothing recorded still gets a useful card.
   return picked.length >= 3 ? picked : all.filter((s) => s.label !== "Brand").slice(0, 5);
+}
+
+/* ---------------- drives ---------------- */
+
+export const findLine = (lines: DriveLine[], name: string): DriveLine | undefined =>
+  lines.find((l) => l.name.toLowerCase() === name.trim().toLowerCase());
+
+const CLASS_LABEL: Record<DriveLine["driveClass"], string> = { nas: "NAS", enterprise: "Enterprise" };
+
+/** Everything recorded about a drive family. */
+export function driveLineSpecs(line: DriveLine): Spec[] {
+  return [
+    row("Made by", line.brand),
+    row("Class", CLASS_LABEL[line.driveClass]),
+    row("Series", line.series),
+    row("Spindle speed", line.rpm),
+    row("Cache", line.cache),
+    row("Interface", line.interface),
+    row("Recording", line.recording),
+    row("Workload rating", line.workloadTbYear),
+    row("MTBF", line.mtbf),
+    row("Warranty", line.warrantyYears ? `${line.warrantyYears} years` : null),
+    row("Included", line.extras),
+  ].filter((s): s is Spec => s !== null);
+}
+
+/** The few that decide a drive — for the hover card on the ⓘ. */
+const DRIVE_KEY_LABELS = ["Class", "Spindle speed", "Workload rating", "MTBF", "Warranty"];
+
+export function keyDriveSpecs(line: DriveLine): Spec[] {
+  const all = driveLineSpecs(line);
+  const picked = DRIVE_KEY_LABELS.map((label) => all.find((s) => s.label === label)).filter((s): s is Spec => s != null);
+  return picked.length >= 3 ? picked : all.slice(0, 5);
+}
+
+/** The workload rating as a number of TB/year, read out of whatever the CMS
+ *  holds ("Up to 180 TB/year" → 180). Unparseable text yields null, and every
+ *  rule that uses it then stays quiet rather than guessing. */
+function workloadTb(line: DriveLine): number | null {
+  const m = line.workloadTbYear.match(/(\d[\d,]*)\s*TB/i);
+  return m ? Number(m[1].replace(/,/g, "")) : null;
+}
+
+export type DriveNote = { tone: "warn" | "info"; text: string };
+
+/* What's worth saying about putting this drive family in this unit.
+ *
+ * Only what the catalogue actually records — the drive's maker, its class and
+ * its workload rating against the unit's brand and bay count. Nothing here
+ * blocks a configuration: every combination we price is one that runs. These
+ * are the things a customer would otherwise find out after buying. */
+export function driveNotes(model: NasModel, line: DriveLine, drivesPerUnit: number): DriveNote[] {
+  const notes: DriveNote[] = [];
+  const madeFor = line.madeForBrand.trim();
+
+  if (madeFor && madeFor.toLowerCase() !== model.brand.toLowerCase()) {
+    notes.push({
+      tone: "warn",
+      text: `${line.name} drives are built and validated for ${madeFor} units. In a ${model.brand} unit they run as ordinary SATA drives, without the health reporting ${madeFor} adds — a ${model.brand}-validated drive is the safer choice.`,
+    });
+  } else if (madeFor) {
+    notes.push({
+      tone: "info",
+      text: `Validated by ${madeFor} for this unit, with drive health and firmware updates handled inside ${madeFor}'s own software.`,
+    });
+  } else if (model.brand.toLowerCase() === "synology") {
+    notes.push({
+      tone: "info",
+      text: `Synology validates its own drives for this unit. ${line.name} drives are supported and widely used, but Synology's software reports less detail about their health, and its support team may ask you to reproduce a fault on a validated drive.`,
+    });
+  }
+
+  const workload = workloadTb(line);
+  if (workload != null && workload < 300 && drivesPerUnit > 8) {
+    notes.push({
+      tone: "warn",
+      text: `${line.name} is rated for ${workload} TB of reads and writes a year. An array this size is usually busier than that — ${line.driveClass === "nas" ? "a Pro or enterprise drive" : "a higher-rated drive"} is rated for the load and carries a longer warranty.`,
+    });
+  }
+
+  if (line.driveClass === "enterprise" && drivesPerUnit <= 2) {
+    notes.push({
+      tone: "info",
+      text: `Enterprise drives spin at 7,200 rpm and are built for constant use. In a desk-side unit they're noticeably louder than a NAS drive — worth it if the unit runs around the clock.`,
+    });
+  }
+
+  if (model.maxDriveTb) {
+    notes.push({ tone: "info", text: `This unit takes drives up to ${model.maxDriveTb} TB each, so only those sizes are quoted for it.` });
+  }
+
+  return notes;
 }
 
 /** This configuration on that unit. */

@@ -20,7 +20,8 @@ import {
 import { RAID_INFO, RAID_LEVELS, bestNetworkAmong, inr, labelForSpeed, linesForCapacity, nearestBuildable } from "@/lib/nas/logic";
 import type { Build, CompanyInfo, Estimate, NasPricing } from "@/lib/nas/types";
 import { Alert, Badge, CheckTile, Chip, Field, Label, Note, Step, Tile, btnPrimary, btnSecondary, inputClass, linkBtn } from "./ui";
-import { CompareDialog, InfoButton, SpecsDialog } from "./specs";
+import { findLine } from "@/lib/nas/specs";
+import { CompareDialog, DriveInfoButton, DriveNotes, DriveSpecsDialog, InfoButton, SpecsDialog } from "./specs";
 
 /* The NAS configurator on the NAS infrastructure page.
  *
@@ -80,6 +81,9 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showAllModels, setShowAllModels] = useState(false);
   const [specsFor, setSpecsFor] = useState<Build | null>(null);
+  // Drive line whose specifications are open, by name — the line list is
+  // rebuilt whenever the drive size changes, so holding the object would go stale.
+  const [driveSpecsFor, setDriveSpecsFor] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
 
   const update = (patch: Partial<Answers>) => setA((prev) => ({ ...prev, ...patch }));
@@ -581,6 +585,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                 {driveLines.map((l) => {
                   const off = blocked(can.lines.has(l), a.driveLine === l);
                   const rate = a.driveCap != null ? P.hddPricing[a.driveCap]?.[l]?.quote : undefined;
+                  const spec = findLine(P.driveLines, l);
                   return (
                     <Tile
                       key={l}
@@ -588,14 +593,25 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                       checked={a.driveLine === l}
                       disabled={off}
                       onSelect={() => update({ driveLine: l })}
-                      title={l}
-                      sub={off ? cantLabel : rate ? `${inr(rate)} each` : undefined}
+                      title={
+                        // The ⓘ sits inside the tile's label, so it stops the
+                        // click from selecting the line underneath itself.
+                        <span className="flex items-center gap-1.5">
+                          {l}
+                          {spec ? <DriveInfoButton line={spec} onOpen={() => setDriveSpecsFor(l)} /> : null}
+                        </span>
+                      }
+                      sub={off ? cantLabel : spec?.driveClass === "enterprise" ? `Enterprise${rate ? ` · ${inr(rate)} each` : ""}` : rate ? `${inr(rate)} each` : undefined}
                     />
                   );
                 })}
               </div>
             </div>
             {a.driveCap == null && a.driveLine ? <Note>Priced at whichever size the recommendation picks.</Note> : null}
+            {/* How the drives in the current recommendation suit the unit it runs in. */}
+            {build && findLine(P.driveLines, build.driveLine) ? (
+              <DriveNotes model={build.model} line={findLine(P.driveLines, build.driveLine)!} drivesPerUnit={build.drivesPerUnit} />
+            ) : null}
           </Step>
 
           {/* 9 · upgrades — only when something is priced */}
@@ -869,6 +885,21 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             setSpecsFor(null);
           }}
           onClose={() => setSpecsFor(null)}
+        />
+      ) : null}
+
+      {driveSpecsFor && findLine(P.driveLines, driveSpecsFor) ? (
+        <DriveSpecsDialog
+          line={findLine(P.driveLines, driveSpecsFor)!}
+          model={build?.model ?? null}
+          drivesPerUnit={build?.drivesPerUnit ?? 0}
+          price={a.driveCap != null ? P.hddPricing[a.driveCap]?.[driveSpecsFor]?.quote : build?.driveLine === driveSpecsFor ? P.hddPricing[build.driveCap]?.[driveSpecsFor]?.quote : undefined}
+          chosen={a.driveLine === driveSpecsFor}
+          onChoose={() => {
+            update({ driveLine: driveSpecsFor });
+            setDriveSpecsFor(null);
+          }}
+          onClose={() => setDriveSpecsFor(null)}
         />
       ) : null}
 

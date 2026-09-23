@@ -1,4 +1,5 @@
 import "server-only";
+import { driveLinesFrom } from "./cms";
 import type { Catalogue } from "./cms-types";
 import type { HddPricing, NasPricing, RaidLevel } from "./types";
 
@@ -53,6 +54,7 @@ export function toSalesPricing(c: Catalogue): NasPricing {
       .map(Number)
       .sort((a, b) => a - b),
     hddPricing,
+    driveLines: driveLinesFrom(c),
     install: { quote: c.settings.installQuote ?? 0, min: c.settings.installMin ?? null },
     amcRate: {
       // Rounded because 7 / 100 is 0.07000000000000001 in binary floating point,

@@ -22,6 +22,7 @@ import { Leads } from "@/collections/Leads";
 import { NasModels } from "@/collections/NasModels";
 import { NasDrives } from "@/collections/NasDrives";
 import { NasUpgrades } from "@/collections/NasUpgrades";
+import { NasDriveLines } from "@/collections/NasDriveLines";
 import { NasPriceLogs } from "@/collections/NasPriceLogs";
 
 import { SiteSettings } from "@/globals/SiteSettings";
@@ -76,6 +77,7 @@ export default buildConfig({
     NasModels,
     NasDrives,
     NasUpgrades,
+    NasDriveLines,
     NasPriceLogs,
   ],
   globals: [SiteSettings, Navigation, CTABlocks, NasSettings],

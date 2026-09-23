@@ -13,6 +13,7 @@
     "seed": "tsx src/seed/seed.ts",
     "seed:nas": "tsx src/seed/seed-nas.ts",
     "seed:nas-drives": "tsx src/seed/seed-nas-drives.ts",
+    "seed:drive-lines": "tsx src/seed/seed-drive-lines.ts",
     "seed:blog": "tsx src/seed/seed-blog.ts",
     "postinstall": "patch-package"
   },

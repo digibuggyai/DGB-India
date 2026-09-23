@@ -6,6 +6,7 @@ import {
   RAID_OPTIONS,
   type Catalogue,
   type CmsDrive,
+  type CmsDriveLine,
   type CmsLog,
   type CmsModel,
   type CmsUpgrade,
@@ -64,6 +65,35 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
     { key: "minPrice", label: "With-tax minimum (₹)", type: "number", step: 100 },
     { key: "active", label: "Active in configurator", type: "checkbox" },
   ],
+  // Specifications of a drive family, shown on the configurator's drive step.
+  // No price here — those stay per capacity on the Hard drives tab.
+  driveLines: [
+    { key: "name", label: "Drive line", type: "text", required: true, placeholder: "IronWolf Pro" },
+    { key: "brand", label: "Made by", type: "text", required: true, placeholder: "Seagate" },
+    {
+      key: "driveClass",
+      label: "Class",
+      type: "select",
+      required: true,
+      options: [
+        { value: "nas", label: "NAS" },
+        { value: "enterprise", label: "Enterprise" },
+      ],
+    },
+    { key: "madeForBrand", label: "Made for NAS brand", type: "text", placeholder: "Synology (vendor drives only)" },
+    { key: "series", label: "Series", type: "text", placeholder: "HAT5300 / HAT5320" },
+    { key: "rpm", label: "Spindle speed", type: "text", placeholder: "7,200 rpm" },
+    { key: "cache", label: "Cache", type: "text", placeholder: "256 MB" },
+    { key: "interface", label: "Interface", type: "text", placeholder: "SATA 6 Gb/s" },
+    { key: "recording", label: "Recording", type: "text", placeholder: "CMR" },
+    { key: "workloadTbYear", label: "Workload rating", type: "text", placeholder: "550 TB/year" },
+    { key: "mtbf", label: "MTBF / MTTF", type: "text", placeholder: "2.5 million hours" },
+    { key: "warrantyYears", label: "Warranty (years)", type: "number", step: 1 },
+    { key: "sortOrder", label: "Sort order", type: "number", step: 10 },
+    { key: "bestFor", label: "Best for", type: "text", wide: true, placeholder: "Busy multi-bay units shared by a team." },
+    { key: "extras", label: "Included", type: "text", wide: true, placeholder: "3 years Rescue Data Recovery" },
+    { key: "specsUrl", label: "Manufacturer spec page (https)", type: "text", placeholder: "https://…", wide: true },
+  ],
   upgrades: [
     { key: "name", label: "Name", type: "text", required: true, placeholder: "8 GB DDR4 RAM" },
     {
@@ -94,6 +124,7 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
 const NEW_ITEM: Record<Kind, Rec> = {
   models: { raid: ["RAID0", "RAID1"], expandable: false, active: true },
   drives: { active: true },
+  driveLines: { driveClass: "nas", recording: "CMR", interface: "SATA 6 Gb/s" },
   upgrades: { category: "RAM", active: true },
 };
 
@@ -129,6 +160,13 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
 
   const models = useMemo(() => [...catalogue.models].sort((a, b) => a.bays - b.bays || a.quotePrice - b.quotePrice), [catalogue.models]);
   const drives = useMemo(() => [...catalogue.drives].sort((a, b) => a.capacityTb - b.capacityTb || a.line.localeCompare(b.line)), [catalogue.drives]);
+  const driveLines = useMemo(
+    () => [...catalogue.driveLines].sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999) || a.name.localeCompare(b.name)),
+    [catalogue.driveLines],
+  );
+  // Which lines actually have drives priced against them — a line nobody can
+  // buy still deserves its specs on record, but the tab should say so.
+  const pricedLines = useMemo(() => new Set(catalogue.drives.filter((d) => d.active).map((d) => d.line.toLowerCase())), [catalogue.drives]);
   const upgrades = useMemo(
     () => [...catalogue.upgrades].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)),
     [catalogue.upgrades],
@@ -137,6 +175,7 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
   const tabs: { id: Tab; label: string; count?: number }[] = [
     { id: "models", label: "NAS models", count: models.length },
     { id: "drives", label: "Hard drives", count: drives.length },
+    { id: "driveLines", label: "Drive specs", count: driveLines.length },
     { id: "upgrades", label: "RAM & network cards", count: upgrades.length },
     { id: "settings", label: "Installation & AMC" },
     { id: "log", label: "Change log", count: catalogue.logs.length },
@@ -230,6 +269,52 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
         />
       ) : null}
 
+      {tab === "driveLines" ? (
+        <KindSection
+          kind="driveLines"
+          title="Drive specifications"
+          addLabel="Add drive line"
+          rows={driveLines as unknown as Rec[]}
+          onChanged={changed}
+          describe={(r) => String(r.name)}
+          emptyText="Nothing yet. Add a drive line to show its specifications in the configurator."
+          intro={
+            <>
+              These are the specifications shown on the ⓘ beside each drive line in the configurator, and they decide the
+              compatibility notes a customer sees. The <b className="font-semibold text-foreground">Drive line</b> name must match
+              the one on the Hard drives tab exactly, or the prices and the specs won&rsquo;t find each other. Fill{" "}
+              <b className="font-semibold text-foreground">Made for NAS brand</b> only on a NAS vendor&rsquo;s own drives.
+            </>
+          }
+          columns={[
+            {
+              label: "Drive line",
+              render: (r) => {
+                const l = r as unknown as CmsDriveLine;
+                return (
+                  <>
+                    <span className="block font-semibold text-foreground">{l.name}</span>
+                    <span className="block text-xs text-muted">{[l.brand, l.series].filter(Boolean).join(" · ")}</span>
+                  </>
+                );
+              },
+            },
+            { label: "Class", render: (r) => (r.driveClass === "enterprise" ? "Enterprise" : "NAS") },
+            { label: "Workload", render: (r) => <span className="text-muted">{String(r.workloadTbYear || "—")}</span> },
+            { label: "Warranty", render: (r) => (r.warrantyYears ? `${r.warrantyYears} years` : "—") },
+            {
+              label: "On the price list",
+              render: (r) =>
+                pricedLines.has(String(r.name).toLowerCase()) ? (
+                  <ActivePill active />
+                ) : (
+                  <span className="text-xs text-muted">No prices yet</span>
+                ),
+            },
+          ]}
+        />
+      ) : null}
+
       {tab === "upgrades" ? (
         <KindSection
           kind="upgrades"
@@ -294,6 +379,7 @@ function KindSection({
   onChanged,
   describe,
   emptyText = "Nothing here yet.",
+  intro,
 }: {
   kind: Kind;
   title: string;
@@ -303,6 +389,8 @@ function KindSection({
   onChanged: (message: string) => Promise<void>;
   describe: (r: Rec) => string;
   emptyText?: string;
+  /** Anything this tab needs explained before the table. */
+  intro?: ReactNode;
 }) {
   const [editing, setEditing] = useState<number | "new" | null>(null);
   const [removingId, setRemovingId] = useState<number | null>(null);
@@ -340,11 +428,14 @@ function KindSection({
         </button>
       </div>
 
+      {intro ? <p className="border-b border-border px-5 py-3 text-sm leading-relaxed text-muted">{intro}</p> : null}
+
       {editing === "new" ? (
         <div className="border-b border-border bg-tint/40 p-4 sm:p-5">
           <RecordForm
             fields={FIELDS[kind]}
             initial={NEW_ITEM[kind]}
+            assistKind={kind === "models" || kind === "upgrades" ? kind : undefined}
             submitLabel={addLabel}
             onCancel={() => setEditing(null)}
             onSubmit={async (values) => {
@@ -408,6 +499,7 @@ function KindSection({
                         <RecordForm
                           fields={FIELDS[kind]}
                           initial={r}
+                          assistKind={kind === "models" || kind === "upgrades" ? kind : undefined}
                           submitLabel="Save changes"
                           onCancel={() => setEditing(null)}
                           onSubmit={async (values) => {
@@ -437,12 +529,15 @@ function RecordForm({
   submitLabel,
   onSubmit,
   onCancel,
+  assistKind,
 }: {
   fields: FieldDef[];
   initial: Rec;
   submitLabel: string;
   onSubmit: (values: Rec) => Promise<void>;
   onCancel?: () => void;
+  /** Offers to fill the specifications in from the maker's own spec sheet. */
+  assistKind?: "models" | "upgrades";
 }) {
   const [values, setValues] = useState<Rec>(initial);
   const [saving, setSaving] = useState(false);
@@ -477,6 +572,14 @@ function RecordForm({
 
   return (
     <form onSubmit={submit} noValidate className="rounded-lg border border-border-strong bg-background p-4 sm:p-5">
+      {assistKind ? (
+        <SpecAssist
+          kind={assistKind}
+          values={values}
+          onApply={(filled) => setValues((prev) => ({ ...prev, ...filled }))}
+        />
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {fields.map((f) => (
           <FieldInput key={f.key} def={f} value={values[f.key]} onChange={(v) => set(f.key, v)} />
@@ -505,6 +608,139 @@ function RecordForm({
         ) : null}
       </div>
     </form>
+  );
+}
+
+type LookupResult = { fields: Record<string, unknown>; source: string | null; filled: string[]; notes: string[] };
+
+/* Fills a new item's specifications in from the maker's own spec sheet.
+ *
+ * For a Synology model the name is enough — its spec table is fetched and
+ * read. QNAP's site answers our server with a challenge page instead, so for
+ * those the admin pastes the specifications and the same reader parses them.
+ * For RAM and network cards the name alone says everything.
+ *
+ * Nothing is saved here. Values land in the form, the admin sees what was
+ * filled and from where, and every field stays editable. */
+function SpecAssist({
+  kind,
+  values,
+  onApply,
+}: {
+  kind: "models" | "upgrades";
+  values: Rec;
+  onApply: (fields: Record<string, unknown>) => void;
+}) {
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<LookupResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [sheet, setSheet] = useState("");
+  const [pasting, setPasting] = useState(false);
+
+  const label = String(kind === "models" ? values.model ?? "" : values.name ?? "").trim();
+
+  async function run(text?: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      const body =
+        kind === "models"
+          ? { kind, model: label, brand: String(values.brand ?? "").trim(), text }
+          : { kind, name: label, sku: String(values.sku ?? "").trim() };
+      const res = (await api("/lookup", "POST", body)) as unknown as LookupResult;
+      setResult(res);
+      onApply(res.fields);
+      if (text) setPasting(false);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't look that up.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="mb-5 rounded-md border border-border bg-surface px-4 py-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          onClick={() => run()}
+          disabled={busy || !label}
+          className="inline-flex items-center gap-2 rounded-full border border-accent px-4 py-2 text-sm font-medium text-accent transition-colors hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+        >
+          {busy ? <Spinner className="h-4 w-4" /> : null}
+          {busy ? "Looking it up…" : "Fill in the specifications"}
+        </button>
+        <span className="text-xs leading-relaxed text-muted">
+          {kind === "models"
+            ? label
+              ? `Reads ${label}'s specifications from the maker and fills the fields below.`
+              : "Type the model and brand first, then this reads its specifications from the maker."
+            : label
+              ? "Works the type, brand and spec out from the name."
+              : "Type the upgrade's name first."}
+        </span>
+        {kind === "models" ? (
+          <button type="button" onClick={() => setPasting((p) => !p)} className="text-xs font-medium text-accent underline-offset-2 hover:underline">
+            {pasting ? "Hide paste box" : "Paste a spec sheet instead"}
+          </button>
+        ) : null}
+      </div>
+
+      {pasting ? (
+        <div className="mt-3">
+          <textarea
+            value={sheet}
+            onChange={(e) => setSheet(e.target.value)}
+            rows={5}
+            placeholder="Open the model's page on the maker's site, select its specifications table, copy and paste it here."
+            className={`${inputClass} font-mono text-xs`}
+          />
+          <button
+            type="button"
+            onClick={() => run(sheet)}
+            disabled={busy || sheet.trim().length < 20}
+            className="mt-2 rounded-full border border-border px-4 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+          >
+            Read this spec sheet
+          </button>
+        </div>
+      ) : null}
+
+      {error ? (
+        <p role="alert" className="mt-3 text-sm text-accent">
+          {error}
+        </p>
+      ) : null}
+
+      {result ? (
+        <div className="mt-3 space-y-2 text-xs leading-relaxed">
+          {result.filled.length ? (
+            <p role="status" className="text-foreground">
+              Filled in <b className="font-semibold">{result.filled.length} fields</b>: {result.filled.join(", ")}.{" "}
+              {result.source ? (
+                <>
+                  From{" "}
+                  <a href={result.source} target="_blank" rel="noreferrer noopener" className="font-medium text-accent underline-offset-2 hover:underline">
+                    the maker&rsquo;s spec page
+                  </a>
+                  .
+                </>
+              ) : null}{" "}
+              Check them, add the price, then save.
+            </p>
+          ) : (
+            <p role="status" className="text-muted">
+              Nothing could be filled in automatically — the fields below are yours to complete.
+            </p>
+          )}
+          {result.notes.map((n) => (
+            <p key={n} className="text-muted">
+              {n}
+            </p>
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 

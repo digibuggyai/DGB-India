@@ -4,6 +4,7 @@ import {
   type Catalogue,
   type CmsDrive,
   type CmsLog,
+  type CmsDriveLine,
   type CmsModel,
   type CmsSettings,
   type CmsUpgrade,
@@ -23,6 +24,7 @@ export const COLLECTION: Record<Kind, string> = {
   models: "nas-models",
   drives: "nas-drives",
   upgrades: "nas-upgrades",
+  driveLines: "nas-drive-lines",
 };
 
 export const PRICING_TAG = "nas-pricing";
@@ -67,9 +69,13 @@ async function cms<T>(path: string, { token, method = "GET", body }: Options = {
 }
 
 export async function loadCatalogue(token?: string | null): Promise<Catalogue> {
-  const [models, drives, upgrades, settings, logs] = await Promise.all([
+  const [models, drives, driveLines, upgrades, settings, logs] = await Promise.all([
     cms<{ docs: CmsModel[] }>("/nas-models?limit=500&depth=0&sort=bays", { token }),
     cms<{ docs: CmsDrive[] }>("/nas-drives?limit=500&depth=0&sort=capacityTb", { token }),
+    // Specifications only — nothing is priced from them. If this collection
+    // isn't there yet (a CMS deploy lagging behind this one), the configurator
+    // still quotes; the drive step just shows no ⓘ.
+    cms<{ docs: CmsDriveLine[] }>("/nas-drive-lines?limit=100&depth=0&sort=sortOrder", { token }).catch(() => ({ docs: [] as CmsDriveLine[] })),
     cms<{ docs: CmsUpgrade[] }>("/nas-upgrades?limit=500&depth=0&sort=name", { token }),
     cms<CmsSettings>("/globals/nas-settings?depth=0", { token }),
     // The change log is admin-only; public reads skip it.
@@ -77,7 +83,7 @@ export async function loadCatalogue(token?: string | null): Promise<Catalogue> {
       ? cms<{ docs: CmsLog[] }>("/nas-price-logs?limit=300&depth=0&sort=-createdAt", { token })
       : Promise.resolve({ docs: [] as CmsLog[] }),
   ]);
-  return { models: models.docs, drives: drives.docs, upgrades: upgrades.docs, settings, logs: logs.docs };
+  return { models: models.docs, drives: drives.docs, driveLines: driveLines.docs, upgrades: upgrades.docs, settings, logs: logs.docs };
 }
 
 export function createRecord(token: string, kind: Kind, data: Record<string, unknown>) {
@@ -94,6 +100,30 @@ export function deleteRecord(token: string, kind: Kind, id: number) {
 
 export function updateSettings(token: string, data: Record<string, unknown>) {
   return cms("/globals/nas-settings", { token, method: "POST", body: data });
+}
+
+/** Drive-line specifications, in the shape both configurators read. There are
+ *  no prices here, so public and sales payloads share it unchanged. Lines with
+ *  nothing priced against them are kept: the drive step only lists the lines it
+ *  has prices for, and the specs are ready the day one is stocked. */
+export function driveLinesFrom(c: Catalogue) {
+  return c.driveLines.map((l) => ({
+    name: l.name,
+    brand: l.brand,
+    driveClass: l.driveClass,
+    madeForBrand: l.madeForBrand ?? "",
+    series: l.series ?? "",
+    rpm: l.rpm ?? "",
+    cache: l.cache ?? "",
+    interface: l.interface ?? "",
+    recording: l.recording ?? "",
+    workloadTbYear: l.workloadTbYear ?? "",
+    mtbf: l.mtbf ?? "",
+    warrantyYears: l.warrantyYears ?? null,
+    bestFor: l.bestFor ?? "",
+    extras: l.extras ?? "",
+    specsUrl: l.specsUrl ?? "",
+  }));
 }
 
 /** Shapes the catalogue into the input the configurator's normaliser reads.
@@ -137,6 +167,7 @@ export function toPricingInput(c: Catalogue) {
       .map(Number)
       .sort((a, b) => a - b),
     hddPricing,
+    driveLines: driveLinesFrom(c),
     install: { quote: c.settings.installQuote },
     amcRate: { quote: c.settings.amcQuotePercent == null ? null : c.settings.amcQuotePercent / 100 },
     upgrades: c.upgrades
@@ -184,6 +215,25 @@ const FIELDS: Record<Kind, Record<string, (v: unknown) => unknown>> = {
     active: Boolean,
   },
   drives: { capacityTb: num, line: str, quotePrice: num, minPrice: optionalNum, active: Boolean },
+  // Specifications only — a drive line carries no price of its own.
+  driveLines: {
+    name: str,
+    brand: str,
+    driveClass: (v) => (str(v) === "enterprise" ? "enterprise" : "nas"),
+    madeForBrand: str,
+    series: str,
+    rpm: str,
+    cache: str,
+    interface: str,
+    recording: str,
+    workloadTbYear: str,
+    mtbf: str,
+    warrantyYears: optionalNum,
+    bestFor: str,
+    extras: str,
+    specsUrl: str,
+    sortOrder: optionalNum,
+  },
   upgrades: {
     sku: str,
     category: (v) => str(v).toUpperCase(),

@@ -5,7 +5,7 @@
 
 export const RAID_OPTIONS = ["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"] as const;
 
-export type Kind = "models" | "drives" | "upgrades";
+export type Kind = "models" | "drives" | "upgrades" | "driveLines";
 
 export type CmsModel = {
   id: number;
@@ -43,6 +43,28 @@ export type CmsDrive = {
   active: boolean;
 };
 
+/** A drive family's specifications. Carries no price — `name` ties it to the
+ *  priced drives in CmsDrive.line. */
+export type CmsDriveLine = {
+  id: number;
+  name: string;
+  brand: string;
+  driveClass: "nas" | "enterprise";
+  madeForBrand?: string | null;
+  series?: string | null;
+  rpm?: string | null;
+  cache?: string | null;
+  interface?: string | null;
+  recording?: string | null;
+  workloadTbYear?: string | null;
+  mtbf?: string | null;
+  warrantyYears?: number | null;
+  bestFor?: string | null;
+  extras?: string | null;
+  specsUrl?: string | null;
+  sortOrder?: number | null;
+};
+
 export type CmsUpgrade = {
   id: number;
   sku: string;
@@ -76,6 +98,7 @@ export type CmsLog = {
 export type Catalogue = {
   models: CmsModel[];
   drives: CmsDrive[];
+  driveLines: CmsDriveLine[];
   upgrades: CmsUpgrade[];
   settings: CmsSettings;
   /** Newest first. Admin reads only — empty for public reads. */

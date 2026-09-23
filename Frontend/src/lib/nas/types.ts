@@ -44,6 +44,33 @@ export type NasModel = {
   specsUrl: string;
 };
 
+/* What a family of drives is, as its maker publishes it. One record covers
+ * every capacity in the line: an Exos is a 550 TB/year enterprise drive whether
+ * it holds 8 TB or 20 TB. `name` is what ties it to the priced drives.
+ *
+ * Every specification is optional — a line with none of them still prices and
+ * quotes, it just shows less. Blank means "not recorded", which the UI says
+ * rather than inventing a figure. */
+export type DriveLine = {
+  name: string;
+  brand: string;
+  driveClass: "nas" | "enterprise";
+  /** Set only on a NAS vendor's own drives, e.g. "Synology". Drives compatibility notes. */
+  madeForBrand: string;
+  series: string;
+  rpm: string;
+  cache: string;
+  interface: string;
+  recording: string;
+  workloadTbYear: string;
+  mtbf: string;
+  warrantyYears: number | null;
+  bestFor: string;
+  extras: string;
+  /** Manufacturer's spec page. Https only — see normalisePricing. */
+  specsUrl: string;
+};
+
 /** Drive capacity (TB) → drive line (e.g. "IronWolf") → GST-inclusive price per drive. */
 export type HddPricing = Record<number, Record<string, { quote: number; min?: number | null }>>;
 
@@ -62,6 +89,8 @@ export type NasPricing = {
   models: NasModel[];
   capacities: number[];
   hddPricing: HddPricing;
+  /** Specifications of the drive families, for the drive step. Prices stay in hddPricing. */
+  driveLines: DriveLine[];
   install: { quote: number; min?: number | null };
   /** AMC as a fraction of hardware value — 0.1 is 10%. */
   amcRate: { quote: number; min?: number | null };
