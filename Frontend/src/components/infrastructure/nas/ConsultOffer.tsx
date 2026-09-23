@@ -17,34 +17,64 @@ import { Field, btnPrimary, btnSecondary, inputClass } from "./ui";
 const OFFER = {
   /** How long someone configures before we offer to help. Counted in time
    *  actually spent on the page, not wall-clock. */
-  delaySeconds: 15,
+  delaySeconds: 5,
   /** The most the coupon can be worth, in rupees. Must match /api/nas-offer,
    *  which is what actually issues the code. */
   maxOff: 2000,
-  /** Don't ask again for this long after it's closed or sent. */
-  rememberDays: 30,
+  /** Once someone has asked for a consultation they hold a code, so there's
+   *  nothing to offer them for a while. */
+  rememberDaysAfterSending: 30,
+  /** Closing it isn't a refusal for all time — just not now. */
+  rememberDaysAfterClosing: 1,
 };
 
-const STORAGE_KEY = "dgb-nas-consult-offer";
+/* Versioned, so that changing the rules below doesn't leave visitors sitting
+ * behind a record written under the old ones. Bump the suffix whenever the
+ * meaning of what's stored changes. */
+const STORAGE_KEY = "dgb-nas-consult-offer.v2";
 
-/** Whether this visitor has already seen it. Browser storage can throw or come
- *  back empty — a private window, blocked site data — and none of that should
- *  stop the page working, so a failure just means "show it". */
-function seenRecently(): boolean {
+/* Forces the popup even for someone who has already seen it: add ?offer=1 to
+ * the page's address. Closing it or sending it hides it for a month, which is
+ * right for a visitor but makes it impossible to look at twice — this is how
+ * you check it, and how you demonstrate it. */
+function forced(): boolean {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    if (!raw) return false;
-    const at = Number(raw);
-    if (!Number.isFinite(at)) return false;
-    return Date.now() - at < OFFER.rememberDays * 24 * 60 * 60 * 1000;
+    return new URLSearchParams(window.location.search).get("offer") === "1";
   } catch {
     return false;
   }
 }
 
-function remember() {
+type Answer = { at: number; kind: "sent" | "closed" };
+
+/* Whether to leave this visitor alone for now.
+ *
+ * Someone who asked for a consultation already has their code, so they're left
+ * for a month. Someone who just closed it is asked again on their next visit a
+ * day later — closing a popup means "not now", not "never".
+ *
+ * Browser storage can throw or come back empty — a private window, blocked site
+ * data — and none of that should stop the page working, so any failure means
+ * "show it". */
+function answeredRecently(): boolean {
+  if (forced()) return false;
   try {
-    window.localStorage.setItem(STORAGE_KEY, String(Date.now()));
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const answer = JSON.parse(raw) as Answer;
+    if (!answer || !Number.isFinite(answer.at)) return false;
+    const days = answer.kind === "sent" ? OFFER.rememberDaysAfterSending : OFFER.rememberDaysAfterClosing;
+    return Date.now() - answer.at < days * 24 * 60 * 60 * 1000;
+  } catch {
+    return false;
+  }
+}
+
+function remember(kind: Answer["kind"]) {
+  // Don't record a forced viewing — it's a test, not a visitor's answer.
+  if (forced()) return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ at: Date.now(), kind } satisfies Answer));
   } catch {
     /* nothing to do — it reappears on the next visit, which is no worse than before */
   }
@@ -64,7 +94,7 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
   /* The wait is in time spent on the page, not wall-clock: a tab left open in
    * the background shouldn't come back to a popup already waiting. */
   useEffect(() => {
-    if (!enabled || seenRecently()) return;
+    if (!enabled || answeredRecently()) return;
     let elapsed = 0;
     let since = document.hidden ? null : Date.now();
 
@@ -92,9 +122,9 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
     };
   }, [enabled]);
 
-  // Closing it counts as an answer — don't ask this visitor again for a month.
+  // Closing it counts as an answer of "not now" — we ask again another day.
   function close() {
-    remember();
+    remember("closed");
     setOpen(false);
   }
 
@@ -145,7 +175,7 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
       });
       const body = (await res.json().catch(() => ({}))) as { error?: string; code?: string };
       if (!res.ok || !body.code) throw new Error(body.error || "Something went wrong. Please try again.");
-      remember();
+      remember("sent");
       setCode(body.code);
       setState("sent");
     } catch (err) {

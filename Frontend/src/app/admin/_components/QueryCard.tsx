@@ -1,3 +1,4 @@
+import { DeleteQuery } from "./DeleteQuery";
 import { StatusBadge } from "./StatusBadge";
 import { formatDate, relName, type Query } from "../_lib/queries";
 
@@ -72,11 +73,16 @@ export function QueryCard({ query: q }: { query: Query }) {
         </div>
       )}
 
-      {origin && (
-        <p className="mt-4 border-t border-border pt-3 text-xs text-muted">
-          Came from: <span className="break-all text-foreground/70">{origin}</span>
-        </p>
-      )}
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
+        {origin ? (
+          <p className="text-xs text-muted">
+            Came from: <span className="break-all text-foreground/70">{origin}</span>
+          </p>
+        ) : (
+          <span />
+        )}
+        <DeleteQuery id={q.id} company={q.company} />
+      </div>
     </article>
   );
 }
