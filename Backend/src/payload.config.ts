@@ -24,6 +24,7 @@ import { NasDrives } from "@/collections/NasDrives";
 import { NasUpgrades } from "@/collections/NasUpgrades";
 import { NasDriveLines } from "@/collections/NasDriveLines";
 import { NasPriceLogs } from "@/collections/NasPriceLogs";
+import { NasOfferCodes } from "@/collections/NasOfferCodes";
 
 import { SiteSettings } from "@/globals/SiteSettings";
 import { Navigation } from "@/globals/Navigation";
@@ -79,6 +80,7 @@ export default buildConfig({
     NasUpgrades,
     NasDriveLines,
     NasPriceLogs,
+    NasOfferCodes,
   ],
   globals: [SiteSettings, Navigation, CTABlocks, NasSettings],
   editor: lexicalEditor(),

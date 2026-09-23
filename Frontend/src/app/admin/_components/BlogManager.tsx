@@ -43,6 +43,7 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmingId, setConfirmingId] = useState<number | null>(null);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -69,16 +70,14 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
     setNotice({ kind: "success", message: "Post deleted." });
   }
 
-  /* Deleting from the list, without opening the post first. A published post
-   * disappears from the site the moment this goes through, so the confirmation
-   * says which post it is and whether anyone can currently read it. */
+  /* Deleting from the list, without opening the post first.
+   *
+   * The confirmation is part of the page rather than a window.confirm: a
+   * browser that has been told to block this page's dialogs returns false from
+   * confirm() without showing anything, so the button would appear to do
+   * nothing at all. */
   async function removeFromList(post: AdminPost) {
-    const live = postStatus(post.publishedAt) === "published";
-    const warning = live
-      ? `Delete "${post.title}"?\n\nIt's published, so it disappears from the site straight away. This can't be undone.`
-      : `Delete "${post.title}"?\n\nThis can't be undone.`;
-    if (!window.confirm(warning)) return;
-
+    setConfirmingId(null);
     setDeletingId(post.id);
     setNotice(null);
     try {
@@ -164,32 +163,58 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
                           {p.tags.length ? ` · ${p.tags.join(", ")}` : ""}
                         </p>
                       </div>
-                      <div className="flex shrink-0 gap-2">
-                        {postStatus(p.publishedAt) === "published" ? (
-                          <a
-                            href={postPath(p)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="rounded-full px-3.5 py-1.5 text-xs font-medium text-muted transition-colors hover:text-accent"
-                          >
-                            View
-                          </a>
-                        ) : null}
-                        <button
-                          type="button"
-                          onClick={() => setEditing(p)}
-                          className="rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => removeFromList(p)}
-                          disabled={deletingId === p.id}
-                          className="rounded-full px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-tint disabled:opacity-50"
-                        >
-                          {deletingId === p.id ? "Deleting…" : "Delete"}
-                        </button>
+                      <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        {confirmingId === p.id ? (
+                          <>
+                            <span className="text-xs text-muted">
+                              {postStatus(p.publishedAt) === "published"
+                                ? "Delete for good? It's live on the site right now."
+                                : "Delete for good? This can't be undone."}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeFromList(p)}
+                              className="rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-accent-foreground transition-colors hover:bg-accent-hover"
+                            >
+                              Delete
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingId(null)}
+                              className="rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+                            >
+                              Keep
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            {postStatus(p.publishedAt) === "published" ? (
+                              <a
+                                href={postPath(p)}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="rounded-full px-3.5 py-1.5 text-xs font-medium text-muted transition-colors hover:text-accent"
+                              >
+                                View
+                              </a>
+                            ) : null}
+                            <button
+                              type="button"
+                              onClick={() => setEditing(p)}
+                              className="rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setConfirmingId(p.id)}
+                              disabled={deletingId === p.id}
+                              className="rounded-full px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-tint disabled:opacity-50"
+                            >
+                              {deletingId === p.id ? "Deleting…" : "Delete"}
+                            </button>
+                          </>
+                        )}
                       </div>
                     </li>
                   );

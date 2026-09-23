@@ -21,6 +21,7 @@ import { RAID_INFO, RAID_LEVELS, bestNetworkAmong, inr, labelForSpeed, linesForC
 import type { Build, CompanyInfo, Estimate, NasPricing } from "@/lib/nas/types";
 import { Alert, Badge, CheckTile, Chip, Field, Label, Note, Step, Tile, btnPrimary, btnSecondary, inputClass, linkBtn } from "./ui";
 import { findLine } from "@/lib/nas/specs";
+import { ConsultOffer } from "./ConsultOffer";
 import { CompareDialog, DriveInfoButton, DriveNotes, DriveSpecsDialog, InfoButton, SpecsDialog } from "./specs";
 
 /* The NAS configurator on the NAS infrastructure page.
@@ -885,6 +886,19 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             setSpecsFor(null);
           }}
           onClose={() => setSpecsFor(null)}
+        />
+      ) : null}
+
+      {/* Offered only on the public page, and only to someone who hasn't
+          already asked us for a quotation. */}
+      {source === "public" ? (
+        <ConsultOffer
+          enabled={lead.status === "idle"}
+          summary={() =>
+            build && price
+              ? leadSummary(d, build, price, speed, a, P, estimateRef())
+              : "Was configuring a NAS but hadn't settled on a configuration yet."
+          }
         />
       ) : null}
 
