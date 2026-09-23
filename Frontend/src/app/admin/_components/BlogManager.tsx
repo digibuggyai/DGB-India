@@ -42,6 +42,7 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
   const [filter, setFilter] = useState<"all" | PostType>("all");
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState<Notice>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const shown = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -66,6 +67,31 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
     setPosts((prev) => prev.filter((p) => p.id !== id));
     setEditing(null);
     setNotice({ kind: "success", message: "Post deleted." });
+  }
+
+  /* Deleting from the list, without opening the post first. A published post
+   * disappears from the site the moment this goes through, so the confirmation
+   * says which post it is and whether anyone can currently read it. */
+  async function removeFromList(post: AdminPost) {
+    const live = postStatus(post.publishedAt) === "published";
+    const warning = live
+      ? `Delete "${post.title}"?\n\nIt's published, so it disappears from the site straight away. This can't be undone.`
+      : `Delete "${post.title}"?\n\nThis can't be undone.`;
+    if (!window.confirm(warning)) return;
+
+    setDeletingId(post.id);
+    setNotice(null);
+    try {
+      const res = await fetch(`/api/admin/blog/${post.id}`, { method: "DELETE" });
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      if (!res.ok) throw new Error(data.error || "Couldn't delete the post.");
+      setPosts((prev) => prev.filter((p) => p.id !== post.id));
+      setNotice({ kind: "success", message: `Deleted “${post.title}”.` });
+    } catch (err) {
+      setNotice({ kind: "error", message: err instanceof Error ? err.message : "Couldn't delete the post." });
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   return (
@@ -155,6 +181,14 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
                           className="rounded-full border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent"
                         >
                           Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => removeFromList(p)}
+                          disabled={deletingId === p.id}
+                          className="rounded-full px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-tint disabled:opacity-50"
+                        >
+                          {deletingId === p.id ? "Deleting…" : "Delete"}
                         </button>
                       </div>
                     </li>

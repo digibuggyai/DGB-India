@@ -215,6 +215,7 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
       {tab === "models" ? (
         <KindSection
           kind="models"
+          toggleable
           title="NAS models"
           addLabel="Add model"
           rows={models as unknown as Rec[]}
@@ -241,7 +242,6 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
             { label: "Network", render: (r) => <span className="text-muted">{String(r.network || "—")}</span> },
             { label: "Quote", align: "right", render: (r) => <span className="font-semibold text-foreground">{inr(r.quotePrice)}</span> },
             { label: "Minimum", align: "right", render: (r) => <span className="text-muted">{inr(r.minPrice)}</span> },
-            { label: "Status", render: (r) => <ActivePill active={Boolean(r.active)} /> },
           ]}
         />
       ) : null}
@@ -249,6 +249,7 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
       {tab === "drives" ? (
         <KindSection
           kind="drives"
+          toggleable
           title="Hard drives"
           addLabel="Add drive"
           rows={drives as unknown as Rec[]}
@@ -264,7 +265,6 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
             },
             { label: "Quote (each)", align: "right", render: (r) => <span className="font-semibold text-foreground">{inr(r.quotePrice)}</span> },
             { label: "Minimum (each)", align: "right", render: (r) => <span className="text-muted">{inr(r.minPrice)}</span> },
-            { label: "Status", render: (r) => <ActivePill active={Boolean(r.active)} /> },
           ]}
         />
       ) : null}
@@ -318,6 +318,7 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
       {tab === "upgrades" ? (
         <KindSection
           kind="upgrades"
+          toggleable
           title="RAM & network cards"
           addLabel="Add upgrade"
           rows={upgrades as unknown as Rec[]}
@@ -341,7 +342,6 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
             { label: "Spec", render: (r) => <span className="text-muted">{String(r.spec || "—")}</span> },
             { label: "Quote", align: "right", render: (r) => <span className="font-semibold text-foreground">{inr(r.quotePrice)}</span> },
             { label: "Minimum", align: "right", render: (r) => <span className="text-muted">{inr(r.minPrice)}</span> },
-            { label: "Status", render: (r) => <ActivePill active={Boolean(r.active)} /> },
           ]}
         />
       ) : null}
@@ -370,6 +370,36 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
 
 type Column = { label: string; align?: "right"; render: (r: Rec) => ReactNode };
 
+/* Shows or hides an item in the configurator, from the row itself.
+ *
+ * It's the switch the price list is used through day to day — a drive goes out
+ * of stock, a model is withdrawn — so it shouldn't cost an Edit, a tick and a
+ * Save. The item is kept either way; this only decides whether customers can
+ * be quoted it. */
+function ActiveSwitch({ on, busy, label, onToggle }: { on: boolean; busy: boolean; label: string; onToggle: () => void }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={on}
+        aria-label={`Show ${label} in the configurator`}
+        disabled={busy}
+        onClick={onToggle}
+        className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 disabled:opacity-50 ${
+          on ? "border-accent bg-accent" : "border-border-strong bg-surface"
+        }`}
+      >
+        <span
+          aria-hidden
+          className={`inline-block h-3.5 w-3.5 rounded-full bg-background shadow-sm transition-transform ${on ? "translate-x-[18px]" : "translate-x-[3px]"}`}
+        />
+      </button>
+      <span className={`text-xs font-medium ${on ? "text-foreground" : "text-muted"}`}>{busy ? "Saving…" : on ? "Shown" : "Hidden"}</span>
+    </span>
+  );
+}
+
 function KindSection({
   kind,
   title,
@@ -380,6 +410,7 @@ function KindSection({
   describe,
   emptyText = "Nothing here yet.",
   intro,
+  toggleable = false,
 }: {
   kind: Kind;
   title: string;
@@ -391,10 +422,28 @@ function KindSection({
   emptyText?: string;
   /** Anything this tab needs explained before the table. */
   intro?: ReactNode;
+  /** Gives every row a switch that shows or hides it in the configurator. */
+  toggleable?: boolean;
 }) {
   const [editing, setEditing] = useState<number | "new" | null>(null);
   const [removingId, setRemovingId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<number | null>(null);
+
+  async function toggleActive(r: Rec) {
+    const name = describe(r);
+    const next = !r.active;
+    setTogglingId(r.id ?? null);
+    setError(null);
+    try {
+      await api(`/${kind}/${r.id}`, "PATCH", { active: next });
+      await onChanged(next ? `${name} is back in the configurator.` : `${name} is hidden from the configurator — it's still on the price list.`);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Couldn't change that.");
+    } finally {
+      setTogglingId(null);
+    }
+  }
 
   async function remove(r: Rec) {
     const name = describe(r);
@@ -463,6 +512,7 @@ function KindSection({
                     {c.label}
                   </th>
                 ))}
+                {toggleable ? <th className="px-4 py-2.5 font-semibold">In configurator</th> : null}
                 <th className="px-5 py-2.5" />
               </tr>
             </thead>
@@ -475,6 +525,11 @@ function KindSection({
                         {c.render(r)}
                       </td>
                     ))}
+                    {toggleable ? (
+                      <td className="whitespace-nowrap px-4 py-3 align-top">
+                        <ActiveSwitch on={Boolean(r.active)} busy={togglingId === r.id} label={describe(r)} onToggle={() => toggleActive(r)} />
+                      </td>
+                    ) : null}
                     <td className="whitespace-nowrap px-5 py-3 text-right align-top">
                       <button
                         type="button"
