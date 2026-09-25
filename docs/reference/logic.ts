@@ -1,3 +1,9 @@
+/* COPY — do not edit here.
+ *
+ * Taken from Frontend/src/lib/nas/logic.ts by Frontend/scripts/update-spec.ts,
+ * so that docs/nas-configurator-spec.md ships the engine it describes.
+ * Edit the original and re-run the script.
+ */
 /* Sizing and recommendation engine for the NAS configurator.
  *
  * A port of the DigiBuggy sales tool's frontend/src/logic.js — the same pure
