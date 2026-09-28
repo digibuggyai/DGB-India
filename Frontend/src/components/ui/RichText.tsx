@@ -11,7 +11,10 @@ export function RichText({
   if (!data) return null;
   return (
     <div
-      className={`prose max-w-none prose-headings:font-semibold prose-headings:text-foreground prose-a:text-accent prose-strong:text-foreground prose-p:text-muted prose-li:text-muted ${className}`}
+      /* Tables are laid out as blocks so a wide comparison table scrolls on its
+       * own on a phone, instead of stretching the article or being cut off.
+       * The rows still line up: the cells form an anonymous table box inside. */
+      className={`prose max-w-none prose-headings:font-semibold prose-headings:text-foreground prose-a:text-accent prose-strong:text-foreground prose-p:text-muted prose-li:text-muted prose-table:block prose-table:w-full prose-table:overflow-x-auto prose-table:text-sm prose-thead:border-border-strong prose-th:text-foreground prose-th:font-semibold prose-td:text-muted prose-td:align-top prose-tr:border-border ${className}`}
     >
       <PayloadRichText data={data} />
     </div>

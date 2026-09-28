@@ -1,5 +1,7 @@
 import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexicalEditor } from "@payloadcms/richtext-lexical";
+
+import { editorFeatures } from "@/lib/editorFeatures";
 import path from "path";
 import { buildConfig } from "payload";
 import { fileURLToPath } from "url";
@@ -83,7 +85,11 @@ export default buildConfig({
     NasOfferCodes,
   ],
   globals: [SiteSettings, Navigation, CTABlocks, NasSettings],
-  editor: lexicalEditor(),
+  /* Tables aren't in Lexical's default feature set, so a pasted comparison
+   * table arrived as a row of stray pipe characters and then vanished on save.
+   * The feature brings its own Markdown transformers, which is what lets a
+   * pipe table survive the Markdown the blog editor writes. */
+  editor: lexicalEditor({ features: editorFeatures }),
   secret: process.env.PAYLOAD_SECRET || "dev-secret-change-me",
   typescript: {
     outputFile: path.resolve(dirname, "payload-types.ts"),

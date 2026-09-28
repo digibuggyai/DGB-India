@@ -221,6 +221,21 @@ const BULLET_GLYPH = /^[\s]*[•●▪‣·◦*–—-]\s+/;
 const NUMBERED = /^[\s]*(\d{1,2})[.)]\s+/;
 const ENDS_SENTENCE = /[.!?:;,]$/;
 
+/* A table copied out of Word, Excel, Sheets or a web page arrives in the plain
+ * flavour as tab-separated cells, one row per line. Turning that back into a
+ * table is the difference between a comparison table and a wall of fragments. */
+const isTabRow = (line: string) => line.includes("\t") && line.split("\t").filter((c) => c.trim()).length >= 2;
+
+function tabbedTable(rows: string[]): string {
+  const cells = rows.map((r) => r.split("\t").map((c) => c.trim().replace(/\|/g, "\\|")));
+  const width = Math.max(...cells.map((c) => c.length));
+  const pad = (c: string[]) => [...c, ...Array(width - c.length).fill("")];
+  const line = (c: string[]) => `| ${pad(c).join(" | ")} |`;
+  // The first row is the header — which is what a copied table almost always
+  // leads with, and Markdown requires one either way.
+  return [line(cells[0]), `| ${Array(width).fill("---").join(" | ")} |`, ...cells.slice(1).map(line)].join("\n");
+}
+
 /** Text that already carries Markdown is only re-spaced, never restructured. */
 function looksLikeMarkdown(lines: string[]): boolean {
   const meaningful = lines.filter((l) => l.trim());
@@ -274,6 +289,17 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
 
     if (!t) {
       i++;
+      continue;
+    }
+
+    // A run of tab-separated lines is a table someone copied.
+    if (isTabRow(lines[i])) {
+      const rows: string[] = [];
+      while (i < lines.length && isTabRow(lines[i])) {
+        rows.push(lines[i]);
+        i++;
+      }
+      blocks.push(tabbedTable(rows));
       continue;
     }
 

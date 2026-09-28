@@ -4,6 +4,8 @@ import {
   convertMarkdownToLexical,
   editorConfigFactory,
 } from "@payloadcms/richtext-lexical";
+
+import { editorFeatures } from "@/lib/editorFeatures";
 import { slugField } from "@/fields/slug";
 import { seoField } from "@/fields/seo";
 
@@ -22,11 +24,16 @@ const readPublished: Access = ({ req }) =>
 // Writing is for admins and editors — not sales or the site's service account.
 const canWrite: Access = ({ req }) => req.user?.role === "admin" || req.user?.role === "editor";
 
-// The converter needs the editor's configuration; building it once per process
-// is plenty, since it only depends on the Payload config.
-let editorConfigPromise: ReturnType<typeof editorConfigFactory.default> | null = null;
+/* The converter needs the editor's configuration; building it once per process
+ * is plenty, since it only depends on the Payload config.
+ *
+ * Built from our own feature list rather than `editorConfigFactory.default`,
+ * which returns Lexical's stock set. A converter that doesn't know about a
+ * feature drops it without a word: with the default config, a Markdown table
+ * came back as a paragraph full of pipe characters. */
+let editorConfigPromise: ReturnType<typeof editorConfigFactory.fromFeatures> | null = null;
 const editorConfigFor = (config: Parameters<typeof editorConfigFactory.default>[0]["config"]) =>
-  (editorConfigPromise ??= editorConfigFactory.default({ config }));
+  (editorConfigPromise ??= editorConfigFactory.fromFeatures({ config, features: editorFeatures }));
 
 const wordCount = (markdown: string) => markdown.split(/\s+/).filter(Boolean).length;
 
