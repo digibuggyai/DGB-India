@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 4000",
+    "dev:4100": "next dev --port 4100",
     "build": "next build",
     "start": "next start --port ${PORT:-4000}",
     "lint": "eslint",
