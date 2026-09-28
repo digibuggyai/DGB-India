@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type ClipboardEvent, type FormEvent } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Toast, type ToastKind } from "@/components/ui/Toast";
+import { formatPasted, insertFormatted, tidyPlainText, worthFormatting } from "@/lib/blog-format";
 import {
   IMAGE_MAX_BYTES,
   IMAGE_TYPES,
@@ -274,6 +275,10 @@ function PostEditor({
   const [publish, setPublish] = useState<Publish>(status === "published" ? "keep" : status === "scheduled" ? "schedule" : "draft");
   const [scheduleAt, setScheduleAt] = useState(status === "scheduled" ? toLocalInput(post?.publishedAt ?? null) : "");
   const [busy, setBusy] = useState<"save" | "delete" | null>(null);
+  /* What the last paste or tidy did, and the text it replaced — so the author
+   * can always put it back. Formatting a paste is a guess at their intent; a
+   * guess with no way out is just damage. */
+  const [formatted, setFormatted] = useState<{ changes: string[]; warnings: string[]; previous: string } | null>(null);
   const [cover, setCover] = useState<AdminImage | null>(post?.cover ?? null);
   const [coverAlt, setCoverAlt] = useState(post?.cover?.alt ?? "");
   const [uploading, setUploading] = useState<"cover" | "inline" | null>(null);
@@ -372,6 +377,49 @@ function PostEditor({
   }
 
   const words = body.split(/\s+/).filter(Boolean).length;
+
+  /* Pasted content arrives from Word, Google Docs, Notion or another site. The
+   * clipboard carries the structure as HTML; a textarea only takes the flat
+   * text. So read the HTML where it's there, and read the shape of the text
+   * where it isn't — see lib/blog-format.ts. */
+  function onPasteBody(e: ClipboardEvent<HTMLTextAreaElement>) {
+    const text = e.clipboardData.getData("text/plain");
+    const html = e.clipboardData.getData("text/html");
+    if (!worthFormatting(html, text)) return;
+
+    const result = formatPasted({ html, text, title });
+    if (!result.markdown.trim()) return;
+
+    e.preventDefault();
+    const el = bodyRef.current;
+    const { text: next, caret } = insertFormatted(body, el?.selectionStart ?? body.length, el?.selectionEnd ?? body.length, result.markdown);
+
+    setFormatted({ changes: result.changes, warnings: result.warnings, previous: body });
+    setBody(next);
+
+    // Put the caret after what was pasted, where the author expects it.
+    requestAnimationFrame(() => {
+      el?.focus();
+      el?.setSelectionRange(caret, caret);
+    });
+  }
+
+  /** The same treatment for text that's already in the box. */
+  function tidyBody() {
+    const result = tidyPlainText(body, title);
+    if (!result.markdown.trim() || result.markdown === body) {
+      setFormatted({ changes: [], warnings: [], previous: body });
+      return;
+    }
+    setFormatted({ changes: result.changes, warnings: result.warnings, previous: body });
+    setBody(result.markdown);
+  }
+
+  function undoFormatting() {
+    if (!formatted) return;
+    setBody(formatted.previous);
+    setFormatted(null);
+  }
 
   function publishedAt(): string | null {
     if (publish === "draft") return null;
@@ -498,12 +546,47 @@ function PostEditor({
                 <input type="file" accept={IMAGE_TYPES.join(",")} onChange={insertImage} disabled={uploading !== null} className="sr-only" />
               </label>
               <span className="text-xs text-muted">Goes where the cursor is.</span>
+              <button
+                type="button"
+                onClick={tidyBody}
+                disabled={!body.trim()}
+                className="ml-auto rounded-full border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent disabled:opacity-50"
+              >
+                Tidy formatting
+              </button>
             </div>
+
+            {formatted ? (
+              <div
+                role="status"
+                className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-border bg-surface px-3 py-2 text-xs leading-relaxed"
+              >
+                <span className="text-foreground">
+                  {formatted.changes.length
+                    ? `Formatted into ${formatted.changes.join(", ")}.`
+                    : "Nothing to change — this already reads as Markdown."}
+                </span>
+                {formatted.warnings.map((w) => (
+                  <span key={w} className="text-accent">
+                    {w}
+                  </span>
+                ))}
+                {formatted.changes.length ? (
+                  <button type="button" onClick={undoFormatting} className="font-medium text-accent underline-offset-2 hover:underline">
+                    Undo
+                  </button>
+                ) : null}
+                <button type="button" onClick={() => setFormatted(null)} className="text-muted hover:text-foreground">
+                  Dismiss
+                </button>
+              </div>
+            ) : null}
             <textarea
               ref={bodyRef}
               id="post-body"
               value={body}
               onChange={(e) => setBody(e.target.value)}
+              onPaste={onPasteBody}
               rows={26}
               spellCheck
               placeholder={"## A section heading\n\nWrite in paragraphs. Leave a blank line between them.\n\n- Bullet points like this\n- **Bold** for key terms\n\n[Link text](https://www.dgbindia.com/nas-config)"}
