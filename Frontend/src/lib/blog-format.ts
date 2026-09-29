@@ -74,8 +74,11 @@ function inline(node: Node, ctx: Ctx): string {
   if (el.tagName === "BR") return "\n";
 
   if (el.tagName === "IMG") {
-    // Images have to be uploaded through the editor to be stored with the post;
-    // a pasted <img> points at someone else's server. Counted, not kept.
+    /* An image that's already ours — uploaded through the editor and carrying
+     * its media id — is written back as the token the post stores. Any other
+     * <img> points at someone else's server, so it's counted and dropped. */
+    const mediaId = el.getAttribute("data-media-id");
+    if (mediaId && /^\d+$/.test(mediaId)) return `![media:${mediaId}]()`;
     ctx.images++;
     return "";
   }
@@ -90,6 +93,7 @@ function inline(node: Node, ctx: Ctx): string {
     if (!/^(https?:|mailto:|\/)/i.test(href)) return inner;
     return `[${inner}](${href})`;
   }
+  if (/^(DEL|S|STRIKE)$/.test(el.tagName)) return `~~${inner}~~`;
   if (isBold(el) && isItalic(el)) return `***${inner}***`;
   if (isBold(el)) return `**${inner}**`;
   if (isItalic(el)) return `*${inner}*`;
@@ -188,6 +192,12 @@ function children(el: Element, ctx: Ctx, depth = 0): string {
   }
   flush();
   return out.join("\n\n");
+}
+
+/** The editor's own HTML, as the Markdown a post is stored as. Block-level
+ *  images sit in their own paragraph, which is how the token is written. */
+export function editorHtmlToMarkdown(html: string): string {
+  return htmlToMarkdown(html).markdown;
 }
 
 export function htmlToMarkdown(html: string): FormatResult {

@@ -45,7 +45,7 @@ Choose cloud storage if you want:
 
 > A NAS is not automatically a backup.
 
-**Bold** and *italic* and a [link](https://www.dgbindia.com/nas-config).`;
+**Bold** and *italic* and ~~struck out~~ and a [link](https://www.dgbindia.com/nas-config).`;
 
 async function main() {
   const payload: any = await getPayload({ config });
@@ -75,6 +75,7 @@ async function main() {
   check("bullets survive", (back.match(/^- /gm) ?? []).length === 3);
   check("numbered lists survive", /^1\. Phone$/m.test(back));
   check("the quote survives", /^> A NAS is not automatically a backup\.$/m.test(back));
+  check("strikethrough survives", /~~struck out~~/.test(back), back.split("\n").find((l) => l.includes("struck")) ?? "missing");
   check("bold, italic and links survive", /\*\*Bold\*\*/.test(back) && /\*italic\*/.test(back) && /\[link\]\(https:\/\/www\.dgbindia\.com\/nas-config\)/.test(back));
 
   console.log(failures ? `\n${failures} FAILED` : "\nThe whole post survives the round trip.");
