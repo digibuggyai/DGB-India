@@ -46,3 +46,6 @@ media/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Database snapshots — password hashes and every enquiry. Never commit these.
+backups/
