@@ -106,6 +106,8 @@ const LINES: Line[] = [
     driveClass: "enterprise",
     series: "HAT5300 / HAT5310 / HAT5320",
     rpm: "7,200 rpm",
+    // From Synology's HAT5300 datasheet, which the product page doesn't carry.
+    cache: "256 MB (8 TB), 512 MB (12 TB and above)",
     interface: "SATA 6 Gb/s",
     recording: "CMR",
     workloadTbYear: "550 TB/year",
