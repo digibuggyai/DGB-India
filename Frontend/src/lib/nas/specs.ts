@@ -32,12 +32,19 @@ export function expansion(model: NasModel): { bays: number; rawTb: number | null
   };
 }
 
-/** The same thing as a phrase: "9 bays · up to 216 TB raw". */
+/* The same thing as a phrase: "9 bays · up to 216 TB raw".
+ *
+ * Where the maker doesn't publish a bay total — QNAP expands over USB and says
+ * only that it's supported — the note stands in, so an expandable unit still
+ * says something true rather than carrying a number nobody verified. */
 export function expansionLabel(model: NasModel): string | null {
   const grown = expansion(model);
-  if (!grown) return null;
-  return `${grown.bays} bays${grown.rawTb ? ` · up to ${grown.rawTb} TB raw` : ""}`;
+  if (grown) return `${grown.bays} bays${grown.rawTb ? ` · up to ${grown.rawTb} TB raw` : ""}`;
+  return model.expandable && model.expansionNote ? model.expansionNote : null;
 }
+
+/** True when the label is a bay count rather than a description of the method. */
+export const expansionIsMeasured = (model: NasModel): boolean => expansion(model) !== null;
 
 const row = (label: string, value: string | number | null | undefined): Spec | null =>
   value == null || value === "" ? null : { label, value: String(value) };
@@ -58,7 +65,16 @@ export function modelSpecs(model: NasModel): Spec[] {
     row("Network ports", model.network || "Not recorded"),
     row("Network upgrade", model.networkUpgrade || "None"),
     row("USB ports", model.usbPorts),
-    row("Expansion unit", model.expandable ? (expansionLabel(model) ? `Supported — grows to ${expansionLabel(model)}` : "Supported") : "Not supported"),
+    row(
+      "Expansion unit",
+      model.expandable
+        ? expansionIsMeasured(model)
+          ? `Grows to ${expansionLabel(model)}${model.expansionNote ? ` (${model.expansionNote})` : ""}`
+          : expansionLabel(model)
+            ? `Supported — ${expansionLabel(model)}`
+            : "Supported"
+        : "Not supported",
+    ),
     row("Maximum raw capacity", model.maxRawTb ? `${model.maxRawTb} TB` : null),
     row("Dimensions", model.dimensions),
     row("Weight", model.weightKg ? `${model.weightKg} kg` : null),
@@ -203,7 +219,17 @@ export function compareRows(builds: Build[], raid: RaidLevel): { label: string; 
     { label: "Network ports", get: (b) => b.model.network || "Not recorded" },
     { label: "Network upgrade", get: (b) => b.model.networkUpgrade || "None" },
     { label: "USB ports", get: (b) => b.model.usbPorts || "Not recorded" },
-    { label: "Expansion unit", get: (b) => (b.model.expandable ? `Supported${expansionLabel(b.model) ? ` — grows to ${expansionLabel(b.model)}` : ""}` : "Not supported") },
+    {
+      label: "Expansion unit",
+      get: (b) =>
+        !b.model.expandable
+          ? "Not supported"
+          : expansionIsMeasured(b.model)
+            ? `Grows to ${expansionLabel(b.model)}`
+            : expansionLabel(b.model)
+              ? `Supported — ${expansionLabel(b.model)}`
+              : "Supported",
+    },
     { label: "Warranty", get: (b) => b.model.warranty || "Not recorded" },
     { label: "Unit + drives", get: (b) => inr(b.totalQuote) },
   ];
