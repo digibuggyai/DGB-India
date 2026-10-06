@@ -5,7 +5,7 @@ catalogue it quotes from, and the rules it quotes by. Written to be
 implementable without reading the original source, though the source is
 referenced throughout for anyone who wants it.
 
-**Snapshot taken:** 25 September 2026, from the live CMS.
+**Snapshot taken:** 6 October 2026, from the live CMS.
 
 > **This file contains internal floor prices.** The `Min` columns are the lowest
 > a salesperson may go, and they must never reach a browser. If you port this,
@@ -58,28 +58,28 @@ Notes that matter to the engine:
 
 | TB | Line | **Quote ₹** | *Min ₹* | ₹/TB (quote) |
 |--:|---|--:|--:|--:|
-| 2 | Exos | **21,683** | *20,650* | 10,842 |
+| 2 | Exos | **22,050** | *21,000* | 11,025 |
 | 2 | IronWolf | **18,957** | *18,054* | 9,479 |
-| 4 | Exos | **27,510** | *26,200* | 6,878 |
+| 4 | Exos | **27,506** | *26,196* | 6,877 |
 | 4 | IronWolf | **22,054** | *21,004* | 5,514 |
 | 6 | WD Ultrastar | **29,736** | *28,320* | 4,956 |
-| 8 | Exos | **45,224** | *43,070* | 5,653 |
+| 8 | Exos | **45,040** | *42,895* | 5,630 |
 | 8 | IronWolf Pro | **48,321** | *46,020* | 6,040 |
 | 10 | Exos | **52,038** | *49,560* | 5,204 |
-| 10 | IronWolf | **49,560** | *47,200* | 4,956 |
+| 10 | IronWolf | **50,180** | *47,790* | 5,018 |
 | 10 | IronWolf Pro | **55,136** | *52,510* | 5,514 |
-| 10 | WD Ultrastar | **50,180** | *47,790* | 5,018 |
+| 10 | WD Ultrastar | **50,715** | *48,300* | 5,072 |
 | 12 | Exos | **68,145** | *64,900* | 5,679 |
 | 12 | IronWolf Pro | **67,526** | *64,310* | 5,627 |
 | 12 | WD Ultrastar | **67,526** | *64,310* | 5,627 |
-| 16 | Exos | **83,633** | *79,650* | 5,227 |
+| 16 | Exos | **84,000** | *80,000* | 5,250 |
 | 16 | IronWolf Pro | **89,828** | *85,550* | 5,614 |
-| 16 | WD Ultrastar | **84,872** | *80,830* | 5,305 |
-| 18 | WD Ultrastar | **87,969** | *83,780* | 4,887 |
+| 16 | WD Ultrastar | **86,111** | *82,010* | 5,382 |
+| 18 | WD Ultrastar | **89,208** | *84,960* | 4,956 |
 | 20 | Exos | **1,02,837** | *97,940* | 5,142 |
 | 20 | IronWolf Pro | **1,06,554** | *1,01,480* | 5,328 |
-| 20 | WD Ultrastar | **1,00,979** | *96,170* | 5,049 |
-| 24 | WD Ultrastar | **1,18,944** | *1,13,280* | 4,956 |
+| 20 | WD Ultrastar | **1,06,554** | *1,01,480* | 5,328 |
+| 24 | WD Ultrastar | **1,21,422** | *1,15,640* | 5,059 |
 
 Capacities available: **2, 4, 6, 8, 10, 12, 16, 18, 20, 24 TB**. Not every line exists at every capacity — that sparseness is load-bearing, see §3.6.
 
@@ -405,11 +405,11 @@ against the catalogue in §1, with installation included and AMC off.
 
 | Ask | Result |
 |---|---|
-| 20 TB usable, RAID 5, any brand | TS-433-4G + 3 × 10 TB IronWolf · 20 TB usable · ₹1,93,680 hardware, ₹1,99,580 total |
-| 20 TB usable, RAID 1 | One mirrored pair: TS-233-2G + 2 × 20 TB WD Ultrastar · 20 TB usable · ₹2,25,958 hardware, ₹2,31,858 total |
+| 20 TB usable, RAID 5, any brand | TS-433-4G + 3 × 10 TB IronWolf · 20 TB usable · ₹1,95,540 hardware, ₹2,01,440 total |
+| 20 TB usable, RAID 1 | One mirrored pair: TS-233-2G + 2 × 20 TB Exos · 20 TB usable · ₹2,29,674 hardware, ₹2,35,574 total |
 | 4 TB usable, RAID 5 | TS-433-4G + 3 × 2 TB IronWolf · 4 TB usable · ₹1,01,871 hardware, ₹1,07,771 total — needs 3 bays, so every 2-bay chassis is excluded |
 | 4 TB usable, RAID 0 | TS-233-2G + 2 × 2 TB IronWolf · 4 TB usable · ₹61,914 hardware, ₹67,814 total — **never** 1 × 4 TB |
-| Budget ₹2,00,000, RAID auto | Picks RAID 5 at 20 TB over RAID 6 at 12 TB |
+| Budget ₹2,00,000, RAID auto | Picks RAID 5 at 18 TB over RAID 6 at 12 TB |
 | Budget ₹2,00,000, RAID 6 forced | TS-433-4G + 4 × 6 TB WD Ultrastar · 12 TB usable · ₹1,63,944 hardware, ₹1,69,844 total — the cost of the second parity drive |
 | Budget ₹50,000 | No build. Reports "₹50,000 doesn't cover a complete configuration. The least we can build with these choices is ₹67,814." |
 | Synology, any target | No build ever quotes a drive above 24 TB; QNAP never above 32 TB |
@@ -489,30 +489,30 @@ Three things are easy to get wrong:
 
 | Capacity | Line | Quote ₹ | Floor ₹ | Margin ₹ | Margin % | Quote ₹/TB | Floor ₹/TB |
 |--:|---|--:|--:|--:|--:|--:|--:|
-| 2 TB | Exos | 21,683 | 20,650 | 1,033 | 4.8% | 10,842 | 10,325 |
+| 2 TB | Exos | 22,050 | 21,000 | 1,050 | 4.8% | 11,025 | 10,500 |
 | 2 TB | IronWolf | 18,957 | 18,054 | 903 | 4.8% | 9,479 | 9,027 |
-| 4 TB | Exos | 27,510 | 26,200 | 1,310 | 4.8% | 6,878 | 6,550 |
+| 4 TB | Exos | 27,506 | 26,196 | 1,310 | 4.8% | 6,877 | 6,549 |
 | 4 TB | IronWolf | 22,054 | 21,004 | 1,050 | 4.8% | 5,514 | 5,251 |
 | 6 TB | WD Ultrastar | 29,736 | 28,320 | 1,416 | 4.8% | 4,956 | 4,720 |
-| 8 TB | Exos | 45,224 | 43,070 | 2,154 | 4.8% | 5,653 | 5,384 |
+| 8 TB | Exos | 45,040 | 42,895 | 2,145 | 4.8% | 5,630 | 5,362 |
 | 8 TB | IronWolf Pro | 48,321 | 46,020 | 2,301 | 4.8% | 6,040 | 5,753 |
 | 10 TB | Exos | 52,038 | 49,560 | 2,478 | 4.8% | 5,204 | 4,956 |
-| 10 TB | IronWolf | 49,560 | 47,200 | 2,360 | 4.8% | 4,956 | 4,720 |
+| 10 TB | IronWolf | 50,180 | 47,790 | 2,390 | 4.8% | 5,018 | 4,779 |
 | 10 TB | IronWolf Pro | 55,136 | 52,510 | 2,626 | 4.8% | 5,514 | 5,251 |
-| 10 TB | WD Ultrastar | 50,180 | 47,790 | 2,390 | 4.8% | 5,018 | 4,779 |
+| 10 TB | WD Ultrastar | 50,715 | 48,300 | 2,415 | 4.8% | 5,072 | 4,830 |
 | 12 TB | Exos | 68,145 | 64,900 | 3,245 | 4.8% | 5,679 | 5,408 |
 | 12 TB | IronWolf Pro | 67,526 | 64,310 | 3,216 | 4.8% | 5,627 | 5,359 |
 | 12 TB | WD Ultrastar | 67,526 | 64,310 | 3,216 | 4.8% | 5,627 | 5,359 |
-| 16 TB | Exos | 83,633 | 79,650 | 3,983 | 4.8% | 5,227 | 4,978 |
+| 16 TB | Exos | 84,000 | 80,000 | 4,000 | 4.8% | 5,250 | 5,000 |
 | 16 TB | IronWolf Pro | 89,828 | 85,550 | 4,278 | 4.8% | 5,614 | 5,347 |
-| 16 TB | WD Ultrastar | 84,872 | 80,830 | 4,042 | 4.8% | 5,305 | 5,052 |
-| 18 TB | WD Ultrastar | 87,969 | 83,780 | 4,189 | 4.8% | 4,887 | 4,654 |
+| 16 TB | WD Ultrastar | 86,111 | 82,010 | 4,101 | 4.8% | 5,382 | 5,126 |
+| 18 TB | WD Ultrastar | 89,208 | 84,960 | 4,248 | 4.8% | 4,956 | 4,720 |
 | 20 TB | Exos | 1,02,837 | 97,940 | 4,897 | 4.8% | 5,142 | 4,897 |
 | 20 TB | IronWolf Pro | 1,06,554 | 1,01,480 | 5,074 | 4.8% | 5,328 | 5,074 |
-| 20 TB | WD Ultrastar | 1,00,979 | 96,170 | 4,809 | 4.8% | 5,049 | 4,809 |
-| 24 TB | WD Ultrastar | 1,18,944 | 1,13,280 | 5,664 | 4.8% | 4,956 | 4,720 |
+| 20 TB | WD Ultrastar | 1,06,554 | 1,01,480 | 5,074 | 4.8% | 5,328 | 5,074 |
+| 24 TB | WD Ultrastar | 1,21,422 | 1,15,640 | 5,782 | 4.8% | 5,059 | 4,818 |
 
-Cheapest storage per TB: **18 TB WD Ultrastar** at ₹4,887/TB. Dearest: **2 TB Exos** at ₹10,842/TB — small drives cost roughly twice as much per TB, which is why the engine prefers fewer, larger drives.
+Cheapest storage per TB: **6 TB WD Ultrastar** at ₹4,956/TB. Dearest: **2 TB Exos** at ₹11,025/TB — small drives cost roughly twice as much per TB, which is why the engine prefers fewer, larger drives.
 
 ### 7.4 Services
 
@@ -554,13 +554,13 @@ Effective cost: **₹12,703 per usable TB**, floor ₹11,623. Room to negotiate:
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹45,000 | 45,000 | 42,480 |
-| Hard drives | 3 × ₹49,560 | 1,48,680 | 1,41,600 |
-| **Hardware** | | **1,93,680** | **1,84,080** |
+| Hard drives | 3 × ₹50,180 | 1,50,540 | 1,43,370 |
+| **Hardware** | | **1,95,540** | **1,85,850** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 19,368 | 12,886 |
-| **Total** | | **2,18,948** | **2,01,096** |
+| AMC (1 year) | 10% of hardware | 19,554 | 13,010 |
+| **Total** | | **2,20,994** | **2,02,990** |
 
-Effective cost: **₹10,947 per usable TB**, floor ₹10,055. Room to negotiate: **₹17,852** (8.2%).
+Effective cost: **₹11,050 per usable TB**, floor ₹10,149. Room to negotiate: **₹18,005** (8.1%).
 
 #### 20 TB usable · RAID 6
 
@@ -569,28 +569,28 @@ Effective cost: **₹10,947 per usable TB**, floor ₹10,055. Room to negotiate:
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹45,000 | 45,000 | 42,480 |
-| Hard drives | 4 × ₹49,560 | 1,98,240 | 1,88,800 |
-| **Hardware** | | **2,43,240** | **2,31,280** |
+| Hard drives | 4 × ₹50,180 | 2,00,720 | 1,91,160 |
+| **Hardware** | | **2,45,720** | **2,33,640** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 24,324 | 16,190 |
-| **Total** | | **2,73,464** | **2,51,600** |
+| AMC (1 year) | 10% of hardware | 24,572 | 16,355 |
+| **Total** | | **2,76,192** | **2,54,125** |
 
-Effective cost: **₹13,673 per usable TB**, floor ₹12,580. Room to negotiate: **₹21,864** (8.0%).
+Effective cost: **₹13,810 per usable TB**, floor ₹12,706. Room to negotiate: **₹22,067** (8.0%).
 
 #### 20 TB usable · RAID 1
 
-**TS-233-2G** (QNAP, 2-bay) × 1 · 2 × 20 TB WD Ultrastar · RAID 1 · **20 TB usable**
+**TS-233-2G** (QNAP, 2-bay) × 1 · 2 × 20 TB Exos · RAID 1 · **20 TB usable**
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹24,000 | 24,000 | 22,420 |
-| Hard drives | 2 × ₹1,00,979 | 2,01,958 | 1,92,340 |
-| **Hardware** | | **2,25,958** | **2,14,760** |
+| Hard drives | 2 × ₹1,02,837 | 2,05,674 | 1,95,880 |
+| **Hardware** | | **2,29,674** | **2,18,300** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 22,596 | 15,033 |
-| **Total** | | **2,54,454** | **2,33,923** |
+| AMC (1 year) | 10% of hardware | 22,967 | 15,281 |
+| **Total** | | **2,58,541** | **2,37,711** |
 
-Effective cost: **₹12,723 per usable TB**, floor ₹11,696. Room to negotiate: **₹20,531** (8.1%).
+Effective cost: **₹12,927 per usable TB**, floor ₹11,886. Room to negotiate: **₹20,830** (8.1%).
 
 #### 50 TB usable · RAID 5
 
@@ -599,13 +599,13 @@ Effective cost: **₹12,723 per usable TB**, floor ₹11,696. Room to negotiate:
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹87,000 | 87,000 | 82,600 |
-| Hard drives | 6 × ₹49,560 | 2,97,360 | 2,83,200 |
-| **Hardware** | | **3,84,360** | **3,65,800** |
+| Hard drives | 6 × ₹50,180 | 3,01,080 | 2,86,740 |
+| **Hardware** | | **3,88,080** | **3,69,340** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 38,436 | 25,606 |
-| **Total** | | **4,28,696** | **3,95,536** |
+| AMC (1 year) | 10% of hardware | 38,808 | 25,854 |
+| **Total** | | **4,32,788** | **3,99,324** |
 
-Effective cost: **₹8,574 per usable TB**, floor ₹7,911. Room to negotiate: **₹33,160** (7.7%).
+Effective cost: **₹8,656 per usable TB**, floor ₹7,986. Room to negotiate: **₹33,464** (7.7%).
 
 #### 50 TB usable · RAID 6, Synology only
 
@@ -614,28 +614,28 @@ Effective cost: **₹8,574 per usable TB**, floor ₹7,911. Room to negotiate: *
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹1,80,000 | 1,80,000 | 1,71,100 |
-| Hard drives | 7 × ₹49,560 | 3,46,920 | 3,30,400 |
-| **Hardware** | | **5,26,920** | **5,01,500** |
+| Hard drives | 7 × ₹50,180 | 3,51,260 | 3,34,530 |
+| **Hardware** | | **5,31,260** | **5,05,630** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 52,692 | 35,105 |
-| **Total** | | **5,85,512** | **5,40,735** |
+| AMC (1 year) | 10% of hardware | 53,126 | 35,394 |
+| **Total** | | **5,90,286** | **5,45,154** |
 
-Effective cost: **₹11,710 per usable TB**, floor ₹10,815. Room to negotiate: **₹44,777** (7.6%).
+Effective cost: **₹11,806 per usable TB**, floor ₹10,903. Room to negotiate: **₹45,132** (7.6%).
 
 #### 100 TB usable · RAID 5
 
-**TS-664-8G** (QNAP, 6-bay) × 1 · 6 × 20 TB WD Ultrastar · RAID 5 · **100 TB usable**
+**TS-664-8G** (QNAP, 6-bay) × 1 · 6 × 20 TB Exos · RAID 5 · **100 TB usable**
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹87,000 | 87,000 | 82,600 |
-| Hard drives | 6 × ₹1,00,979 | 6,05,874 | 5,77,020 |
-| **Hardware** | | **6,92,874** | **6,59,620** |
+| Hard drives | 6 × ₹1,02,837 | 6,17,022 | 5,87,640 |
+| **Hardware** | | **7,04,022** | **6,70,240** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 69,287 | 46,173 |
-| **Total** | | **7,68,061** | **7,09,923** |
+| AMC (1 year) | 10% of hardware | 70,402 | 46,917 |
+| **Total** | | **7,80,324** | **7,21,287** |
 
-Effective cost: **₹7,681 per usable TB**, floor ₹7,099. Room to negotiate: **₹58,138** (7.6%).
+Effective cost: **₹7,803 per usable TB**, floor ₹7,213. Room to negotiate: **₹59,037** (7.6%).
 
 #### Budget ₹1,50,000
 
@@ -644,13 +644,13 @@ Effective cost: **₹7,681 per usable TB**, floor ₹7,099. Room to negotiate: *
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹24,000 | 24,000 | 22,420 |
-| Hard drives | 2 × ₹49,560 | 99,120 | 94,400 |
-| **Hardware** | | **1,23,120** | **1,16,820** |
+| Hard drives | 2 × ₹50,180 | 1,00,360 | 95,580 |
+| **Hardware** | | **1,24,360** | **1,18,000** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 12,312 | 8,177 |
-| **Total** | | **1,41,332** | **1,29,127** |
+| AMC (1 year) | 10% of hardware | 12,436 | 8,260 |
+| **Total** | | **1,42,696** | **1,30,390** |
 
-Effective cost: **₹14,133 per usable TB**, floor ₹12,913. Room to negotiate: **₹12,205** (8.6%).
+Effective cost: **₹14,270 per usable TB**, floor ₹13,039. Room to negotiate: **₹12,306** (8.6%).
 
 #### Budget ₹3,00,000
 
@@ -659,28 +659,28 @@ Effective cost: **₹14,133 per usable TB**, floor ₹12,913. Room to negotiate:
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹45,000 | 45,000 | 42,480 |
-| Hard drives | 4 × ₹49,560 | 1,98,240 | 1,88,800 |
-| **Hardware** | | **2,43,240** | **2,31,280** |
+| Hard drives | 4 × ₹50,180 | 2,00,720 | 1,91,160 |
+| **Hardware** | | **2,45,720** | **2,33,640** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 24,324 | 16,190 |
-| **Total** | | **2,73,464** | **2,51,600** |
+| AMC (1 year) | 10% of hardware | 24,572 | 16,355 |
+| **Total** | | **2,76,192** | **2,54,125** |
 
-Effective cost: **₹9,115 per usable TB**, floor ₹8,387. Room to negotiate: **₹21,864** (8.0%).
+Effective cost: **₹9,206 per usable TB**, floor ₹8,471. Room to negotiate: **₹22,067** (8.0%).
 
 #### Budget ₹5,00,000
 
-**TS-433-4G** (QNAP, 4-bay) × 1 · 4 × 20 TB WD Ultrastar · RAID 5 · **60 TB usable**
+**TS-433-4G** (QNAP, 4-bay) × 1 · 4 × 18 TB WD Ultrastar · RAID 5 · **54 TB usable**
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
 | NAS unit | 1 × ₹45,000 | 45,000 | 42,480 |
-| Hard drives | 4 × ₹1,00,979 | 4,03,916 | 3,84,680 |
-| **Hardware** | | **4,48,916** | **4,27,160** |
+| Hard drives | 4 × ₹89,208 | 3,56,832 | 3,39,840 |
+| **Hardware** | | **4,01,832** | **3,82,320** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 44,892 | 29,901 |
-| **Total** | | **4,99,708** | **4,61,191** |
+| AMC (1 year) | 10% of hardware | 40,183 | 26,762 |
+| **Total** | | **4,47,915** | **4,13,212** |
 
-Effective cost: **₹8,328 per usable TB**, floor ₹7,687. Room to negotiate: **₹38,516** (7.7%).
+Effective cost: **₹8,295 per usable TB**, floor ₹7,652. Room to negotiate: **₹34,703** (7.7%).
 
 ### 7.7 Margin at a glance
 

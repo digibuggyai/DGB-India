@@ -1,5 +1,5 @@
 /* The hard drive price list for the NAS configurator, from the sales price
- * sheet (September 2026). One place, read by both the first-run seed and the
+ * sheet (October 2026). One place, read by both the first-run seed and the
  * price update script, so a fresh database and a live one can't disagree.
  *
  * [capacity TB, drive line, quote price, with-tax minimum] — both GST-inclusive
@@ -7,26 +7,26 @@
  * here (22 TB has no price in any line, and each line is stocked only at the
  * capacities below). */
 export const DRIVES: [number, string, number, number][] = [
-  [2, "Exos", 21683, 20650],
+  [2, "Exos", 22050, 21000],
   [2, "IronWolf", 18957, 18054],
-  [4, "Exos", 27510, 26200],
+  [4, "Exos", 27506, 26196],
   [4, "IronWolf", 22054, 21004],
   [6, "WD Ultrastar", 29736, 28320],
-  [8, "Exos", 45224, 43070],
+  [8, "Exos", 45040, 42895],
   [8, "IronWolf Pro", 48321, 46020],
   [10, "Exos", 52038, 49560],
-  [10, "IronWolf", 49560, 47200],
+  [10, "IronWolf", 50180, 47790],
   [10, "IronWolf Pro", 55136, 52510],
-  [10, "WD Ultrastar", 50180, 47790],
+  [10, "WD Ultrastar", 50715, 48300],
   [12, "Exos", 68145, 64900],
   [12, "IronWolf Pro", 67526, 64310],
   [12, "WD Ultrastar", 67526, 64310],
-  [16, "Exos", 83633, 79650],
+  [16, "Exos", 84000, 80000],
   [16, "IronWolf Pro", 89828, 85550],
-  [16, "WD Ultrastar", 84872, 80830],
-  [18, "WD Ultrastar", 87969, 83780],
+  [16, "WD Ultrastar", 86111, 82010],
+  [18, "WD Ultrastar", 89208, 84960],
   [20, "Exos", 102837, 97940],
   [20, "IronWolf Pro", 106554, 101480],
-  [20, "WD Ultrastar", 100979, 96170],
-  [24, "WD Ultrastar", 118944, 113280],
+  [20, "WD Ultrastar", 106554, 101480],
+  [24, "WD Ultrastar", 121422, 115640],
 ];
