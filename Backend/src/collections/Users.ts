@@ -1,5 +1,6 @@
 import type { Access, CollectionConfig, FieldAccess } from "payload";
 
+import { logChanges } from "@/hooks/nasPriceLog";
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
 
 // Admins see every account; anyone else is scoped to their own record.
@@ -40,6 +41,8 @@ export const Users: CollectionConfig = {
     // be able to open the CMS UI.
     admin: ({ req }) => Boolean(req.user && req.user.role !== "service"),
   },
+  // Every change recorded in the activity log, deletions included.
+  hooks: logChanges("user", (doc) => `${doc.email} (${doc.role})`),
   fields: [
     {
       name: "name",

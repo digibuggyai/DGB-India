@@ -43,6 +43,7 @@ export function toSalesPricing(c: Catalogue): NasPricing {
         m2Slots: m.m2Slots ?? null,
         maxDriveTb: m.maxDriveTb ?? null,
         baysWithExpansion: m.baysWithExpansion ?? null,
+        expansionNote: m.expansionNote ?? "",
         maxRawTb: m.maxRawTb ?? null,
         usbPorts: m.usbPorts ?? "",
         dimensions: m.dimensions ?? "",

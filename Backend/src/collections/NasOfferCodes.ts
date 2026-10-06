@@ -1,4 +1,5 @@
 import type { Access, CollectionConfig } from "payload";
+import { logChanges } from "@/hooks/nasPriceLog";
 
 const staffOnly: Access = ({ req }) => Boolean(req.user && (req.user.role === "admin" || req.user.role === "sales"));
 
@@ -85,5 +86,7 @@ export const NasOfferCodes: CollectionConfig = {
         return data;
       },
     ],
+    // Every change recorded in the activity log, deletions included.
+    ...logChanges("offerCode", (doc) => `${doc.code} — ${doc.customerName}`),
   },
 };

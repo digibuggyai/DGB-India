@@ -60,6 +60,15 @@ export const NasModels: CollectionConfig = {
       admin: { description: "Per-drive ceiling for this unit. The configurator will not quote a bigger drive in it." },
     },
     { name: "baysWithExpansion", label: "Bays with expansion units", type: "number", min: 0, admin: { description: "Total bays once expansion units are attached. Leave blank if it takes none." } },
+    {
+      name: "expansionNote",
+      label: "How it expands",
+      type: "text",
+      admin: {
+        description:
+          "How the unit grows, in plain words — a DX525 expansion unit, or a USB expansion enclosure. Shown when the bay count isn't known, so an expandable unit still says something true.",
+      },
+    },
     { name: "maxRawTb", label: "Maximum raw capacity (TB)", type: "number", min: 0 },
     { name: "usbPorts", label: "USB ports", type: "text" },
     { name: "dimensions", type: "text", admin: { description: "H × W × D in mm." } },

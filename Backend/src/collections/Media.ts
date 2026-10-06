@@ -1,10 +1,13 @@
 import type { CollectionConfig } from "payload";
 
+import { logChanges } from "@/hooks/nasPriceLog";
 export const Media: CollectionConfig = {
   slug: "media",
   access: {
     read: () => true,
   },
+  // Every change recorded in the activity log, deletions included.
+  hooks: logChanges("media", (doc) => String(doc.filename ?? doc.alt ?? doc.id)),
   fields: [
     {
       name: "alt",

@@ -20,7 +20,7 @@ import {
 import { RAID_INFO, RAID_LEVELS, bestNetworkAmong, inr, labelForSpeed, linesForCapacity, nearestBuildable } from "@/lib/nas/logic";
 import type { Build, CompanyInfo, Estimate, NasPricing } from "@/lib/nas/types";
 import { Alert, Badge, CheckTile, Chip, Field, Label, Note, Step, Tile, btnPrimary, btnSecondary, inputClass, linkBtn } from "./ui";
-import { findLine } from "@/lib/nas/specs";
+import { expansionLabel, findLine } from "@/lib/nas/specs";
 import { ConsultOffer } from "./ConsultOffer";
 import { CompareDialog, DriveInfoButton, DriveNotes, DriveSpecsDialog, InfoButton, SpecsDialog } from "./specs";
 
@@ -961,7 +961,7 @@ function ModelCard({
           <span className="font-display text-base font-bold tracking-tight text-foreground">{b.model.id}</span>
           <Badge>{b.model.brand}</Badge>
           {recommended ? <Badge tone="accent">Recommended</Badge> : null}
-          {b.model.expandable ? <Badge tone="tint">Expandable</Badge> : null}
+          {b.model.expandable ? <Badge tone="tint">{expansionLabel(b.model) ? `Expandable to ${expansionLabel(b.model)!.replace(" · up to", " ·")}` : "Expandable"}</Badge> : null}
           {b.units > 1 ? <Badge tone="dark">{b.units} units</Badge> : null}
           <InfoButton build={b} onOpen={onSpecs} />
         </span>

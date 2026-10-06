@@ -23,6 +23,7 @@ export type CmsModel = {
   m2Slots?: number | null;
   maxDriveTb?: number | null;
   baysWithExpansion?: number | null;
+  expansionNote?: string | null;
   maxRawTb?: number | null;
   usbPorts?: string | null;
   dimensions?: string | null;

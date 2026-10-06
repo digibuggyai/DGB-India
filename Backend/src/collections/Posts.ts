@@ -6,6 +6,7 @@ import {
 } from "@payloadcms/richtext-lexical";
 
 import { editorFeatures } from "@/lib/editorFeatures";
+import { logChanges } from "@/hooks/nasPriceLog";
 import { slugField } from "@/fields/slug";
 import { seoField } from "@/fields/seo";
 
@@ -82,8 +83,10 @@ export const Posts: CollectionConfig = {
     update: canWrite,
     delete: canWrite,
   },
+  // Every change recorded in the activity log, deletions included.
   hooks: {
     beforeChange: [syncBody],
+    ...logChanges("post", (doc) => String(doc.title)),
   },
   fields: [
     { name: "title", type: "text", required: true },

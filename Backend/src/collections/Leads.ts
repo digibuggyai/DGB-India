@@ -1,5 +1,6 @@
 import type { Access, CollectionConfig } from "payload";
 
+import { logChanges } from "@/hooks/nasPriceLog";
 const staffOnly: Access = ({ req }) =>
   Boolean(req.user && (req.user.role === "admin" || req.user.role === "sales"));
 
@@ -23,6 +24,8 @@ export const Leads: CollectionConfig = {
     update: staffOnly,
     delete: ({ req }) => req.user?.role === "admin",
   },
+  // Every change recorded in the activity log, deletions included.
+  hooks: logChanges("lead", (doc) => `${doc.name} — ${doc.company}`),
   fields: [
     { name: "name", type: "text", required: true },
     { name: "company", type: "text", required: true },
