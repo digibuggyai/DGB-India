@@ -19,6 +19,39 @@ export type Spec = { label: string; value: string };
 
 const raidList = (model: NasModel) => model.raid.map((r) => RAID_INFO[r].title).join(", ");
 
+/* How far a unit grows with an expansion enclosure attached.
+ *
+ * The raw figure is the bay count times the largest drive the unit takes, which
+ * is how the makers arrive at theirs: Synology publishes 216 TB for a DS925+
+ * (9 bays × 24 TB), 432 TB for a DS1825+ and 360 TB for a DS1525+, and each one
+ * comes out of this multiplication exactly. Deriving it means the two can never
+ * drift apart as drive ceilings change.
+ *
+ * Null when the unit takes no expansion, or when the bay count isn't on record
+ * — several QNAP figures aren't, and an invented number on a quotation is worse
+ * than a missing one. */
+export function expansion(model: NasModel): { bays: number; rawTb: number | null } | null {
+  if (!model.expandable || !model.baysWithExpansion || model.baysWithExpansion <= model.bays) return null;
+  return {
+    bays: model.baysWithExpansion,
+    rawTb: model.maxDriveTb ? model.baysWithExpansion * model.maxDriveTb : null,
+  };
+}
+
+/* The same thing as a phrase: "9 bays · up to 216 TB raw".
+ *
+ * Where the maker doesn't publish a bay total — QNAP expands over USB and says
+ * only that it's supported — the note stands in, so an expandable unit still
+ * says something true rather than carrying a number nobody verified. */
+export function expansionLabel(model: NasModel): string | null {
+  const grown = expansion(model);
+  if (grown) return `${grown.bays} bays${grown.rawTb ? ` · up to ${grown.rawTb} TB raw` : ""}`;
+  return model.expandable && model.expansionNote ? model.expansionNote : null;
+}
+
+/** True when the label is a bay count rather than a description of the method. */
+export const expansionIsMeasured = (model: NasModel): boolean => expansion(model) !== null;
+
 const row = (label: string, value: string | number | null | undefined): Spec | null =>
   value == null || value === "" ? null : { label, value: String(value) };
 
@@ -38,7 +71,16 @@ export function modelSpecs(model: NasModel): Spec[] {
     row("Network ports", model.network || "Not recorded"),
     row("Network upgrade", model.networkUpgrade || "None"),
     row("USB ports", model.usbPorts),
-    row("Expansion unit", model.expandable ? "Supported" : "Not supported"),
+    row(
+      "Expansion unit",
+      model.expandable
+        ? expansionIsMeasured(model)
+          ? `Grows to ${expansionLabel(model)}${model.expansionNote ? ` (${model.expansionNote})` : ""}`
+          : expansionLabel(model)
+            ? `Supported — ${expansionLabel(model)}`
+            : "Supported"
+        : "Not supported",
+    ),
     row("Maximum raw capacity", model.maxRawTb ? `${model.maxRawTb} TB` : null),
     row("Dimensions", model.dimensions),
     row("Weight", model.weightKg ? `${model.weightKg} kg` : null),
@@ -183,7 +225,17 @@ export function compareRows(builds: Build[], raid: RaidLevel): { label: string; 
     { label: "Network ports", get: (b) => b.model.network || "Not recorded" },
     { label: "Network upgrade", get: (b) => b.model.networkUpgrade || "None" },
     { label: "USB ports", get: (b) => b.model.usbPorts || "Not recorded" },
-    { label: "Expansion unit", get: (b) => (b.model.expandable ? `Supported${b.model.baysWithExpansion ? ` — up to ${b.model.baysWithExpansion} bays` : ""}` : "Not supported") },
+    {
+      label: "Expansion unit",
+      get: (b) =>
+        !b.model.expandable
+          ? "Not supported"
+          : expansionIsMeasured(b.model)
+            ? `Grows to ${expansionLabel(b.model)}`
+            : expansionLabel(b.model)
+              ? `Supported — ${expansionLabel(b.model)}`
+              : "Supported",
+    },
     { label: "Warranty", get: (b) => b.model.warranty || "Not recorded" },
     { label: "Unit + drives", get: (b) => inr(b.totalQuote) },
   ];

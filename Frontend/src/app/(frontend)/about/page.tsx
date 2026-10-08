@@ -131,7 +131,7 @@ export default async function AboutPage() {
               industries={industries.map((i) => ({ id: String(i.id), name: i.name }))}
               infrastructure={infrastructure
                 .filter((i) => !i.parent)
-                .map((i) => ({ id: String(i.id), name: i.name }))}
+                .map((i) => ({ id: String(i.id), name: i.name }))} 
             />
           </div>
           

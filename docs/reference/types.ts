@@ -41,6 +41,8 @@ export type NasModel = {
   maxDriveTb: number | null;
   /** Total bays once expansion units are attached. */
   baysWithExpansion: number | null;
+  /** How it grows, for units whose bay total isn't published. */
+  expansionNote: string;
   maxRawTb: number | null;
   usbPorts: string;
   dimensions: string;

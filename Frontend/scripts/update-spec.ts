@@ -44,6 +44,34 @@ function driveRows(S: NasPricing): Row[] {
   return rows.sort((a, b) => a.cap - b.cap || a.line.localeCompare(b.line));
 }
 
+/* ---------------- §1.1 ---------------- */
+
+function unitsSection(S: NasPricing): string {
+  const out: string[] = [];
+  const dash = (v: unknown) => (v === null || v === undefined || v === "" ? "—" : String(v));
+  const grows = (m: NasPricing["models"][number]) =>
+    !m.expandable ? "—" : m.baysWithExpansion ? `${m.baysWithExpansion} bays` : m.expansionNote || "yes";
+
+  out.push(`### 1.1 NAS units — ${S.models.length} models, all active`);
+  out.push("");
+  out.push("| Model | Brand | Bays | RAID | Network | Network upgrade | CPU | RAM | Max RAM | M.2 | Max drive TB | Grows to | Warranty | **Quote ₹** | *Min ₹* |");
+  out.push("|---|---|--:|---|---|---|---|---|---|--:|--:|---|---|--:|--:|");
+  for (const m of [...S.models].sort((a, b) => a.bays - b.bays || a.quote - b.quote)) {
+    out.push(
+      `| ${m.id} | ${m.brand} | ${m.bays} | ${m.raid.map((r) => r.replace("RAID", "")).join("/")} | ${dash(m.network)} | ${dash(m.networkUpgrade)} | ${dash(m.cpu)} | ${dash(m.memory)} | ${dash(m.memoryMax)} | ${dash(m.m2Slots)} | ${dash(m.maxDriveTb)} | ${grows(m)} | ${dash(m.warranty)} | **${n(m.quote)}** | *${n(m.min)}* |`,
+    );
+  }
+  out.push("");
+  out.push("Notes that matter to the engine:");
+  out.push("");
+  out.push("- **Max drive TB** is a hard ceiling per bay. Nothing larger is ever quoted in that chassis.");
+  out.push("- **RAID** is the set of levels the chassis supports; a 2-bay unit cannot run parity.");
+  out.push("- **Grows to** is the bay total with an expansion enclosure attached, or how it expands where the maker publishes no total.");
+  out.push("- Prices are **per unit, GST inclusive**.");
+  out.push("");
+  return out.join("\n");
+}
+
 /* ---------------- §1.2 ---------------- */
 
 function drivesSection(S: NasPricing, rows: Row[]): string {
@@ -374,6 +402,7 @@ async function main() {
   // Normalised to \n on the way in and written back the same way: an editor
   // (or a script) that saves CRLF would otherwise break every anchor below.
   let doc = fs.readFileSync(SPEC, "utf8").replace(/\r\n/g, "\n");
+  doc = replaceSection(doc, "### 1.1 NAS units", "### 1.2 ", unitsSection(S));
   doc = replaceSection(doc, "### 1.2 Drives", "### 1.3 ", drivesSection(S, rows));
   doc = replaceAfterTable(doc, "### 1.3 Drive line specifications", "### 1.4 Upgrades", linesNote(S, rows));
   doc = replaceSection(doc, "## 5. Worked examples", "---\n\n## 6. Porting checklist", examplesSection(S));

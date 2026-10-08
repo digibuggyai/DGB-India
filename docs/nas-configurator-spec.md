@@ -5,7 +5,7 @@ catalogue it quotes from, and the rules it quotes by. Written to be
 implementable without reading the original source, though the source is
 referenced throughout for anyone who wants it.
 
-**Snapshot taken:** 6 October 2026, from the live CMS.
+**Snapshot taken:** 8 October 2026, from the live CMS.
 
 > **This file contains internal floor prices.** The `Min` columns are the lowest
 > a salesperson may go, and they must never reach a browser. If you port this,
@@ -24,32 +24,29 @@ and AMC). Drive *specifications* are a fifth table, carrying no price.
 
 ### 1.1 NAS units — 15 models, all active
 
-| Model | Brand | Bays | RAID | Network | Network upgrade | CPU | RAM | Max RAM | M.2 | Max drive TB | Bays + exp. | Warranty | **Quote ₹** | *Min ₹* |
-|---|---|--:|---|---|---|---|---|---|--:|--:|--:|---|--:|--:|
-| TS-233-2G | QNAP | 2 | 0/1 | 1GbE ×1 | — | ARM Cortex-A55 | 2 GB (on board) | not upgradable | 0 | 32 | — | 2 yr → 5 | **24,000** | *22,420* |
-| DS223J | Synology | 2 | 0/1 | 1GbE ×1 | — | Realtek RTD1619B | 1 GB DDR4 | not upgradable | 0 | 24 | — | 2 yr → 4 | **24,000** | *22,420* |
-| TS-216G-4G | QNAP | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB | — | 0 | 32 | — | 2 yr → 5 | **29,000** | *27,730* |
-| DS225+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 | 6 GB | 0 | 24 | — | 3 yr → 5 | **42,000** | *40,120* |
-| DS725+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | AMD Ryzen R1600 | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 7 | 3 yr → 5 | **94,000** | *89,680* |
-| TS-433-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB (on board) | not upgradable | 0 | 32 | — | — | **45,000** | *42,480* |
-| TS-462-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 | 10GbE via PCIe | Intel Celeron N4505 | 4 GB DDR4 | 16 GB | 2 | 32 | — | — | **57,000** | *54,280* |
-| DS425+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 | 6 GB | 2 | 24 | — | 3 yr → 5 | **67,000** | *63,720* |
-| TS-464-8G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe | Intel Celeron N5105 | 8 GB DDR4 | 16 GB | 2 | 32 | 12 | — | **69,000** | *66,080* |
-| DS925+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×2 | — | AMD Ryzen V1500B | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 9 | 3 yr → 5 | **97,000** | *92,630* |
-| DS1525+ | Synology | 5 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via E10G22-T1-Mini | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 15 | 3 yr → 5 | **1,42,000** | *1,35,700* |
-| TS-664-8G | QNAP | 6 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe | Intel Celeron N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | — | — | **87,000** | *82,600* |
-| TS-832PX-4G | QNAP | 8 | 0/1/5/6/10 | 10GbE SFP+ ×2 + 2.5GbE ×2 | — | Annapurna Labs AL-324 | 4 GB DDR4 | 16 GB | 0 | 32 | 16 | — | **1,08,000** | *1,03,250* |
-| TS-873A-8G | QNAP | 8 | 0/1/5/6/10 | 2.5GbE ×2 | 5/10GbE via PCIe Gen3 | AMD Ryzen V1500B | 8 GB DDR4 | 64 GB | 2 | 32 | 16 | — | **1,30,000** | *1,23,900* |
-| DS1825+ | Synology | 8 | 0/1/5/6/10 | 2.5GbE ×2 | up to 25GbE via PCIe | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 18 | 3 yr → 5 | **1,80,000** | *1,71,100* |
+| Model | Brand | Bays | RAID | Network | Network upgrade | CPU | RAM | Max RAM | M.2 | Max drive TB | Grows to | Warranty | **Quote ₹** | *Min ₹* |
+|---|---|--:|---|---|---|---|---|---|--:|--:|---|---|--:|--:|
+| TS-233-2G | QNAP | 2 | 0/1 | 1GbE ×1 | — | ARM Cortex-A55 | 2 GB (on board) | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **24,000** | *22,420* |
+| DS223J | Synology | 2 | 0/1 | 1GbE ×1 | — | Realtek RTD1619B | 1 GB DDR4 non-ECC | Not upgradable | 0 | 24 | — | 2 years, extendable to 4 | **24,000** | *22,420* |
+| TS-216G-4G | QNAP | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **29,000** | *27,730* |
+| DS225+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 non-ECC | 6 GB | 0 | 24 | — | 3 years, extendable to 5 | **42,000** | *40,120* |
+| DS725+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | AMD Ryzen R1600 | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 7 bays | 3 years, extendable to 5 | **94,000** | *89,680* |
+| TS-433-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB (on board) | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **45,000** | *42,480* |
+| TS-462-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 | 10GbE via PCIe card | Intel Celeron N4505 | 4 GB DDR4 | 16 GB | 2 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **57,000** | *54,280* |
+| DS425+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 | 6 GB | 2 | 24 | — | 3 years, extendable to 5 | **67,000** | *63,720* |
+| TS-464-8G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe card | Intel Celeron N5105 / N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | 12 bays | 3 years | **69,000** | *66,080* |
+| DS925+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×2 | — | AMD Ryzen V1500B | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 9 bays | 3 years, extendable to 5 | **97,000** | *92,630* |
+| DS1525+ | Synology | 5 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via E10G22-T1-Mini module | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 15 bays | 3 years, extendable to 5 | **1,42,000** | *1,35,700* |
+| TS-664-8G | QNAP | 6 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe card | Intel Celeron N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | USB expansion enclosure (TR- or TL-series) | 3 years | **87,000** | *82,600* |
+| TS-832PX-4G | QNAP | 8 | 0/1/5/6/10 | 10GbE SFP+ ×2 + 2.5GbE ×2 | — | Annapurna Labs AL-324 | 4 GB DDR4 | 16 GB | 0 | 32 | 16 bays | 2 years | **1,08,000** | *1,03,250* |
+| TS-873A-8G | QNAP | 8 | 0/1/5/6/10 | 2.5GbE ×2 | 5GbE/10GbE via PCIe Gen3 card | AMD Ryzen Embedded V1500B | 8 GB DDR4 | 64 GB | 2 | 32 | 16 bays | 3 years | **1,30,000** | *1,23,900* |
+| DS1825+ | Synology | 8 | 0/1/5/6/10 | 2.5GbE ×2 | up to 25GbE via PCIe add-in card | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 18 bays | 3 years, extendable to 5 | **1,80,000** | *1,71,100* |
 
 Notes that matter to the engine:
 
-- **Max drive TB** is a hard ceiling per bay: Synology units take 24 TB drives,
-  QNAP 32 TB. Nothing larger is ever quoted in that chassis.
-- **RAID** is the set of levels the chassis supports. A 2-bay unit lists only
-  RAID 0 and 1 — it physically cannot run parity.
-- **Bays + exp.** is the total once an expansion enclosure is attached; blank
-  means the unit takes no expansion. `expandable` is the boolean the filter uses.
+- **Max drive TB** is a hard ceiling per bay. Nothing larger is ever quoted in that chassis.
+- **RAID** is the set of levels the chassis supports; a 2-bay unit cannot run parity.
+- **Grows to** is the bay total with an expansion enclosure attached, or how it expands where the maker publishes no total.
 - Prices are **per unit, GST inclusive**.
 
 ### 1.2 Drives — priced combinations
@@ -827,7 +824,93 @@ sales configurator differs from the public one.
 
 ---
 
-## 13. Source map
+## 13. The interface, as built
+
+Enough to rebuild the look, not just the behaviour. §9 covers how it behaves;
+this covers what it is made of.
+
+### 13.1 Colour and type
+
+Defined once as CSS custom properties and consumed through Tailwind v4's
+`@theme inline`, so every component names a role rather than a colour.
+
+| Token | Value | Used for |
+|---|---|---|
+| `background` | `#ffffff` | page and cards |
+| `surface` | `#f3f4f5` | the page behind the cards, toolbars, table heads |
+| `surface-raised` | `#eef1f3` | a panel on top of a surface |
+| `border` | `#e5e8ea` | every ordinary rule and card edge |
+| `border-strong` | `#d9bcc1` | a card that is selected or needs attention |
+| `foreground` | `#10151c` | body text |
+| `muted` | `#5c6166` | secondary text, captions, disabled |
+| `accent` | `#80202c` | the single brand colour: primary buttons, links, selection |
+| `accent-hover` | `#661821` | its hover state |
+| `accent-foreground` | `#ffffff` | text on the accent |
+| `tint` | `#ecdcdf` | the accent at 10% — selected tiles, badges, quiet highlights |
+| `tint-foreground` | `#4d1219` | text on the tint |
+| `tint-muted` | `#5c4448` | secondary text on the tint |
+| `ink-800` | `#2e3236` | the estimate panel's dark header, modal backdrops |
+
+Two typefaces: a display face for headings and figures (`font-display`) and a
+body face for everything else. Prices are always `tabular-nums` so columns of
+rupees line up.
+
+One rule explains most of the visual design: **the accent is used sparingly.**
+A screen has one primary action, and selection is shown with the tint rather
+than with colour everywhere.
+
+### 13.2 Layout
+
+A two-column grid on desktop, one column below `lg`:
+
+```
+┌───────────────────────────────┬──────────────┐
+│ steps, in a 2-column grid     │ estimate     │
+│ (1 column below xl)           │ (sticky)     │
+│  1 Storage      2 RAID        │  dark header │
+│  3 Bays         4 Brand       │  line items  │
+│  5 Expand       6 Unit (wide) │  total       │
+│  7 Network      8 Drives(wide)│  CTA         │
+│  9 Upgrades     10 Quotation  │              │
+└───────────────────────────────┴──────────────┘
+```
+
+The estimate panel is sticky on desktop. On mobile it falls to the bottom of
+the page, and a fixed bar appears with the running total and a "View" button
+once the steps scroll past — so the number is never more than a tap away.
+
+### 13.3 The components
+
+All in `components/infrastructure/nas/ui.tsx`, deliberately small:
+
+| Component | What it is |
+|---|---|
+| `Step` | A numbered card: circled number, title, one line of explanation, then content. The whole configurator is ten of these. |
+| `Tile` | A radio button drawn as a card — title, optional sub-line, selected and disabled states. Used for every choice. |
+| `CheckTile` | The same as a switch, for installation and AMC. |
+| `Chip` | A compact toggle for presets (10 TB, 20 TB, ₹2,00,000). |
+| `Badge` | A small label: brand, "Recommended", "Expandable to 9 bays". Tones: outline, tint, accent, dark. |
+| `Field`, `Label`, `Note`, `Alert` | Form furniture and the two notice styles. |
+| `btnPrimary`, `btnSecondary`, `inputClass` | Shared class strings rather than components, so markup stays flat. |
+
+On top of those: `InfoButton` (the ⓘ with a hover card), `SpecsDialog`,
+`CompareDialog`, `DriveSpecsDialog` and `DriveNotes` in `specs.tsx`.
+
+### 13.4 Interaction rules worth keeping
+
+Each of these was a bug before it was a rule.
+
+- **Impossible options grey out; they never disappear.** A tile that vanishes makes the page feel broken; a greyed one that says "can't reach this target" explains itself.
+- **A pinned choice that becomes impossible is ignored**, so the recommendation always moves when something is clicked.
+- **"Auto" is a real value**, not a default waiting to be overwritten — and there is always a way back to it.
+- **The ⓘ sits inside the tile's label**, so its click must be stopped from selecting the tile underneath.
+- **Toolbar and dialog buttons use `onMouseDown` + `preventDefault`** where they must not steal focus.
+- **Network is shown, never asked.**
+- **Nothing is a wizard.** There is no "next" button and no step state; every answer re-derives everything.
+
+---
+
+## 14. Source map
 
 | Concern | File |
 |---|---|
