@@ -14,6 +14,15 @@ import { useEffect, useRef, useState } from "react";
 
 const SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
+/* Whether the widget shows itself.
+ *
+ *   "always"           — the familiar Cloudflare box on every form. Visitors can
+ *                        see that the form is protected, and so can you.
+ *   "interaction-only" — invisible unless Cloudflare wants a confirmation.
+ *
+ * The checking is identical either way; this is only what the visitor sees. */
+const APPEARANCE: "always" | "interaction-only" = "always";
+
 declare global {
   interface Window {
     turnstile?: {
@@ -61,8 +70,8 @@ export function HumanCheck({
     widget.current =
       window.turnstile?.render(box.current, {
         sitekey: SITE_KEY,
-        // Managed: Cloudflare decides, and decides "invisible" for most people.
-        appearance: "interaction-only",
+        appearance: APPEARANCE,
+        theme: "light",
         callback: (t: string) => onToken(t),
         "error-callback": () => onToken(""),
         "expired-callback": () => onToken(""),
@@ -99,8 +108,9 @@ export function HumanCheck({
             strategy="lazyOnload"
             onLoad={() => setReady(true)}
           />
-          {/* Usually renders nothing at all; takes space only when Cloudflare
-              decides this visitor should confirm. */}
+          {/* The widget itself. With APPEARANCE "always" this is the familiar
+              Cloudflare box; set to interaction-only it takes no space unless
+              a confirmation is wanted. */}
           <div ref={box} className="empty:hidden" />
         </>
       ) : null}
