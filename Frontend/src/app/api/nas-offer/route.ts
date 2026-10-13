@@ -1,5 +1,6 @@
 import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
+import { checkHuman, clientIp } from "@/lib/spam-guard";
 
 /* The configurator's consultation offer: files the enquiry as a lead and
  * issues that customer their own discount code.
@@ -56,6 +57,14 @@ export async function POST(req: Request) {
 
   if (!name || !company || !/^\S+@\S+\.\S+$/.test(email)) {
     return NextResponse.json({ error: "Name, company and a valid work email are required." }, { status: 400 });
+  }
+
+  /* This route hands out a discount code, so it is worth more to a bot than
+   * the contact form is. Same guard. */
+  const human = await checkHuman((body ?? {}) as Record<string, unknown>, req);
+  if (!human.ok) {
+    console.warn("[nas-offer] rejected a submission:", human.reason, "from", clientIp(req));
+    return NextResponse.json({ error: human.reason }, { status: human.status });
   }
 
   const apiKey = process.env.BACKEND_SERVICE_API_KEY;

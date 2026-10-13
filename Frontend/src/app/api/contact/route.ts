@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { checkHuman, clientIp } from "@/lib/spam-guard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -28,20 +29,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Name, company and email are required." }, { status: 400 });
   }
 
-  const turnstileToken = body.turnstileToken as string | undefined;
-  const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
-  if (turnstileSecret) {
-    if (!turnstileToken) {
-      return NextResponse.json({ error: "Verification failed. Please try again." }, { status: 400 });
-    }
-    const verify = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken }),
-    }).then((r) => r.json());
-    if (!verify.success) {
-      return NextResponse.json({ error: "Verification failed. Please try again." }, { status: 400 });
-    }
+  /* Honeypot, timing, rate limit and Turnstile — see lib/spam-guard. Every
+   * layer fails open, so an unconfigured key cannot block a real enquiry. */
+  const human = await checkHuman(body, req);
+  if (!human.ok) {
+    console.warn("[contact] rejected a submission:", human.reason, "from", clientIp(req));
+    return NextResponse.json({ error: human.reason }, { status: human.status });
   }
 
   const apiKey = process.env.BACKEND_SERVICE_API_KEY;

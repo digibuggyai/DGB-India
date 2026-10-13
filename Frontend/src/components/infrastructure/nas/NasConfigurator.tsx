@@ -24,6 +24,7 @@ import { expansionIsMeasured, expansionLabel, findLine } from "@/lib/nas/specs";
 import { ConsultOffer } from "./ConsultOffer";
 import { CompareDialog, DriveInfoButton, DriveNotes, DriveSpecsDialog, InfoButton, SpecsDialog } from "./specs";
 
+import { HumanCheck, useHumanFields } from "@/components/forms/HumanCheck";
 /* The NAS configurator on the NAS infrastructure page.
  *
  * Built from DigiBuggy's internal sales configurator, adapted for visitors:
@@ -73,6 +74,8 @@ const MODELS_SHOWN = 5;
 const MODELS_COMPARED = 5;
 
 function Configurator({ pricing: P, company, infrastructureId, source = "public" }: Props & { pricing: NasPricing }) {
+  // Honeypot, timing and Turnstile — invisible to a real visitor.
+  const human = useHumanFields();
   const sales = source === "sales";
   const [a, setA] = useState<Answers>(INITIAL_ANSWERS);
   const [details, setDetails] = useState<Details>(EMPTY_DETAILS);
@@ -228,6 +231,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...human.fields(),
           name,
           company: org,
           email,
@@ -746,6 +750,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                   </Alert>
                 ) : null}
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <HumanCheck website={human.website} onWebsite={human.setWebsite} onToken={human.setToken} />
                   <button type="submit" disabled={!priced || lead.status === "sending"} className={btnPrimary}>
                     {lead.status === "sending" ? <Spinner className="h-4 w-4" /> : null}
                     {lead.status === "sending" ? "Sending…" : "Request formal quotation"}

@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import { Field, btnPrimary, btnSecondary, inputClass } from "./ui";
 
+import { HumanCheck, useHumanFields } from "@/components/forms/HumanCheck";
 /* The consultation offer on the NAS configurator.
  *
  * Someone who has been configuring for half a minute is weighing a real
@@ -84,6 +85,8 @@ type State = "idle" | "sending" | "sent";
 
 export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: () => string }) {
   const [open, setOpen] = useState(false);
+  // Honeypot, timing and Turnstile — invisible to a real visitor.
+  const human = useHumanFields();
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", company: "", email: "", phone: "" });
@@ -163,6 +166,7 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...human.fields(),
           name,
           company,
           email,
@@ -311,6 +315,7 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
               ) : null}
 
               <div className="flex flex-col gap-2 sm:flex-row">
+                <HumanCheck website={human.website} onWebsite={human.setWebsite} onToken={human.setToken} />
                 <button type="submit" disabled={state === "sending"} className={btnPrimary}>
                   {state === "sending" ? <Spinner className="h-4 w-4" /> : null}
                   {state === "sending" ? "Sending…" : "Get my coupon & a call back"}

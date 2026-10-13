@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 
+import { HumanCheck, useHumanFields } from "./HumanCheck";
 type Option = { id: string; name: string };
 
 const inputClass =
@@ -16,6 +17,8 @@ export function RequirementForm({
   infrastructure: Option[];
 }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  // Honeypot, timing and Turnstile — invisible to a real visitor.
+  const human = useHumanFields();
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -45,7 +48,7 @@ export function RequirementForm({
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ ...payload, ...human.fields() }),
       });
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -137,6 +140,7 @@ export function RequirementForm({
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
+      <HumanCheck website={human.website} onWebsite={human.setWebsite} onToken={human.setToken} />
       <button
         type="submit"
         disabled={status === "submitting"}
