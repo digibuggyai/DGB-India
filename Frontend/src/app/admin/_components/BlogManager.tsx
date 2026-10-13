@@ -487,7 +487,19 @@ function PostEditor({
                 {words.toLocaleString("en-IN")} words · about {Math.max(1, Math.round(words / 200))} min read
               </span>
             </span>
-            <RichEditor value={body} onChange={setBody} imageUrl={(id) => images[id]?.url}>
+            <RichEditor
+              value={body}
+              onChange={setBody}
+              imageUrl={(id) => images[id]?.url}
+              // A pasted screenshot or a dropped file is uploaded and stored
+              // with the post, the same as one added with the Image button.
+              onUploadImage={async (file) => {
+                const image = await upload(file, "");
+                setImages((prev) => ({ ...prev, [image.id]: image }));
+                return { id: image.id, url: image.url, alt: image.alt ?? "" };
+              }}
+              onUploadError={onError}
+            >
               <label className="inline-flex h-8 cursor-pointer items-center gap-2 rounded px-2 text-sm font-medium text-foreground transition-colors hover:bg-tint">
                 {uploading === "inline" ? <Spinner className="h-3.5 w-3.5" /> : null}
                 {uploading === "inline" ? "Uploading…" : "Image"}

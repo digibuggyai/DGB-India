@@ -24,7 +24,33 @@ export function PostDetail({
   const tags = postTags(post);
   const meta = [postDate(post), readingLabel(post)].filter(Boolean);
 
+  /* What a search engine reads instead of guessing from the markup: who wrote
+   * it, when, what it is about and which picture represents it. Only facts the
+   * post actually carries go in — an empty field is left out rather than
+   * filled with the site's name. */
+  const base = process.env.NEXT_PUBLIC_SERVER_URL || "https://www.dgbindia.com";
+  const url = `${base}${basePath}/${post.slug}`;
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.title,
+    ...(post.excerpt ? { description: post.excerpt } : {}),
+    ...(cover ? { image: [cover.url.startsWith("http") ? cover.url : `${base}${cover.url}`] } : {}),
+    ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
+    ...(post.updatedAt ? { dateModified: post.updatedAt } : {}),
+    ...(tags.length ? { keywords: tags.join(", ") } : {}),
+    ...(author ? { author: { "@type": "Person", name: author } } : {}),
+    publisher: { "@type": "Organization", name: "DGB India", url: base },
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+  };
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        // The value is built above from the post's own fields, not from anything a reader can set.
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
     <article>
       <header className="border-b border-border bg-surface py-14 sm:py-20">
         <div className="container-page max-w-3xl">
@@ -109,5 +135,6 @@ export function PostDetail({
         </section>
       ) : null}
     </article>
+    </>
   );
 }

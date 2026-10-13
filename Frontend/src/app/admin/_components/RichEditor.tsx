@@ -4,7 +4,7 @@ import { Image as ImageExtension } from "@tiptap/extension-image";
 import { TableKit } from "@tiptap/extension-table";
 import { EditorContent, useEditor, type Editor } from "@tiptap/react";
 import { StarterKit } from "@tiptap/starter-kit";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { editorHtmlToMarkdown } from "@/lib/blog-format";
 import { markdownToEditorHtml, markdownToHtml, looksLikeMarkdown } from "@/lib/blog-markdown";
 
@@ -32,6 +32,11 @@ type Props = {
   imageUrl: (id: number) => string | undefined;
   /** Rendered into the toolbar — the Insert image control lives here. */
   children?: ReactNode;
+  /** Uploads a file and returns the stored image, so a pasted screenshot or a
+   *  dropped file becomes part of the post rather than a link to someone
+   *  else's server. Without it, paste and drop fall back to doing nothing. */
+  onUploadImage?: (file: File) => Promise<{ id: number; url: string; alt?: string }>;
+  onUploadError?: (message: string) => void;
 };
 
 const btn =
@@ -75,10 +80,44 @@ function Button({
 
 const Divider = () => <span aria-hidden className="mx-1 h-5 w-px bg-border" />;
 
-export function RichEditor({ value, onChange, imageUrl, children }: Props) {
+export function RichEditor({ value, onChange, imageUrl, children, onUploadImage, onUploadError }: Props) {
+  /* Full screen is a plain state flag rather than the Fullscreen API: the
+   * editor keeps its React tree, so the caret and history survive. Escape
+   * leaves, which is what everyone tries first. */
+  const [full, setFull] = useState(false);
   /* The Markdown this editor last produced. Without it, every keystroke would
    * round-trip back through the parser and reset the caret to the top. */
   const emitted = useRef<string | null>(null);
+
+  /* Uploads each image and puts it where the cursor (or the drop) was. The
+   * post stores the media id, never a URL, so the picture survives the CMS
+   * moving its files. */
+  async function insertFiles(files: File[], at?: number) {
+    if (!onUploadImage) {
+      onUploadError?.("Use the Image button to add a picture.");
+      return;
+    }
+    for (const file of files) {
+      try {
+        const image = await onUploadImage(file);
+        const chain = editorRef.current?.chain().focus();
+        if (!chain) return;
+        const node = { type: "image", attrs: { src: image.url, alt: image.alt ?? "", "data-media-id": String(image.id) } };
+        (at == null ? chain.insertContent(node) : chain.insertContentAt(at, node)).run();
+      } catch (err) {
+        onUploadError?.(err instanceof Error ? err.message : "Couldn't upload that image.");
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFull(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [full]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -89,7 +128,21 @@ export function RichEditor({ value, onChange, imageUrl, children }: Props) {
       }),
       // Pasted tables are kept — a comparison table is often the point of the post.
       TableKit.configure({ table: { resizable: false } }),
-      ImageExtension.configure({ allowBase64: false, HTMLAttributes: { class: "rounded-md" } }),
+      /* The media id has to survive as an attribute: it is what the post
+       * stores, and what tells our own images apart from a pasted hotlink. */
+      ImageExtension.extend({
+        addAttributes() {
+          return {
+            ...this.parent?.(),
+            "data-media-id": {
+              default: null,
+              parseHTML: (el: HTMLElement) => el.getAttribute("data-media-id"),
+              renderHTML: (attrs: Record<string, unknown>) =>
+                attrs["data-media-id"] ? { "data-media-id": String(attrs["data-media-id"]) } : {},
+            },
+          };
+        },
+      }).configure({ allowBase64: false, HTMLAttributes: { class: "rounded-md" } }),
     ],
     content: markdownToEditorHtml(value, imageUrl),
     editorProps: {
@@ -98,12 +151,28 @@ export function RichEditor({ value, onChange, imageUrl, children }: Props) {
           "prose prose-sm max-w-none min-h-[28rem] px-4 py-3 focus:outline-none prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-a:text-accent prose-table:text-xs prose-th:text-foreground",
       },
       handlePaste(view, event) {
+        // A screenshot on the clipboard arrives as a file, not as text.
+        const files = [...(event.clipboardData?.files ?? [])].filter((f) => f.type.startsWith("image/"));
+        if (files.length) {
+          event.preventDefault();
+          void insertFiles(files);
+          return true;
+        }
         const text = event.clipboardData?.getData("text/plain") ?? "";
         const html = event.clipboardData?.getData("text/html") ?? "";
         // HTML on the clipboard already carries the structure; TipTap reads it.
         if (html.trim() || !looksLikeMarkdown(text)) return false;
         event.preventDefault();
         editorRef.current?.chain().focus().insertContent(markdownToHtml(text)).run();
+        return true;
+      },
+      handleDrop(view, event) {
+        const files = [...((event as DragEvent).dataTransfer?.files ?? [])].filter((f) => f.type.startsWith("image/"));
+        if (!files.length) return false;
+        event.preventDefault();
+        // Dropped where the pointer is, not at the end of the article.
+        const at = view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos;
+        void insertFiles(files, at);
         return true;
       },
     },
@@ -143,7 +212,13 @@ export function RichEditor({ value, onChange, imageUrl, children }: Props) {
   );
 
   return (
-    <div className="overflow-hidden rounded-md border border-border bg-background focus-within:border-accent">
+    <div
+      className={
+        full
+          ? "fixed inset-0 z-50 flex flex-col overflow-hidden border border-border bg-background"
+          : "overflow-hidden rounded-md border border-border bg-background focus-within:border-accent"
+      }
+    >
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-surface px-2 py-1.5">
         <Button
           editor={editor}
@@ -232,6 +307,26 @@ export function RichEditor({ value, onChange, imageUrl, children }: Props) {
           disabled={!editor.can().redo()}
           onClick={() => editor.chain().focus().redo().run()}
         />
+        <Button
+          editor={editor}
+          title="Code block"
+          label={<span className="font-mono text-xs">{"{}"}</span>}
+          isActive={editor.isActive("codeBlock")}
+          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+        />
+        <Button
+          editor={editor}
+          title={full ? "Leave full screen (Esc)" : "Full screen"}
+          label={full ? "⤡" : "⤢"}
+          isActive={full}
+          onClick={() => setFull((f) => !f)}
+        />
+        <Button
+          editor={editor}
+          title="Insert table"
+          label="⊞"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+        />
         {children ? (
           <>
             <Divider />
@@ -240,7 +335,26 @@ export function RichEditor({ value, onChange, imageUrl, children }: Props) {
         ) : null}
       </div>
 
-      <EditorContent editor={editor} />
+      {/* A second row, only while the cursor is inside a table — the controls
+          are useless everywhere else and would crowd the main toolbar. */}
+      {editor.isActive("table") ? (
+        <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-tint/40 px-2 py-1.5">
+          <span className="px-1 text-xs font-medium text-muted">Table</span>
+          <Button editor={editor} title="Row above" label="↑+" onClick={() => editor.chain().focus().addRowBefore().run()} />
+          <Button editor={editor} title="Row below" label="↓+" onClick={() => editor.chain().focus().addRowAfter().run()} />
+          <Button editor={editor} title="Delete row" label="↕−" onClick={() => editor.chain().focus().deleteRow().run()} />
+          <Divider />
+          <Button editor={editor} title="Column left" label="←+" onClick={() => editor.chain().focus().addColumnBefore().run()} />
+          <Button editor={editor} title="Column right" label="→+" onClick={() => editor.chain().focus().addColumnAfter().run()} />
+          <Button editor={editor} title="Delete column" label="↔−" onClick={() => editor.chain().focus().deleteColumn().run()} />
+          <Divider />
+          <Button editor={editor} title="Header row on or off" label="H" onClick={() => editor.chain().focus().toggleHeaderRow().run()} />
+          <Button editor={editor} title="Merge or split cells" label="⊟" onClick={() => editor.chain().focus().mergeOrSplit().run()} />
+          <Button editor={editor} title="Delete table" label="✕" onClick={() => editor.chain().focus().deleteTable().run()} />
+        </div>
+      ) : null}
+
+      <EditorContent editor={editor} className={full ? "min-h-0 flex-1 overflow-y-auto" : undefined} />
     </div>
   );
 }
