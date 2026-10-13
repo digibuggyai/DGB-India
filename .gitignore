@@ -39,7 +39,10 @@ yarn-error.log*
 .vercel
 
 # payload
-media/
+# Uploaded files, in the Backend only. Anchored with a leading slash: a bare
+# "media/" also matched Frontend/src/app/api/admin/blog/media/, so the blog's
+# upload route was silently never committed and 405'd in production.
+/Backend/media/
 *.db
 *.db-journal
 

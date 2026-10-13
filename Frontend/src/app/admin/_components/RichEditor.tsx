@@ -18,11 +18,13 @@ import { markdownToEditorHtml, markdownToHtml, looksLikeMarkdown } from "@/lib/b
  *
  * Paste is the reason it exists. Word, Google Docs and web pages put HTML on
  * the clipboard, which arrives here with its structure intact; ChatGPT's copy
- * button puts Markdown on it as plain text, which is converted before it lands.
+ * button puts Markdown on it as plain text, which is converted before it lands;
+ * a screenshot arrives as a file and is uploaded.
  *
- * Underline is deliberately missing from the toolbar: Markdown has no way to
- * write one, so it would vanish the moment the post was saved. A button that
- * silently does nothing is worse than no button. */
+ * Underline, highlight, subscript, superscript and heading anchors are all
+ * deliberately absent: Markdown cannot write any of them, so they would vanish
+ * the moment a post was saved. A button that silently does nothing is worse
+ * than no button. */
 
 type Props = {
   /** The post, as Markdown. */
@@ -30,7 +32,7 @@ type Props = {
   onChange: (markdown: string) => void;
   /** Resolves an uploaded image's id to a URL it can be shown at. */
   imageUrl: (id: number) => string | undefined;
-  /** Rendered into the toolbar — the Insert image control lives here. */
+  /** Rendered into the toolbar — the Image control lives here. */
   children?: ReactNode;
   /** Uploads a file and returns the stored image, so a pasted screenshot or a
    *  dropped file becomes part of the post rather than a link to someone
@@ -41,7 +43,7 @@ type Props = {
 
 const btn =
   "inline-flex h-8 min-w-8 items-center justify-center rounded px-2 text-sm font-medium text-foreground transition-colors hover:bg-tint focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:opacity-40";
-const active = "bg-tint text-tint-foreground";
+const activeClass = "bg-tint text-tint-foreground";
 
 function Button({
   editor,
@@ -71,7 +73,7 @@ function Button({
         onClick();
         editor.commands.focus();
       }}
-      className={`${btn} ${isActive ? active : ""}`}
+      className={`${btn} ${isActive ? activeClass : ""}`}
     >
       {label}
     </button>
@@ -80,18 +82,38 @@ function Button({
 
 const Divider = () => <span aria-hidden className="mx-1 h-5 w-px bg-border" />;
 
+const SPECIALS = [
+  "₹", "€", "£", "©", "™", "®", "°", "×", "÷", "–", "—", "…", "→", "←", "↑", "↓",
+  "✓", "✕", "½", "¼", "¾", "±", "≈", "≤", "≥", "•", "§", "“", "”", "‘", "’", "″",
+];
+
+const SHORTCUTS: [string, string][] = [
+  ["Ctrl + B", "Bold"],
+  ["Ctrl + I", "Italic"],
+  ["Ctrl + K", "Link"],
+  ["Ctrl + Z / Y", "Undo and redo"],
+  ["Tab / Shift + Tab", "Indent or outdent a list item"],
+  ["Ctrl + V", "Paste, keeping the formatting"],
+  ["Esc", "Leave full screen"],
+];
+
 export function RichEditor({ value, onChange, imageUrl, children, onUploadImage, onUploadError }: Props) {
-  /* Full screen is a plain state flag rather than the Fullscreen API: the
-   * editor keeps its React tree, so the caret and history survive. Escape
-   * leaves, which is what everyone tries first. */
-  const [full, setFull] = useState(false);
   /* The Markdown this editor last produced. Without it, every keystroke would
    * round-trip back through the parser and reset the caret to the top. */
   const emitted = useRef<string | null>(null);
+  const editorRef = useRef<Editor | null>(null);
 
-  /* Uploads each image and puts it where the cursor (or the drop) was. The
-   * post stores the media id, never a URL, so the picture survives the CMS
-   * moving its files. */
+  /* Full screen is a state flag rather than the Fullscreen API, so the editor
+   * keeps its React tree and the caret and undo history survive. */
+  const [full, setFull] = useState(false);
+  /** The raw Markdown view, when it is open. */
+  const [source, setSource] = useState<string | null>(null);
+  const [spellcheck, setSpellcheck] = useState(true);
+  const [menu, setMenu] = useState<"chars" | "help" | null>(null);
+
+  /* Uploads each image and puts it where the cursor (or the drop) was. The post
+   * stores the media id, never a URL, so the picture survives the CMS moving
+   * its files. */
   async function insertFiles(files: File[], at?: number) {
     if (!onUploadImage) {
       onUploadError?.("Use the Image button to add a picture.");
@@ -110,15 +132,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
     }
   }
 
-  useEffect(() => {
-    if (!full) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setFull(false);
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [full]);
-
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -128,8 +141,8 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
       }),
       // Pasted tables are kept — a comparison table is often the point of the post.
       TableKit.configure({ table: { resizable: false } }),
-      /* The media id has to survive as an attribute: it is what the post
-       * stores, and what tells our own images apart from a pasted hotlink. */
+      /* The media id has to survive as an attribute: it is what the post stores,
+       * and what tells our own images apart from a pasted hotlink. */
       ImageExtension.extend({
         addAttributes() {
           return {
@@ -183,12 +196,10 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
     },
   });
 
-  const editorRef = useRef<Editor | null>(null);
   editorRef.current = editor;
 
-  /* Content set from outside — opening a post, or undoing a paste — is loaded
-   * in. Anything this editor itself produced is ignored, or typing would fight
-   * with the parser. */
+  /* Content set from outside — opening a post, or undoing — is loaded in.
+   * Anything this editor produced is ignored, or typing fights the parser. */
   useEffect(() => {
     if (!editor || value === emitted.current) return;
     editor.commands.setContent(markdownToEditorHtml(value, imageUrl), { emitUpdate: false });
@@ -197,19 +208,68 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor]);
 
+  useEffect(() => {
+    if (!full) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setFull(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [full]);
+
+  /* Clipboard buttons need the browser's permission, which Firefox never grants
+   * for rich content. Ctrl+V always works, so a refusal says so rather than
+   * failing silently. */
+  async function readClipboard(plain: boolean) {
+    const active = editorRef.current;
+    if (!active) return;
+    try {
+      if (plain) {
+        const text = await navigator.clipboard.readText();
+        if (text.trim()) active.chain().focus().insertContent(text).run();
+        return;
+      }
+      for (const item of await navigator.clipboard.read()) {
+        const image = item.types.find((t) => t.startsWith("image/"));
+        if (image) {
+          await insertFiles([new File([await item.getType(image)], "pasted.png", { type: image })]);
+          continue;
+        }
+        if (item.types.includes("text/html")) {
+          active.chain().focus().insertContent(await (await item.getType("text/html")).text()).run();
+          continue;
+        }
+        if (item.types.includes("text/plain")) {
+          const text = await (await item.getType("text/plain")).text();
+          active.chain().focus().insertContent(looksLikeMarkdown(text) ? markdownToHtml(text) : text).run();
+        }
+      }
+    } catch {
+      onUploadError?.("Your browser won't let a button read the clipboard — press Ctrl+V instead.");
+    }
+  }
+
   if (!editor) {
     return <div className="min-h-[28rem] rounded-md border border-border bg-background px-4 py-3 text-sm text-muted">Loading the editor…</div>;
   }
 
-  const heading = (level: 2 | 3 | 4, label: string, title: string) => (
-    <Button
-      editor={editor}
-      title={title}
-      label={label}
-      isActive={editor.isActive("heading", { level })}
-      onClick={() => editor.chain().focus().toggleHeading({ level }).run()}
-    />
-  );
+  /** The block type under the cursor, for the Format menu. */
+  const currentBlock = editor.isActive("codeBlock")
+    ? "pre"
+    : editor.isActive("heading", { level: 2 })
+      ? "h2"
+      : editor.isActive("heading", { level: 3 })
+        ? "h3"
+        : editor.isActive("heading", { level: 4 })
+          ? "h4"
+          : "p";
+
+  function setBlock(kind: string) {
+    const chain = editor!.chain().focus();
+    if (kind === "p") chain.setParagraph().run();
+    else if (kind === "pre") chain.toggleCodeBlock().run();
+    else chain.toggleHeading({ level: Number(kind[1]) as 2 | 3 | 4 }).run();
+  }
 
   return (
     <div
@@ -219,34 +279,30 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
           : "overflow-hidden rounded-md border border-border bg-background focus-within:border-accent"
       }
     >
+      {/* Row one: clipboard, history, links, what you can insert, how you view it. */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-surface px-2 py-1.5">
-        <Button
-          editor={editor}
-          title="Paragraph"
-          label="¶"
-          isActive={editor.isActive("paragraph")}
-          onClick={() => editor.chain().focus().setParagraph().run()}
-        />
-        {heading(2, "H2", "Heading")}
-        {heading(3, "H3", "Subheading")}
-        {heading(4, "H4", "Small heading")}
+        <Button editor={editor} title="Cut" label="✂" onClick={() => document.execCommand("cut")} />
+        <Button editor={editor} title="Copy" label="⧉" onClick={() => document.execCommand("copy")} />
+        <Button editor={editor} title="Paste" label="📋" onClick={() => void readClipboard(false)} />
+        <Button editor={editor} title="Paste as plain text" label="📋ᵀ" onClick={() => void readClipboard(true)} />
+        <Button editor={editor} title="Paste from Word or Google Docs" label="📋ᵂ" onClick={() => void readClipboard(false)} />
         <Divider />
-        <Button editor={editor} title="Bold (Ctrl+B)" label={<b>B</b>} isActive={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
-        <Button editor={editor} title="Italic (Ctrl+I)" label={<i>I</i>} isActive={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
+        <Button editor={editor} title="Undo (Ctrl+Z)" label="↶" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()} />
+        <Button editor={editor} title="Redo (Ctrl+Y)" label="↷" disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()} />
+        <Divider />
         <Button
           editor={editor}
-          title="Strikethrough"
-          label={<s>S</s>}
-          isActive={editor.isActive("strike")}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
+          title={spellcheck ? "Spell check is on" : "Spell check is off"}
+          label={<span className="text-xs font-semibold">ABC</span>}
+          isActive={spellcheck}
+          onClick={() => {
+            const next = !spellcheck;
+            setSpellcheck(next);
+            // ProseMirror owns the element, so the attribute is set on it directly.
+            document.querySelector<HTMLElement>(".ProseMirror")?.setAttribute("spellcheck", String(next));
+          }}
         />
-        <Button
-          editor={editor}
-          title="Code"
-          label={<span className="font-mono text-xs">{"</>"}</span>}
-          isActive={editor.isActive("code")}
-          onClick={() => editor.chain().focus().toggleCode().run()}
-        />
+        <Divider />
         <Button
           editor={editor}
           title="Link (Ctrl+K)"
@@ -263,57 +319,44 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
             editor.chain().focus().extendMarkRange("link").setLink({ href: href.trim() }).run();
           }}
         />
+        <Button editor={editor} title="Remove link" label="⛓" disabled={!editor.isActive("link")} onClick={() => editor.chain().focus().unsetLink().run()} />
         <Divider />
+        {children}
         <Button
           editor={editor}
-          title="Bulleted list"
-          label="•—"
-          isActive={editor.isActive("bulletList")}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
+          title="Insert table"
+          label="⊞"
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
         />
-        <Button
-          editor={editor}
-          title="Numbered list"
-          label="1."
-          isActive={editor.isActive("orderedList")}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        />
-        <Button
-          editor={editor}
-          title="Quote"
-          label="❝"
-          isActive={editor.isActive("blockquote")}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        />
-        <Button editor={editor} title="Divider" label="—" onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+        <Button editor={editor} title="Horizontal line" label="—" onClick={() => editor.chain().focus().setHorizontalRule().run()} />
+        <span className="relative inline-flex">
+          <Button
+            editor={editor}
+            title="Special character"
+            label="Ω"
+            isActive={menu === "chars"}
+            onClick={() => setMenu(menu === "chars" ? null : "chars")}
+          />
+          {menu === "chars" ? (
+            <span className="absolute left-0 top-9 z-20 grid w-64 grid-cols-8 gap-0.5 rounded-md border border-border bg-background p-2 shadow-[0_16px_32px_-16px_rgba(16,21,28,0.45)]">
+              {SPECIALS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className="h-7 rounded text-sm hover:bg-tint"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    editor.chain().focus().insertContent(c).run();
+                    setMenu(null);
+                  }}
+                >
+                  {c}
+                </button>
+              ))}
+            </span>
+          ) : null}
+        </span>
         <Divider />
-        <Button
-          editor={editor}
-          title="Clear formatting"
-          label="Tx"
-          onClick={() => editor.chain().focus().unsetAllMarks().clearNodes().run()}
-        />
-        <Button
-          editor={editor}
-          title="Undo (Ctrl+Z)"
-          label="↶"
-          disabled={!editor.can().undo()}
-          onClick={() => editor.chain().focus().undo().run()}
-        />
-        <Button
-          editor={editor}
-          title="Redo (Ctrl+Y)"
-          label="↷"
-          disabled={!editor.can().redo()}
-          onClick={() => editor.chain().focus().redo().run()}
-        />
-        <Button
-          editor={editor}
-          title="Code block"
-          label={<span className="font-mono text-xs">{"{}"}</span>}
-          isActive={editor.isActive("codeBlock")}
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        />
         <Button
           editor={editor}
           title={full ? "Leave full screen (Esc)" : "Full screen"}
@@ -323,20 +366,117 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         />
         <Button
           editor={editor}
-          title="Insert table"
-          label="⊞"
-          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          title="Source — the Markdown this post is stored as"
+          label={<span className="text-xs font-semibold">Source</span>}
+          isActive={source !== null}
+          onClick={() => {
+            if (source === null) {
+              setSource(editorHtmlToMarkdown(editor.getHTML()));
+              return;
+            }
+            // Coming back: what was typed in the box becomes the post.
+            onChange(source);
+            editor.commands.setContent(markdownToEditorHtml(source, imageUrl), { emitUpdate: false });
+            emitted.current = source;
+            setSource(null);
+          }}
         />
-        {children ? (
-          <>
-            <Divider />
-            {children}
-          </>
-        ) : null}
       </div>
 
-      {/* A second row, only while the cursor is inside a table — the controls
-          are useless everywhere else and would crowd the main toolbar. */}
+      {/* Row two: text formatting, lists, block type. */}
+      <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-surface px-2 py-1.5">
+        <Button editor={editor} title="Bold (Ctrl+B)" label={<b>B</b>} isActive={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
+        <Button editor={editor} title="Italic (Ctrl+I)" label={<i>I</i>} isActive={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
+        <Button editor={editor} title="Strikethrough" label={<s>S</s>} isActive={editor.isActive("strike")} onClick={() => editor.chain().focus().toggleStrike().run()} />
+        <Button
+          editor={editor}
+          title="Remove formatting"
+          label={
+            <span>
+              I<sub>x</sub>
+            </span>
+          }
+          onClick={() => editor.chain().focus().unsetAllMarks().run()}
+        />
+        <Divider />
+        <Button
+          editor={editor}
+          title="Numbered list"
+          label="1."
+          isActive={editor.isActive("orderedList")}
+          onClick={() => editor.chain().focus().toggleOrderedList().run()}
+        />
+        <Button
+          editor={editor}
+          title="Bulleted list"
+          label="•—"
+          isActive={editor.isActive("bulletList")}
+          onClick={() => editor.chain().focus().toggleBulletList().run()}
+        />
+        <Button
+          editor={editor}
+          title="Outdent (Shift+Tab)"
+          label="⇤"
+          disabled={!editor.can().liftListItem("listItem")}
+          onClick={() => editor.chain().focus().liftListItem("listItem").run()}
+        />
+        <Button
+          editor={editor}
+          title="Indent (Tab)"
+          label="⇥"
+          disabled={!editor.can().sinkListItem("listItem")}
+          onClick={() => editor.chain().focus().sinkListItem("listItem").run()}
+        />
+        <Divider />
+        <Button editor={editor} title="Quote" label="❝" isActive={editor.isActive("blockquote")} onClick={() => editor.chain().focus().toggleBlockquote().run()} />
+        <Divider />
+
+        <select
+          aria-label="Styles"
+          value={editor.isActive("code") ? "code" : ""}
+          onChange={(e) => {
+            if (e.target.value === "code") editor.chain().focus().toggleCode().run();
+            if (e.target.value === "clear") editor.chain().focus().unsetAllMarks().clearNodes().run();
+          }}
+          className="h-8 rounded border border-border bg-background px-2 text-xs text-foreground focus:border-accent focus:outline-none"
+        >
+          <option value="">Styles</option>
+          <option value="code">Inline code</option>
+          <option value="clear">Clear everything</option>
+        </select>
+
+        <select
+          aria-label="Format"
+          value={currentBlock}
+          onChange={(e) => setBlock(e.target.value)}
+          className="h-8 rounded border border-border bg-background px-2 text-xs text-foreground focus:border-accent focus:outline-none"
+        >
+          <option value="p">Paragraph</option>
+          <option value="h2">Heading</option>
+          <option value="h3">Subheading</option>
+          <option value="h4">Small heading</option>
+          <option value="pre">Preformatted</option>
+        </select>
+
+        <span className="relative ml-auto inline-flex">
+          <Button editor={editor} title="Keyboard shortcuts" label="?" isActive={menu === "help"} onClick={() => setMenu(menu === "help" ? null : "help")} />
+          {menu === "help" ? (
+            <span className="absolute right-0 top-9 z-20 block w-72 rounded-md border border-border bg-background p-3 text-xs shadow-[0_16px_32px_-16px_rgba(16,21,28,0.45)]">
+              {SHORTCUTS.map(([keys, what]) => (
+                <span key={keys} className="mb-1.5 flex justify-between gap-3">
+                  <span className="font-mono text-foreground">{keys}</span>
+                  <span className="text-right text-muted">{what}</span>
+                </span>
+              ))}
+              <span className="mt-2 block border-t border-border pt-2 leading-relaxed text-muted">
+                Paste keeps the formatting from Word, Google Docs and web pages. Screenshots and dropped image files are uploaded.
+              </span>
+            </span>
+          ) : null}
+        </span>
+      </div>
+
+      {/* Table controls, only while the cursor is inside a table. */}
       {editor.isActive("table") ? (
         <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-tint/40 px-2 py-1.5">
           <span className="px-1 text-xs font-medium text-muted">Table</span>
@@ -354,7 +494,16 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         </div>
       ) : null}
 
-      <EditorContent editor={editor} className={full ? "min-h-0 flex-1 overflow-y-auto" : undefined} />
+      {source !== null ? (
+        <textarea
+          value={source}
+          onChange={(e) => setSource(e.target.value)}
+          spellCheck={false}
+          className={`w-full border-0 bg-background px-4 py-3 font-mono text-[13px] leading-relaxed text-foreground focus:outline-none ${full ? "min-h-0 flex-1" : "min-h-[28rem]"}`}
+        />
+      ) : (
+        <EditorContent editor={editor} className={full ? "min-h-0 flex-1 overflow-y-auto" : undefined} />
+      )}
     </div>
   );
 }
