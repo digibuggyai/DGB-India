@@ -23,14 +23,42 @@ async function cms<T>(path: string, token: string, init: { method?: string; json
   const headers: Record<string, string> = { Authorization: `JWT ${token}` };
   if (init.json !== undefined) headers["Content-Type"] = "application/json";
 
-  const res = await fetch(`${API}/api${path}`, {
-    method: init.method ?? "GET",
-    headers,
-    body: init.form ?? (init.json !== undefined ? JSON.stringify(init.json) : undefined),
-    cache: "no-store",
-    signal: AbortSignal.timeout(60000),
-  });
-  const data = (await res.json().catch(() => ({}))) as CmsErrors;
+  let res: Response;
+  try {
+    res = await fetch(`${API}/api${path}`, {
+      method: init.method ?? "GET",
+      headers,
+      body: init.form ?? (init.json !== undefined ? JSON.stringify(init.json) : undefined),
+      cache: "no-store",
+      signal: AbortSignal.timeout(60000),
+    });
+  } catch (err) {
+    /* The CMS was unreachable — wrong address, asleep, or the upload took longer
+     * than a minute. Saying so beats "something went wrong", which sent us
+     * looking in the wrong place for an hour. */
+    const why = err instanceof Error && err.name === "TimeoutError" ? "took too long to answer" : "couldn't be reached";
+    throw new BlogError(`The CMS at ${API} ${why}.`, 502);
+  }
+
+  /* A platform error — a size limit, a gateway timeout — answers with HTML, not
+   * JSON. Reading that as JSON gives an empty object and a message that says
+   * nothing, so the status and a snippet of the body are kept. */
+  const body = await res.text();
+  let data: CmsErrors = {};
+  try {
+    data = body ? (JSON.parse(body) as CmsErrors) : {};
+  } catch {
+    if (!res.ok) {
+      const snippet = body.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, 120);
+      throw new BlogError(
+        res.status === 413
+          ? "The image was too large for the server to accept. Save it smaller and try again."
+          : `The CMS answered ${res.status}${snippet ? `: ${snippet}` : " with no explanation"}.`,
+        res.status,
+      );
+    }
+  }
+
   if (!res.ok) {
     const field = data.errors?.[0]?.data?.errors?.[0];
     const message = field?.message ? `${field.path ?? "Field"}: ${field.message}` : data.errors?.[0]?.message;

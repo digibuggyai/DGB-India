@@ -308,7 +308,8 @@ function PostEditor({
     form.append("alt", alt);
     const res = await fetch("/api/admin/blog/media", { method: "POST", body: form });
     const data = (await res.json().catch(() => ({}))) as { image?: AdminImage; error?: string };
-    if (!res.ok || !data.image) throw new Error(data.error || "Couldn't upload the image.");
+    // The status matters when the body isn't ours: 413 is a size limit, 504 a timeout.
+    if (!res.ok || !data.image) throw new Error(data.error || `Couldn't upload the image — the server answered ${res.status}.`);
     return data.image;
   }
 
