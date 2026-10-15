@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-08T06:23:29.879Z",
+  "exportedAt": "2026-10-15T06:48:33.979Z",
   "currency": "INR",
   "note": "Quote prices only, as the public site receives them.",
   "models": [
@@ -423,154 +423,154 @@
       "capacityTb": 2,
       "line": "IronWolf",
       "active": true,
-      "quote": 18957
+      "quote": 19824
     },
     {
       "title": "2 TB Exos",
       "capacityTb": 2,
       "line": "Exos",
       "active": true,
-      "quote": 22050
+      "quote": 22302
     },
     {
       "title": "4 TB IronWolf",
       "capacityTb": 4,
       "line": "IronWolf",
       "active": true,
-      "quote": 22054
+      "quote": 22302
     },
     {
       "title": "4 TB Exos",
       "capacityTb": 4,
       "line": "Exos",
       "active": true,
-      "quote": 27506
-    },
-    {
-      "title": "6 TB WD Ultrastar",
-      "capacityTb": 6,
-      "line": "WD Ultrastar",
-      "active": true,
-      "quote": 29736
+      "quote": 27258
     },
     {
       "title": "8 TB IronWolf Pro",
       "capacityTb": 8,
       "line": "IronWolf Pro",
       "active": true,
-      "quote": 48321
+      "quote": 50799
     },
     {
       "title": "8 TB Exos",
       "capacityTb": 8,
       "line": "Exos",
       "active": true,
-      "quote": 45040
+      "quote": 45843
     },
     {
       "title": "10 TB IronWolf Pro",
       "capacityTb": 10,
       "line": "IronWolf Pro",
       "active": true,
-      "quote": 55136
+      "quote": 57614
     },
     {
       "title": "10 TB WD Ultrastar",
       "capacityTb": 10,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 50715
+      "quote": 50799
     },
     {
       "title": "10 TB IronWolf",
       "capacityTb": 10,
       "line": "IronWolf",
       "active": true,
-      "quote": 50180
+      "quote": 50799
     },
     {
       "title": "10 TB Exos",
       "capacityTb": 10,
       "line": "Exos",
       "active": true,
-      "quote": 52038
+      "quote": 53277
     },
     {
       "title": "12 TB IronWolf Pro",
       "capacityTb": 12,
       "line": "IronWolf Pro",
       "active": true,
-      "quote": 67526
+      "quote": 75579
     },
     {
       "title": "12 TB WD Ultrastar",
       "capacityTb": 12,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 67526
+      "quote": 66906
     },
     {
       "title": "12 TB Exos",
       "capacityTb": 12,
       "line": "Exos",
       "active": true,
-      "quote": 68145
+      "quote": 70623
     },
     {
       "title": "16 TB IronWolf Pro",
       "capacityTb": 16,
       "line": "IronWolf Pro",
       "active": true,
-      "quote": 89828
+      "quote": 96642
     },
     {
       "title": "16 TB WD Ultrastar",
       "capacityTb": 16,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 86111
+      "quote": 89208
     },
     {
       "title": "16 TB Exos",
       "capacityTb": 16,
       "line": "Exos",
       "active": true,
-      "quote": 84000
+      "quote": 89208
     },
     {
       "title": "18 TB WD Ultrastar",
       "capacityTb": 18,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 89208
+      "quote": 100359
     },
     {
       "title": "20 TB IronWolf Pro",
       "capacityTb": 20,
       "line": "IronWolf Pro",
       "active": true,
-      "quote": 106554
+      "quote": 117705
     },
     {
       "title": "20 TB WD Ultrastar",
       "capacityTb": 20,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 106554
+      "quote": 111510
     },
     {
       "title": "20 TB Exos",
       "capacityTb": 20,
       "line": "Exos",
       "active": true,
-      "quote": 102837
+      "quote": 113988
     },
     {
       "title": "24 TB WD Ultrastar",
       "capacityTb": 24,
       "line": "WD Ultrastar",
       "active": true,
-      "quote": 121422
+      "quote": 136290
+    },
+    {
+      "title": "30 TB Exos",
+      "capacityTb": 30,
+      "line": "Exos",
+      "active": true,
+      "quote": 163548
     }
   ],
   "driveLines": [
