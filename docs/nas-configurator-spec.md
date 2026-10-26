@@ -5,7 +5,7 @@ catalogue it quotes from, and the rules it quotes by. Written to be
 implementable without reading the original source, though the source is
 referenced throughout for anyone who wants it.
 
-**Snapshot taken:** 15 October 2026, from the live CMS.
+**Snapshot taken:** 26 October 2026, from the live CMS.
 
 > **This file contains internal floor prices.** The `Min` columns are the lowest
 > a salesperson may go, and they must never reach a browser. If you port this,
@@ -26,21 +26,21 @@ and AMC). Drive *specifications* are a fifth table, carrying no price.
 
 | Model | Brand | Bays | RAID | Network | Network upgrade | CPU | RAM | Max RAM | M.2 | Max drive TB | Grows to | Warranty | **Quote ₹** | *Min ₹* |
 |---|---|--:|---|---|---|---|---|---|--:|--:|---|---|--:|--:|
-| TS-233-2G | QNAP | 2 | 0/1 | 1GbE ×1 | — | ARM Cortex-A55 | 2 GB (on board) | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **24,000** | *22,420* |
 | DS223J | Synology | 2 | 0/1 | 1GbE ×1 | — | Realtek RTD1619B | 1 GB DDR4 non-ECC | Not upgradable | 0 | 24 | — | 2 years, extendable to 4 | **24,000** | *22,420* |
-| TS-216G-4G | QNAP | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **29,000** | *27,730* |
+| TS-233-2G | QNAP | 2 | 0/1 | 1GbE ×1 | — | ARM Cortex-A55 | 2 GB (on board) | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **25,000** | *23,000* |
+| TS-216G-4G | QNAP | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **31,000** | *29,730* |
 | DS225+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 non-ECC | 6 GB | 0 | 24 | — | 3 years, extendable to 5 | **42,000** | *40,120* |
 | DS725+ | Synology | 2 | 0/1 | 2.5GbE ×1 + 1GbE ×1 | — | AMD Ryzen R1600 | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 7 bays | 3 years, extendable to 5 | **94,000** | *89,680* |
 | TS-433-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | ARM Cortex-A55 | 4 GB (on board) | Not upgradable | 0 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **45,000** | *42,480* |
 | TS-462-4G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×1 | 10GbE via PCIe card | Intel Celeron N4505 | 4 GB DDR4 | 16 GB | 2 | 32 | USB expansion enclosure (TR- or TL-series) | 2 years | **57,000** | *54,280* |
 | DS425+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×1 + 1GbE ×1 | — | Intel Celeron J4125 | 2 GB DDR4 | 6 GB | 2 | 24 | — | 3 years, extendable to 5 | **67,000** | *63,720* |
-| TS-464-8G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe card | Intel Celeron N5105 / N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | 12 bays | 3 years | **69,000** | *66,080* |
-| DS925+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×2 | — | AMD Ryzen V1500B | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 9 bays | 3 years, extendable to 5 | **97,000** | *92,630* |
-| DS1525+ | Synology | 5 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via E10G22-T1-Mini module | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 15 bays | 3 years, extendable to 5 | **1,42,000** | *1,35,700* |
+| TS-464-8G | QNAP | 4 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe card | Intel Celeron N5105 / N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | 12 bays | 3 years | **75,000** | *72,080* |
+| DS925+ | Synology | 4 | 0/1/5/6/10 | 2.5GbE ×2 | — | AMD Ryzen V1500B | 4 GB DDR4 ECC | 32 GB | 2 | 24 | 9 bays | 3 years, extendable to 5 | **95,000** | *92,630* |
+| DS1525+ | Synology | 5 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via E10G22-T1-Mini module | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 15 bays | 3 years, extendable to 5 | **1,38,000** | *1,32,700* |
 | TS-664-8G | QNAP | 6 | 0/1/5/6/10 | 2.5GbE ×2 | 10GbE via PCIe card | Intel Celeron N5095 | 8 GB DDR4 | 16 GB | 2 | 32 | USB expansion enclosure (TR- or TL-series) | 3 years | **87,000** | *82,600* |
-| TS-832PX-4G | QNAP | 8 | 0/1/5/6/10 | 10GbE SFP+ ×2 + 2.5GbE ×2 | — | Annapurna Labs AL-324 | 4 GB DDR4 | 16 GB | 0 | 32 | 16 bays | 2 years | **1,08,000** | *1,03,250* |
+| TS-832PX-4G | QNAP | 8 | 0/1/5/6/10 | 10GbE SFP+ ×2 + 2.5GbE ×2 | — | Annapurna Labs AL-324 | 4 GB DDR4 | 16 GB | 0 | 32 | 16 bays | 2 years | **1,10,000** | *1,06,250* |
 | TS-873A-8G | QNAP | 8 | 0/1/5/6/10 | 2.5GbE ×2 | 5GbE/10GbE via PCIe Gen3 card | AMD Ryzen Embedded V1500B | 8 GB DDR4 | 64 GB | 2 | 32 | 16 bays | 3 years | **1,30,000** | *1,23,900* |
-| DS1825+ | Synology | 8 | 0/1/5/6/10 | 2.5GbE ×2 | up to 25GbE via PCIe add-in card | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 18 bays | 3 years, extendable to 5 | **1,80,000** | *1,71,100* |
+| DS1825+ | Synology | 8 | 0/1/5/6/10 | 2.5GbE ×2 | up to 25GbE via PCIe add-in card | AMD Ryzen V1500B | 8 GB DDR4 ECC | 32 GB | 2 | 24 | 18 bays | 3 years, extendable to 5 | **1,75,000** | *1,70,100* |
 
 Notes that matter to the engine:
 
@@ -403,9 +403,9 @@ against the catalogue in §1, with installation included and AMC off.
 | Ask | Result |
 |---|---|
 | 20 TB usable, RAID 5, any brand | TS-433-4G + 3 × 10 TB WD Ultrastar · 20 TB usable · ₹1,97,397 hardware, ₹2,03,297 total |
-| 20 TB usable, RAID 1 | One mirrored pair: TS-233-2G + 2 × 20 TB WD Ultrastar · 20 TB usable · ₹2,47,020 hardware, ₹2,52,920 total |
+| 20 TB usable, RAID 1 | One mirrored pair: DS223J + 2 × 20 TB WD Ultrastar · 20 TB usable · ₹2,47,020 hardware, ₹2,52,920 total |
 | 4 TB usable, RAID 5 | TS-433-4G + 3 × 2 TB IronWolf · 4 TB usable · ₹1,04,472 hardware, ₹1,10,372 total — needs 3 bays, so every 2-bay chassis is excluded |
-| 4 TB usable, RAID 0 | TS-233-2G + 2 × 2 TB IronWolf · 4 TB usable · ₹63,648 hardware, ₹69,548 total — **never** 1 × 4 TB |
+| 4 TB usable, RAID 0 | DS223J + 2 × 2 TB IronWolf · 4 TB usable · ₹63,648 hardware, ₹69,548 total — **never** 1 × 4 TB |
 | Budget ₹2,00,000, RAID auto | Picks RAID 5 at 16 TB over RAID 6 at 8 TB |
 | Budget ₹2,00,000, RAID 6 forced | TS-433-4G + 4 × 4 TB IronWolf · 8 TB usable · ₹1,34,208 hardware, ₹1,40,108 total — the cost of the second parity drive |
 | Budget ₹50,000 | No build. Reports "₹50,000 doesn't cover a complete configuration. The least we can build with these choices is ₹69,548." |
@@ -466,21 +466,21 @@ Three things are easy to get wrong:
 
 | Model | Bays | Quote ₹ | Floor ₹ | Margin ₹ | Margin % | ₹ per bay |
 |---|--:|--:|--:|--:|--:|--:|
-| TS-233-2G | 2 | 24,000 | 22,420 | 1,580 | 6.6% | 12,000 |
 | DS223J | 2 | 24,000 | 22,420 | 1,580 | 6.6% | 12,000 |
-| TS-216G-4G | 2 | 29,000 | 27,730 | 1,270 | 4.4% | 14,500 |
+| TS-233-2G | 2 | 25,000 | 23,000 | 2,000 | 8.0% | 12,500 |
+| TS-216G-4G | 2 | 31,000 | 29,730 | 1,270 | 4.1% | 15,500 |
 | DS225+ | 2 | 42,000 | 40,120 | 1,880 | 4.5% | 21,000 |
 | TS-433-4G | 4 | 45,000 | 42,480 | 2,520 | 5.6% | 11,250 |
 | TS-462-4G | 4 | 57,000 | 54,280 | 2,720 | 4.8% | 14,250 |
 | DS425+ | 4 | 67,000 | 63,720 | 3,280 | 4.9% | 16,750 |
-| TS-464-8G | 4 | 69,000 | 66,080 | 2,920 | 4.2% | 17,250 |
+| TS-464-8G | 4 | 75,000 | 72,080 | 2,920 | 3.9% | 18,750 |
 | TS-664-8G | 6 | 87,000 | 82,600 | 4,400 | 5.1% | 14,500 |
 | DS725+ | 2 | 94,000 | 89,680 | 4,320 | 4.6% | 47,000 |
-| DS925+ | 4 | 97,000 | 92,630 | 4,370 | 4.5% | 24,250 |
-| TS-832PX-4G | 8 | 1,08,000 | 1,03,250 | 4,750 | 4.4% | 13,500 |
+| DS925+ | 4 | 95,000 | 92,630 | 2,370 | 2.5% | 23,750 |
+| TS-832PX-4G | 8 | 1,10,000 | 1,06,250 | 3,750 | 3.4% | 13,750 |
 | TS-873A-8G | 8 | 1,30,000 | 1,23,900 | 6,100 | 4.7% | 16,250 |
-| DS1525+ | 5 | 1,42,000 | 1,35,700 | 6,300 | 4.4% | 28,400 |
-| DS1825+ | 8 | 1,80,000 | 1,71,100 | 8,900 | 4.9% | 22,500 |
+| DS1525+ | 5 | 1,38,000 | 1,32,700 | 5,300 | 3.8% | 27,600 |
+| DS1825+ | 8 | 1,75,000 | 1,70,100 | 4,900 | 2.8% | 21,875 |
 
 ### 7.3 Drives — cost, floor and cost per TB
 
@@ -576,7 +576,7 @@ Effective cost: **₹13,946 per usable TB**, floor ₹12,833. Room to negotiate:
 
 #### 20 TB usable · RAID 1
 
-**TS-233-2G** (QNAP, 2-bay) × 1 · 2 × 20 TB WD Ultrastar · RAID 1 · **20 TB usable**
+**DS223J** (Synology, 2-bay) × 1 · 2 × 20 TB WD Ultrastar · RAID 1 · **20 TB usable**
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
@@ -610,14 +610,14 @@ Effective cost: **₹8,737 per usable TB**, floor ₹8,062. Room to negotiate: *
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
-| NAS unit | 1 × ₹1,80,000 | 1,80,000 | 1,71,100 |
+| NAS unit | 1 × ₹1,75,000 | 1,75,000 | 1,70,100 |
 | Hard drives | 7 × ₹50,799 | 3,55,593 | 3,38,660 |
-| **Hardware** | | **5,35,593** | **5,09,760** |
+| **Hardware** | | **5,30,593** | **5,08,760** |
 | Installation | 1 × ₹5,900 | 5,900 | 4,130 |
-| AMC (1 year) | 10% of hardware | 53,559 | 35,683 |
-| **Total** | | **5,95,052** | **5,49,573** |
+| AMC (1 year) | 10% of hardware | 53,059 | 35,613 |
+| **Total** | | **5,89,552** | **5,48,503** |
 
-Effective cost: **₹11,901 per usable TB**, floor ₹10,991. Room to negotiate: **₹45,479** (7.6%).
+Effective cost: **₹11,791 per usable TB**, floor ₹10,970. Room to negotiate: **₹41,049** (7.0%).
 
 #### 100 TB usable · RAID 5
 
@@ -636,7 +636,7 @@ Effective cost: **₹8,376 per usable TB**, floor ₹7,743. Room to negotiate: *
 
 #### Budget ₹1,50,000
 
-**TS-233-2G** (QNAP, 2-bay) × 1 · 2 × 10 TB WD Ultrastar · RAID 1 · **10 TB usable**
+**DS223J** (Synology, 2-bay) × 1 · 2 × 10 TB WD Ultrastar · RAID 1 · **10 TB usable**
 
 | Line | Basis | Quote ₹ | Floor ₹ |
 |---|---|--:|--:|
@@ -681,7 +681,7 @@ Effective cost: **₹9,203 per usable TB**, floor ₹8,494. Room to negotiate: *
 
 ### 7.7 Margin at a glance
 
-- NAS units: **4.9%** average margin (4.2–6.6%).
+- NAS units: **4.6%** average margin (2.5–8.0%).
 - Drives: **4.8%** average margin (4.8–4.8%).
 - Installation: **30.0%**. AMC: **30%** of the rate (10% → 7%).
 

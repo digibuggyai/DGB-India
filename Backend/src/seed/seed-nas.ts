@@ -8,6 +8,7 @@ import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
 import { DRIVES } from "./nas-drive-prices";
+import { MODEL_PRICES } from "./nas-model-prices";
 
 const config = (importedConfig as any)?.default ?? importedConfig;
 
@@ -15,21 +16,21 @@ const TWO_BAY = ["RAID0", "RAID1"];
 const ALL_RAID = ["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"];
 
 const MODELS = [
-  { model: "DS223J", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: false, network: "1GbE ×1", networkUpgrade: "", quotePrice: 24000, minPrice: 22420 },
-  { model: "DS225+", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 42000, minPrice: 40120 },
-  { model: "DS725+", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: true, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 94000, minPrice: 89680 },
-  { model: "TS-233-2G", brand: "QNAP", bays: 2, raid: TWO_BAY, expandable: false, network: "1GbE ×1", networkUpgrade: "", quotePrice: 24000, minPrice: 22420 },
-  { model: "TS-216G-4G", brand: "QNAP", bays: 2, raid: TWO_BAY, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 29000, minPrice: 27730 },
-  { model: "DS425+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 67000, minPrice: 63720 },
-  { model: "DS925+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "", quotePrice: 97000, minPrice: 92630 },
-  { model: "TS-433-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "", quotePrice: 45000, minPrice: 42480 },
-  { model: "TS-462-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×1", networkUpgrade: "10GbE via PCIe card", quotePrice: 57000, minPrice: 54280 },
-  { model: "TS-464-8G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 69000, minPrice: 66080 },
-  { model: "DS1525+", brand: "Synology", bays: 5, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via E10G22-T1-Mini module", quotePrice: 142000, minPrice: 135700 },
-  { model: "TS-664-8G", brand: "QNAP", bays: 6, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card", quotePrice: 87000, minPrice: 82600 },
-  { model: "DS1825+", brand: "Synology", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "up to 25GbE via PCIe add-in card", quotePrice: 180000, minPrice: 171100 },
-  { model: "TS-832PX-4G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "10GbE SFP+ ×2 + 2.5GbE ×2", networkUpgrade: "", quotePrice: 108000, minPrice: 103250 },
-  { model: "TS-873A-8G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "5GbE/10GbE via PCIe Gen3 card", quotePrice: 130000, minPrice: 123900 },
+  { model: "DS223J", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: false, network: "1GbE ×1", networkUpgrade: "" },
+  { model: "DS225+", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "" },
+  { model: "DS725+", brand: "Synology", bays: 2, raid: TWO_BAY, expandable: true, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "" },
+  { model: "TS-233-2G", brand: "QNAP", bays: 2, raid: TWO_BAY, expandable: false, network: "1GbE ×1", networkUpgrade: "" },
+  { model: "TS-216G-4G", brand: "QNAP", bays: 2, raid: TWO_BAY, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "" },
+  { model: "DS425+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "" },
+  { model: "DS925+", brand: "Synology", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "" },
+  { model: "TS-433-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: false, network: "2.5GbE ×1 + 1GbE ×1", networkUpgrade: "" },
+  { model: "TS-462-4G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×1", networkUpgrade: "10GbE via PCIe card" },
+  { model: "TS-464-8G", brand: "QNAP", bays: 4, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card" },
+  { model: "DS1525+", brand: "Synology", bays: 5, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via E10G22-T1-Mini module" },
+  { model: "TS-664-8G", brand: "QNAP", bays: 6, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "10GbE via PCIe card" },
+  { model: "DS1825+", brand: "Synology", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "up to 25GbE via PCIe add-in card" },
+  { model: "TS-832PX-4G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "10GbE SFP+ ×2 + 2.5GbE ×2", networkUpgrade: "" },
+  { model: "TS-873A-8G", brand: "QNAP", bays: 8, raid: ALL_RAID, expandable: true, network: "2.5GbE ×2", networkUpgrade: "5GbE/10GbE via PCIe Gen3 card" },
 ];
 
 const SETTINGS = { installQuote: 5900, installMin: 4130, amcQuotePercent: 10, amcMinPercent: 7 };
@@ -42,7 +43,10 @@ async function main() {
   for (const m of MODELS) {
     const found = await payload.find({ collection: "nas-models", where: { model: { equals: m.model } }, limit: 1, overrideAccess: true });
     if (found.docs.length) continue;
-    await payload.create({ collection: "nas-models", data: { ...m, active: true }, overrideAccess: true });
+    const price = MODEL_PRICES[m.model];
+    if (!price) throw new Error(`${m.model} has no price in nas-model-prices.ts`);
+    const [quotePrice, minPrice] = price;
+    await payload.create({ collection: "nas-models", data: { ...m, quotePrice, minPrice, active: true }, overrideAccess: true });
     modelsCreated++;
   }
 

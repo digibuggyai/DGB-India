@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-10-15T06:48:33.979Z",
+  "exportedAt": "2026-10-26T07:42:45.833Z",
   "currency": "INR",
   "note": "Quote prices only, as the public site receives them.",
   "models": [
@@ -25,7 +25,7 @@
       "warranty": "2 years",
       "specsUrl": "https://www.qnap.com/en-us/product/ts-216g/specs/hardware",
       "active": true,
-      "quote": 29000
+      "quote": 31000
     },
     {
       "model": "TS-233-2G",
@@ -49,7 +49,7 @@
       "warranty": "2 years",
       "specsUrl": "https://www.qnap.com/en-us/product/ts-233/specs/hardware",
       "active": true,
-      "quote": 24000
+      "quote": 25000
     },
     {
       "model": "DS725+",
@@ -155,7 +155,7 @@
       "warranty": "3 years",
       "specsUrl": "https://www.qnap.com/en-us/product/ts-464/specs/hardware",
       "active": true,
-      "quote": 69000
+      "quote": 75000
     },
     {
       "model": "TS-462-4G",
@@ -240,7 +240,7 @@
       "warranty": "3 years, extendable to 5",
       "specsUrl": "https://www.synology.com/en-us/products/DS925+",
       "active": true,
-      "quote": 97000
+      "quote": 95000
     },
     {
       "model": "DS425+",
@@ -299,7 +299,7 @@
       "warranty": "3 years, extendable to 5",
       "specsUrl": "https://www.synology.com/en-us/products/DS1525+",
       "active": true,
-      "quote": 142000
+      "quote": 138000
     },
     {
       "model": "TS-664-8G",
@@ -383,7 +383,7 @@
       "warranty": "2 years",
       "specsUrl": "https://www.qnap.com/en-us/product/ts-832px/specs/hardware",
       "active": true,
-      "quote": 108000
+      "quote": 110000
     },
     {
       "model": "DS1825+",
@@ -414,7 +414,7 @@
       "warranty": "3 years, extendable to 5",
       "specsUrl": "https://www.synology.com/en-us/products/DS1825+",
       "active": true,
-      "quote": 180000
+      "quote": 175000
     }
   ],
   "drives": [
