@@ -4,7 +4,8 @@ import { ButtonLink } from "@/components/ui/Button";
 import { RichText } from "@/components/ui/RichText";
 import type { Post } from "@/payload-types";
 import { PostCard } from "./PostCard";
-import { authorOf, coverOf, postDate, postTags, readingLabel } from "./postMeta";
+import { authorOf, coverOf, keywordsFor, postDate, postTags, readingLabel } from "./postMeta";
+import { breadcrumbSchema, checkJsonLd, faqSchema, withContext, type Faq } from "@/lib/blog-schema";
 
 /* One article: header, body, a route to a quote, and more to read. */
 
@@ -30,7 +31,10 @@ export function PostDetail({
    * filled with the site's name. */
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "https://www.dgbindia.com";
   const url = `${base}${basePath}/${post.slug}`;
-  const structuredData = {
+
+  const keywords = keywordsFor(post);
+
+  const article = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     headline: post.title,
@@ -38,19 +42,45 @@ export function PostDetail({
     ...(cover ? { image: [cover.url.startsWith("http") ? cover.url : `${base}${cover.url}`] } : {}),
     ...(post.publishedAt ? { datePublished: post.publishedAt } : {}),
     ...(post.updatedAt ? { dateModified: post.updatedAt } : {}),
-    ...(tags.length ? { keywords: tags.join(", ") } : {}),
+    ...(keywords.length ? { keywords: keywords.join(", ") } : {}),
     ...(author ? { author: { "@type": "Person", name: author } } : {}),
     publisher: { "@type": "Organization", name: "DGB India", url: base },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
 
+  /* The same trail that is drawn above the title, so the Google result reads
+   * "Resources › Blog › …" rather than a bare address. */
+  const breadcrumb = breadcrumbSchema([
+    { name: "Resources", url: `${base}/resources` },
+    { name: kicker === "Insight" ? "Insights" : "Blog", url: `${base}${basePath}` },
+    { name: post.title, url },
+  ]);
+
+  const faqs: Faq[] = (post.faqs ?? [])
+    .map((f) => ({ question: f.question ?? "", answer: f.answer ?? "" }))
+    .filter((f) => f.question.trim() && f.answer.trim());
+
+  /* Anything the author wrote by hand. It was checked when it was saved, both
+   * in the editor and by the CMS, so a bad value can't reach this point — but
+   * it is parsed again rather than trusted, because this is the step that
+   * prints it into the page. */
+  const customCheck = checkJsonLd(post.schemaJson ?? "");
+  const custom = customCheck.ok && customCheck.value ? withContext(customCheck.value) : null;
+
+  const schemas: unknown[] = [article, breadcrumb, faqSchema(faqs), custom].filter(Boolean);
+
   return (
     <>
-      <script
-        type="application/ld+json"
-        // The value is built above from the post's own fields, not from anything a reader can set.
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+      {schemas.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          /* Built from the post's own fields and from schema an admin saved —
+           * never from anything a reader can set. JSON.stringify escapes the
+           * quotes, and a closing </script> is refused when it is saved. */
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+        />
+      ))}
     <article>
       <header className="border-b border-border bg-surface py-14 sm:py-20">
         <div className="container-page max-w-3xl">
@@ -102,6 +132,25 @@ export function PostDetail({
           data={post.body}
           className="prose-lg prose-headings:font-display prose-headings:tracking-tight prose-h2:mt-12 prose-h2:text-2xl prose-h3:text-xl prose-p:leading-relaxed prose-a:font-medium prose-a:underline-offset-4 prose-blockquote:border-l-accent prose-blockquote:text-foreground prose-code:rounded prose-code:bg-surface prose-code:px-1 prose-code:py-0.5 prose-code:before:content-none prose-code:after:content-none prose-img:w-full prose-img:rounded-lg prose-img:border prose-img:border-border"
         />
+
+        {faqs.length ? (
+          <section aria-labelledby="post-faqs" className="mt-14 border-t border-border pt-10">
+            <h2 id="post-faqs" className="font-display text-2xl font-bold tracking-tight text-foreground">
+              Frequently asked questions
+            </h2>
+            {/* These are on the page because the FAQ markup above describes
+                them. Google rejects the markup when the answers aren't visible,
+                so the two are rendered from the same list and can't drift. */}
+            <dl className="mt-6 divide-y divide-border border-y border-border">
+              {faqs.map((faq, i) => (
+                <div key={i} className="py-5">
+                  <dt className="font-semibold text-foreground">{faq.question}</dt>
+                  <dd className="mt-2 leading-relaxed text-foreground/80">{faq.answer}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ) : null}
 
         <aside className="mt-14 rounded-lg border border-border bg-tint/60 p-6 sm:p-8">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-accent">Planning storage for your team?</p>

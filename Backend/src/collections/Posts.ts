@@ -6,9 +6,22 @@ import {
 } from "@payloadcms/richtext-lexical";
 
 import { editorFeatures } from "@/lib/editorFeatures";
+import { checkJsonLd } from "@/lib/jsonLd";
 import { logChanges } from "@/hooks/nasPriceLog";
 import { slugField } from "@/fields/slug";
 import { seoField } from "@/fields/seo";
+
+/* Enough for a thorough post; past this it is a sign something has gone wrong,
+ * and Google stops reading them anyway. */
+const MAX_FAQS = 30;
+
+/* The last line of defence for hand-written schema. The admin panel checks the
+ * same thing as you type, but the CMS has its own API and its own editor, so
+ * nothing invalid gets stored whichever door it came through. */
+const validateSchemaJson = (value: string | null | undefined) => {
+  const result = checkJsonLd(String(value ?? ""));
+  return result.ok ? true : result.error;
+};
 
 /* Blog and insight posts.
  *
@@ -142,6 +155,30 @@ export const Posts: CollectionConfig = {
         position: "sidebar",
         date: { pickerAppearance: "dayAndTime" },
         description: "Leave empty to keep it a draft. A future date schedules it.",
+      },
+    },
+    {
+      name: "faqs",
+      type: "array",
+      maxRows: MAX_FAQS,
+      labels: { singular: "FAQ", plural: "FAQs" },
+      admin: {
+        description:
+          "Shown as a questions block at the end of the post and sent to Google as FAQPage schema. Google only accepts the markup when the answers are visible on the page, which is why both happen together.",
+      },
+      fields: [
+        { name: "question", type: "text", required: true, maxLength: 300 },
+        { name: "answer", type: "textarea", required: true, maxLength: 2000 },
+      ],
+    },
+    {
+      name: "schemaJson",
+      label: "Custom schema (JSON-LD)",
+      type: "textarea",
+      validate: validateSchemaJson,
+      admin: {
+        description:
+          "Extra structured data for this post — HowTo, Product, VideoObject and so on. One object or a list of them. BlogPosting and breadcrumb schema are added automatically and don't belong here.",
       },
     },
     seoField,

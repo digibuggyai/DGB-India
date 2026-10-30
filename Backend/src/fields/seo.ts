@@ -18,6 +18,13 @@ export const seoField: Field = {
       admin: { description: "Meta description. ~155 characters." },
     },
     {
+      name: "keywords",
+      type: "text",
+      admin: {
+        description: "Comma-separated. Google ignores these, but other engines and our own schema use them.",
+      },
+    },
+    {
       name: "image",
       type: "upload",
       relationTo: "media",

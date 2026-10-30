@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import { PostSeoFields } from "./PostSeoFields";
+import { checkJsonLd, type Faq } from "@/lib/blog-schema";
 import { Spinner } from "@/components/ui/Spinner";
 import { Toast, type ToastKind } from "@/components/ui/Toast";
 import { RichEditor } from "./RichEditor";
@@ -278,6 +280,11 @@ function PostEditor({
   const [cover, setCover] = useState<AdminImage | null>(post?.cover ?? null);
   const [coverAlt, setCoverAlt] = useState(post?.cover?.alt ?? "");
   const [uploading, setUploading] = useState<"cover" | "inline" | null>(null);
+  const [metaTitle, setMetaTitle] = useState(post?.metaTitle ?? "");
+  const [metaDescription, setMetaDescription] = useState(post?.metaDescription ?? "");
+  const [metaKeywords, setMetaKeywords] = useState(post?.metaKeywords ?? "");
+  const [faqs, setFaqs] = useState<Faq[]>(post?.faqs ?? []);
+  const [schemaJson, setSchemaJson] = useState(post?.schemaJson ?? "");
   // Images written into the article, by id, and any alt text edited here.
   const [images, setImages] = useState<Record<number, AdminImage>>({});
   const [altEdits, setAltEdits] = useState<Record<number, string>>({});
@@ -381,6 +388,10 @@ function PostEditor({
     e.preventDefault();
     if (!title.trim()) return onError("Give the post a title.");
     if (publish === "schedule" && !scheduleAt) return onError("Pick the date and time to publish it.");
+    /* Broken schema would be refused by the CMS anyway; catching it here keeps
+     * the authors unsaved work in the form rather than losing the round trip. */
+    const schemaCheck = checkJsonLd(schemaJson);
+    if (!schemaCheck.ok) return onError(`Custom schema: ${schemaCheck.error}`);
 
     setBusy("save");
     try {
@@ -398,6 +409,11 @@ function PostEditor({
           authorId: authorId ? Number(authorId) : null,
           coverId: cover?.id ?? null,
           publishedAt: publishedAt(),
+          metaTitle,
+          metaDescription,
+          metaKeywords,
+          faqs,
+          schemaJson,
         }),
       });
       const data = (await res.json().catch(() => ({}))) as { post?: AdminPost; error?: string };
@@ -560,6 +576,22 @@ function PostEditor({
               <dd className="font-sans">Starts a new paragraph</dd>
             </dl>
           </details>
+
+          <PostSeoFields
+            metaTitle={metaTitle}
+            onMetaTitle={setMetaTitle}
+            metaDescription={metaDescription}
+            onMetaDescription={setMetaDescription}
+            keywords={metaKeywords}
+            onKeywords={setMetaKeywords}
+            faqs={faqs}
+            onFaqs={setFaqs}
+            schemaJson={schemaJson}
+            onSchemaJson={setSchemaJson}
+            fallbackTitle={title}
+            fallbackDescription={excerpt}
+            slug={slug}
+          />
         </div>
 
         {/* settings */}
@@ -570,14 +602,19 @@ function PostEditor({
               <div className="space-y-2">
                 {/* eslint-disable-next-line @next/next/no-img-element -- a CMS preview, not page content */}
                 <img src={cover.url} alt={coverAlt || cover.alt} className="aspect-video w-full rounded-md border border-border object-cover" />
-                <input
-                  id="post-cover-alt"
-                  value={coverAlt}
-                  onChange={(e) => setCoverAlt(e.target.value)}
-                  placeholder="Describe the image"
-                  aria-label="Banner image description"
-                  className={inputClass}
-                />
+                <label className="block">
+                  <span className={labelClass}>Image alt text</span>
+                  <input
+                    id="post-cover-alt"
+                    value={coverAlt}
+                    onChange={(e) => setCoverAlt(e.target.value)}
+                    placeholder="Describe the image"
+                    className={inputClass}
+                  />
+                  <span className="mt-1 block text-xs text-muted">
+                    Describes the picture to Google and to screen readers.
+                  </span>
+                </label>
                 <div className="flex gap-2">
                   <label className="flex-1 cursor-pointer rounded-full border border-border px-3 py-1.5 text-center text-xs font-medium text-foreground transition-colors hover:border-accent hover:text-accent">
                     {uploading === "cover" ? "Uploading…" : "Replace"}

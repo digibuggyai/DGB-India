@@ -309,6 +309,10 @@ export interface Industry {
      */
     description?: string | null;
     /**
+     * Comma-separated. Google ignores these, but other engines and our own schema use them.
+     */
+    keywords?: string | null;
+    /**
      * Social share image (1200x630).
      */
     image?: (number | null) | Media;
@@ -465,6 +469,10 @@ export interface Infrastructure {
      */
     description?: string | null;
     /**
+     * Comma-separated. Google ignores these, but other engines and our own schema use them.
+     */
+    keywords?: string | null;
+    /**
      * Social share image (1200x630).
      */
     image?: (number | null) | Media;
@@ -547,6 +555,10 @@ export interface CaseStudy {
      */
     description?: string | null;
     /**
+     * Comma-separated. Google ignores these, but other engines and our own schema use them.
+     */
+    keywords?: string | null;
+    /**
      * Social share image (1200x630).
      */
     image?: (number | null) | Media;
@@ -628,6 +640,17 @@ export interface Post {
    * Worked out from the length of the post.
    */
   readingMinutes?: number | null;
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Extra structured data for this post. One object or a list of them.
+   */
+  schemaJson?: string | null;
   seo?: {
     /**
      * Overrides the default <title>. ~60 characters.
@@ -637,6 +660,10 @@ export interface Post {
      * Meta description. ~155 characters.
      */
     description?: string | null;
+    /**
+     * Comma-separated. Google ignores these, but other engines and our own schema use them.
+     */
+    keywords?: string | null;
     /**
      * Social share image (1200x630).
      */

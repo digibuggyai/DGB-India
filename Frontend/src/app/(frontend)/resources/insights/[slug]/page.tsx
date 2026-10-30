@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PostDetail } from "@/components/resources/PostDetail";
-import { coverOf } from "@/components/resources/postMeta";
+import { coverOf, keywordsFor } from "@/components/resources/postMeta";
 import { getPosts, getPostBySlug } from "@/lib/content";
 
 // Built ahead of time where possible; a CMS outage at build time shouldn't fail
@@ -18,6 +18,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.seo?.title || post.title,
     description: post.seo?.description || post.excerpt || undefined,
+    // The post tags and anything typed into the SEO box, as one list.
+    keywords: keywordsFor(post),
     openGraph: {
       type: "article",
       publishedTime: post.publishedAt ?? undefined,

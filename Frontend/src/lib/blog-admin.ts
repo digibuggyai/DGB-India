@@ -1,5 +1,6 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
+import { MAX_FAQS, checkJsonLd } from "./blog-schema";
 import { postPath, type AdminAuthor, type AdminImage, type AdminPost, type PostType } from "./blog-types";
 
 /* Server-side access to posts and their images for the admin Blog tab. Every
@@ -92,6 +93,9 @@ type RawPost = {
   publishedAt?: string | null;
   updatedAt: string;
   readingMinutes?: number | null;
+  faqs?: { question?: string | null; answer?: string | null }[] | null;
+  schemaJson?: string | null;
+  seo?: { title?: string | null; description?: string | null; keywords?: string | null } | null;
 };
 
 function toAdminPost(p: RawPost): AdminPost {
@@ -110,6 +114,13 @@ function toAdminPost(p: RawPost): AdminPost {
     publishedAt: p.publishedAt ?? null,
     updatedAt: p.updatedAt,
     readingMinutes: p.readingMinutes ?? null,
+    metaTitle: p.seo?.title ?? "",
+    metaDescription: p.seo?.description ?? "",
+    metaKeywords: p.seo?.keywords ?? "",
+    faqs: (p.faqs ?? [])
+      .map((f) => ({ question: f.question ?? "", answer: f.answer ?? "" }))
+      .filter((f) => f.question || f.answer),
+    schemaJson: p.schemaJson ?? "",
   };
 }
 
@@ -147,6 +158,40 @@ export function sanitizePost(input: unknown): Record<string, unknown> {
     const d = src.publishedAt ? new Date(String(src.publishedAt)) : null;
     out.publishedAt = d && !Number.isNaN(d.getTime()) ? d.toISOString() : null;
   }
+
+  /* Only the three keys this editor owns. Payload merges a group rather than
+   * replacing it — checked against the CMS, not assumed — so `image` and
+   * `noIndex`, which are set in the CMS and have no field here, survive a save
+   * made from the site. All three are sent together so that clearing one is
+   * distinguishable from not editing it. */
+  if ("metaTitle" in src || "metaDescription" in src || "metaKeywords" in src) {
+    out.seo = {
+      title: text(src.metaTitle) || null,
+      description: text(src.metaDescription) || null,
+      keywords: text(src.metaKeywords) || null,
+    };
+  }
+
+  /* A question with no answer, or the reverse, is markup Google rejects and a
+   * half-written block on the page — so a pair has to be complete to count. */
+  if ("faqs" in src && Array.isArray(src.faqs)) {
+    out.faqs = src.faqs
+      .map((f) => {
+        const row = (f && typeof f === "object" ? f : {}) as Record<string, unknown>;
+        return { question: text(row.question), answer: text(row.answer) };
+      })
+      .filter((f) => f.question && f.answer)
+      .slice(0, MAX_FAQS);
+  }
+
+  if ("schemaJson" in src) {
+    const raw = String(src.schemaJson ?? "").trim();
+    const check = checkJsonLd(raw);
+    // The CMS refuses bad schema too; failing here gives the author the better message.
+    if (!check.ok) throw new BlogError(`Custom schema: ${check.error}`, 400);
+    out.schemaJson = raw || null;
+  }
+
   return out;
 }
 

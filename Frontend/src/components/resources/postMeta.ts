@@ -18,6 +18,14 @@ export function postTags(post: Post): string[] {
   return (post.tags ?? []).map((t) => t.tag).filter(Boolean);
 }
 
+/** The post's tags and its SEO keywords as one de-duplicated list. The two
+ *  describe the same thing, and both the meta tag and the article schema want
+ *  a single list rather than whichever one happened to be filled in. */
+export function keywordsFor(post: Post): string[] {
+  const typed = (post.seo?.keywords ?? "").split(",").map((k) => k.trim());
+  return [...new Set([...postTags(post), ...typed])].filter(Boolean);
+}
+
 /** The banner image, when one was uploaded and resolved (depth ≥ 1). The CMS
  *  keeps a card size (800 px) for listings and a hero size (1920 px) for the
  *  article itself; the original is the fallback when a size wasn't made. */

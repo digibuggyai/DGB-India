@@ -1,5 +1,9 @@
 /* Shapes shared by the admin Blog tab and its API routes. */
 
+import type { Faq } from "./blog-schema";
+
+export type { Faq };
+
 export type PostType = "blog" | "insight";
 
 export type AdminImage = {
@@ -23,6 +27,13 @@ export type AdminPost = {
   publishedAt: string | null;
   updatedAt: string;
   readingMinutes: number | null;
+  /** What Google shows. Empty means "fall back to the title and excerpt". */
+  metaTitle: string;
+  metaDescription: string;
+  metaKeywords: string;
+  faqs: Faq[];
+  /** Hand-written JSON-LD, as typed. Validated before it is stored. */
+  schemaJson: string;
 };
 
 export type AdminAuthor = { id: number; name: string };
