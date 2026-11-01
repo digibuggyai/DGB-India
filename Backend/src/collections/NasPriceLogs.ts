@@ -1,8 +1,5 @@
 import type { CollectionConfig } from "payload";
 
-/* Who changed what in the NAS price list. Entries are written only by the
- * hooks in hooks/nasPriceLog.ts; nobody can create, edit or delete one through
- * the API or admin UI, and only admins can read them (they include minimums). */
 export const NasPriceLogs: CollectionConfig = {
   slug: "nas-price-logs",
   labels: { singular: "Price change", plural: "Price change log" },

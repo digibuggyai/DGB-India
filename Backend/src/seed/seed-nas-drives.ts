@@ -1,10 +1,3 @@
-// Applies the hard drive price list in nas-drive-prices.ts to the CMS: adds
-// sizes that aren't there yet, corrects prices that have moved, and switches
-// off the ones the sheet no longer prices.
-//
-// Safe to re-run — it only writes rows that actually differ. Nothing is ever
-// deleted: a drive that stops being sold is unticked, so past quotes still
-// resolve and it can come back if stock does.
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -29,10 +22,6 @@ async function main() {
       })
       .then((r: any) => r.docs[0]);
 
-  /* The sheet's rows. `active` is passed on create but deliberately not on
-   * update: once a drive is in the CMS, whether it's shown is the team's call
-   * from the Pricing tab, and a price refresh shouldn't overrule it. The one
-   * exception is a held row, which is forced off until someone confirms it. */
   for (const [capacityTb, line, quotePrice, minPrice, held] of [
     ...DRIVES.map((d) => [...d, false] as const),
     ...HELD.map((d) => [...d, true] as const),
@@ -70,7 +59,6 @@ async function main() {
     );
   }
 
-  // Drives the sheet has stopped pricing.
   const withdrawn: string[] = [];
   for (const [capacityTb, line] of WITHDRAWN) {
     const doc = await findDrive(capacityTb, line);

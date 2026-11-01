@@ -1,10 +1,3 @@
-// Prints the whole NAS price list as Markdown tables, including the internal
-// minimum prices, for porting the configurator elsewhere.
-//
-//   npx tsx src/seed/dump-catalogue.ts                 → Markdown on stdout
-//   npx tsx src/seed/dump-catalogue.ts --json out.json → the raw catalogue,
-//     in the shape the frontend's pricing functions take, so the docs can be
-//     regenerated without the API being up.
 import "../../scripts/load-env.mts";
 import fs from "fs";
 import { getPayload } from "payload";

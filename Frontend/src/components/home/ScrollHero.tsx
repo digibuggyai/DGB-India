@@ -13,34 +13,33 @@ const TRUST_ITEMS = [
 
 type Block = { gx: number; gz: number; h: number; accent: boolean; phase: number; amp: number };
 
-// Deterministic per-cell pseudo-random, so the layout is identical every load.
 function hash(x: number, z: number) {
   const s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453;
   return s - Math.floor(s);
 }
 
 function makeBlocks(): Block[] {
-  const GRID = 9; // plate is GRID x GRID cells, corners trimmed to a circle
-  const DENSITY = 0.24; // cells below this random value are left empty
-  const MIN_H = 0.35; // shortest tower, in grid units
-  const MAX_H = 2.85; // tallest tower
-  const ACCENT_AT = 0.86; // cells above this random value render in maroon
+  const GRID = 9;
+  const DENSITY = 0.24;
+  const MIN_H = 0.35;
+  const MAX_H = 2.85;
+  const ACCENT_AT = 0.86;
 
   const blocks: Block[] = [];
   for (let gx = 0; gx < GRID; gx++) {
     for (let gz = 0; gz < GRID; gz++) {
       const cx = gx - (GRID - 1) / 2;
       const cz = gz - (GRID - 1) / 2;
-      if (Math.sqrt(cx * cx + cz * cz) > GRID / 2 + 0.4) continue; // trim to a circle
+      if (Math.sqrt(cx * cx + cz * cz) > GRID / 2 + 0.4) continue;
       const rnd = hash(gx, gz);
-      if (rnd < DENSITY) continue; // leave gaps
+      if (rnd < DENSITY) continue;
       blocks.push({
         gx: cx,
         gz: cz,
         h: MIN_H + rnd * (MAX_H - MIN_H),
         accent: rnd > ACCENT_AT,
-        phase: rnd * Math.PI * 2, // offset so towers breathe out of sync
-        amp: 0.1 + rnd * 0.22, // how far each tower rises and falls
+        phase: rnd * Math.PI * 2,
+        amp: 0.1 + rnd * 0.22,
       });
     }
   }
@@ -59,10 +58,10 @@ function IsometricCanvas() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    const SPEED = reducedMotion ? 0 : 0.00085; // radians per frame (~2 min per full rotation)
-    const START_ANGLE = 0.45; // initial rotation so it doesn't start axis-aligned
-    const UNIT_W = 0.052; // cell size as a fraction of hero width
-    const UNIT_H = 0.13; // …capped by this fraction of hero height
+    const SPEED = reducedMotion ? 0 : 0.00085;
+    const START_ANGLE = 0.45;
+    const UNIT_W = 0.052;
+    const UNIT_H = 0.13;
 
     const blocks = makeBlocks();
 
@@ -92,21 +91,19 @@ function IsometricCanvas() {
       a += SPEED;
       ctx.clearRect(0, 0, w, h);
 
-      const ox = w * 0.5; // origin of the plate on screen
+      const ox = w * 0.5;
       const oy = h * 0.56;
-      const U = Math.min(w * UNIT_W, h * UNIT_H); // one grid unit in px
+      const U = Math.min(w * UNIT_W, h * UNIT_H);
       const sinA = Math.sin(a);
       const cosA = Math.cos(a);
-      const t = a * 34; // drives the breathing
+      const t = a * 34;
 
-      // grid coord (gx, gz) + height y  ->  screen [x, y]
       const iso = (gx: number, gz: number, y: number): [number, number] => {
         const rx = gx * cosA - gz * sinA;
         const rz = gx * sinA + gz * cosA;
         return [ox + (rx - rz) * U * 0.94, oy + (rx + rz) * U * 0.5 - y * U * 0.78];
       };
 
-      // painter's algorithm: farthest tower first
       const order = blocks
         .map((b) => {
           const rx = b.gx * cosA - b.gz * sinA;
@@ -134,21 +131,18 @@ function IsometricCanvas() {
         const z1 = b.gz + 0.42;
         const acc = b.accent;
 
-        // left face (darkest)
         face(
           [iso(x0, z1, hgt), iso(x0, z1, 0), iso(x0, z0, 0), iso(x0, z0, hgt)],
           acc ? "rgba(128,32,44,0.42)" : "rgba(255,255,255,0.035)",
           acc ? "rgba(177,111,121,0.50)" : "rgba(255,255,255,0.10)",
         );
 
-        // right face
         face(
           [iso(x0, z1, hgt), iso(x0, z1, 0), iso(x1, z1, 0), iso(x1, z1, hgt)],
           acc ? "rgba(128,32,44,0.26)" : "rgba(255,255,255,0.018)",
           acc ? "rgba(177,111,121,0.34)" : "rgba(255,255,255,0.07)",
         );
 
-        // top face (brightest — reads as the light source)
         face(
           [iso(x0, z0, hgt), iso(x1, z0, hgt), iso(x1, z1, hgt), iso(x0, z1, hgt)],
           acc ? "rgba(177,111,121,0.30)" : "rgba(255,255,255,0.055)",

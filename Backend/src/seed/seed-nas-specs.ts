@@ -1,12 +1,3 @@
-// Fills in the detailed specifications for the NAS units already in the CMS,
-// taken from the manufacturers' own spec pages (synology.com, qnap.com) in
-// September 2026. Bays, network ports and expansion support were cross-checked
-// against the catalogue at the same time and matched everywhere.
-//
-// Anything the spec page didn't state plainly is left blank on purpose — the
-// configurator says "not recorded" rather than showing a figure nobody checked.
-//
-// Safe to re-run: it only writes the fields below, and only where they differ.
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -18,18 +9,6 @@ const QNAP = (m: string) => `https://www.qnap.com/en-us/product/${m}/specs/hardw
 
 type Specs = Record<string, string | number | boolean>;
 
-/* The largest single drive each brand's units accept. Maximum raw capacity
- * follows from it — bays × this — so the two can never disagree, and a new
- * model needs only its bay count.
- *
- * Checked against both manufacturers in September 2026:
- *  - Synology sells nothing larger than the HAT5320-24T, and its own product
- *    pages compute capacity "using 24 TB drives" (DS925+ 216 TB over 9 bays,
- *    DS1825+ 432 TB over 18 — both exactly bays × 24).
- *  - QNAP publishes no per-drive ceiling at all; the limit is whatever is on
- *    its compatibility list, and 32 TB (Seagate IronWolf Pro ST32000NT000,
- *    sold in QNAP's own store) is the largest NAS drive made. Revisit when
- *    36 TB drives reach retail. */
 const MAX_DRIVE_TB: Record<string, number> = {
   Synology: 24,
   QNAP: 32,
@@ -153,11 +132,6 @@ const SPECS: Record<string, Specs> = {
     usbPorts: "1 × USB 3.2 Gen 1, 2 × USB 2.0",
     specsUrl: QNAP("ts-433"),
   },
-  /* QNAP's expansion enclosures (TR- and TL- series) attach over USB or SATA
-   * rather than a dedicated port, and QNAP names the supported enclosures on
-   * each of these product pages. The three ARM entry models below are left as
-   * not expandable: their pages don't say either way, and "probably" isn't
-   * good enough to quote. */
   "TS-462-4G": {
     cpu: "Intel Celeron N4505",
     cpuCores: "2 cores, up to 2.9 GHz",

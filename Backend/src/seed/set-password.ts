@@ -1,14 +1,3 @@
-/* Sets a CMS account's password from the command line.
- *
- * This is the only way back in if a password is lost: no email adapter is
- * configured, so Payload's "forgot password" writes its mail to the server
- * console and never reaches anyone.
- *
- * Run it where the database credentials are — locally, against the same Neon
- * database the live site uses. It changes the account everywhere, at once.
- *
- *   npx tsx src/seed/set-password.ts someone@dgbindia.com 'a new password'
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";

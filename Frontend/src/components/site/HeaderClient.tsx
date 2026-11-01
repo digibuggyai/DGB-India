@@ -8,10 +8,6 @@ import type { InfraNavNode } from "@/lib/nav-data";
 
 type IndustryNavItem = { id: string; name: string; slug: string; tagline: string };
 
-// Fixed nav order/labels for the Infrastructure dropdown — "DGX" is the
-// display label for the CMS's "GPU Servers" item (same product category,
-// nav copy uses the more recognizable name). Falls back to skipping an
-// entry if that slug doesn't exist in the CMS yet, rather than crashing.
 const INFRA_NAV_ORDER: { label: string; slug: string }[] = [
   { label: "DGX", slug: "gpu-servers" },
   { label: "Workstations", slug: "workstations" },
@@ -44,7 +40,6 @@ export function HeaderClient({
     const onScroll = () => {
       const y = window.scrollY;
       setAtTop(y < 40);
-      // Never hide while a menu is open, and ignore tiny jitter.
       if (Math.abs(y - lastY.current) > 4) {
         setHidden(y > lastY.current && y > 120);
         lastY.current = y;

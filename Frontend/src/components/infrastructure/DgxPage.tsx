@@ -38,7 +38,6 @@ export function DgxPage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero */}
       <section
         className="relative overflow-hidden bg-[#202326] bg-cover bg-center py-16 sm:py-28 lg:py-36"
         style={{
@@ -65,7 +64,6 @@ export function DgxPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* More Than a Standard System */}
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#e0e4e7] sm:gap-12 lg:grid-cols-2 lg:gap-0">
           <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
@@ -85,7 +83,6 @@ export function DgxPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Our Work Around DGS */}
       <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page">
           <div className="grid gap-6 sm:gap-10 lg:grid-cols-2 lg:gap-16">
@@ -111,7 +108,6 @@ export function DgxPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* From Requirement to Ready-to-Work */}
       <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <ImagePanel url={heroImageUrl} className="h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[260px] lg:h-[320px]" />

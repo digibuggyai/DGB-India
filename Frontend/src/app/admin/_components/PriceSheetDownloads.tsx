@@ -4,14 +4,10 @@ import { useState } from "react";
 import { Spinner } from "@/components/ui/Spinner";
 import type { Catalogue } from "@/lib/nas/cms-types";
 
-/* Download the internal price sheet. Sits with the page title rather than the
- * tabs: it covers the whole price list, not whichever tab is open. */
-
 export function PriceSheetDownloads({ catalogue }: { catalogue: Catalogue }) {
   const [busy, setBusy] = useState<"csv" | "pdf" | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // The sheet builder and jsPDF are fetched only when one is asked for.
   async function download(kind: "csv" | "pdf") {
     setBusy(kind);
     setError(null);

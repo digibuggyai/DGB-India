@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Archivo, IBM_Plex_Sans } from "next/font/google";
 import "../(frontend)/globals.css";
 
-// Same pairing as the public site: Archivo for display, IBM Plex Sans for body.
 const bodyFont = IBM_Plex_Sans({
   variable: "--font-body",
   subsets: ["latin"],

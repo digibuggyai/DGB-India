@@ -28,7 +28,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
 
   return (
     <>
-      {/* Hero */}
       <section
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-16 sm:py-24 lg:py-28 xl:py-36"
         style={{
@@ -50,7 +49,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* From Concept to Completion */}
       <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <h2 className="font-display max-w-sm text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[34px]">
@@ -73,7 +71,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* Powering the Design Process */}
       <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
@@ -97,7 +94,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* Built for Your Applications */}
       <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:gap-16">
           <div>
@@ -127,7 +123,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* Designed for Every Stage */}
       <section className="bg-ink-800 py-14 sm:py-18 lg:py-24">
         <div className="container-page">
           <h2 className="font-display text-xl font-bold text-white sm:text-2xl lg:text-[26px]">Designed for Every Stage</h2>
@@ -138,7 +133,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* When Your Projects Get Complex */}
       <section
         className="border-b border-border bg-background bg-cover bg-center py-14 sm:py-18 lg:py-24"
         style={
@@ -166,7 +160,6 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         </div>
       </section>
 
-      {/* Built for Architects. Engineered for Performance. */}
       <section className="bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
           <div>

@@ -1,8 +1,3 @@
-// Removes records left behind by a test run: leads and offer codes whose email
-// carries the tag given on the command line. Deleting leads is admin-only, so
-// this goes through the local API rather than the service account's key.
-//
-//   npx tsx src/seed/delete-test-records.ts codecheck-1234567890
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";

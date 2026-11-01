@@ -1,11 +1,3 @@
-/* Checks the live database against the Pricing sheet, parsed from the CSV
- * exported straight out of the Catalog workbook. Deliberately imports none of
- * the seed price files: those are what is under test.
- *
- * Export the Pricing sheet as CSV, then:
- *   npx tsx src/seed/check-against-sheet.ts path/to/pricing.csv
- *
- * Exits non-zero and lists every discrepancy, so it can gate a price update. */
 import "../../scripts/load-env.mts";
 import fs from "fs";
 import { getPayload } from "payload";
@@ -34,12 +26,8 @@ const num = (v: string | undefined) => {
   return digits === "" ? null : Number(digits);
 };
 
-/* Sheet geometry, from the header row:
- *   A model  B brand  C (unlabelled)  D quote  E with-tax minimum
- *   I capacity  J..M drive quotes      Q capacity  R..U drive minimums */
 const LINES = ["Exos", "IronWolf", "WD Ultrastar", "IronWolf Pro"];
 
-/** Rows the team has deliberately switched off, with why. */
 const EXPECTED_OFF: Record<string, string> = {
   "18 TB Exos": "held: priced the same as the 30 TB, which reads as a slip",
   "6 TB WD Ultrastar": "withdrawn: priced 0 on the sheet",

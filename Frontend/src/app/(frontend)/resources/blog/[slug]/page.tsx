@@ -4,8 +4,6 @@ import { PostDetail } from "@/components/resources/PostDetail";
 import { coverOf, keywordsFor } from "@/components/resources/postMeta";
 import { getPosts, getPostBySlug } from "@/lib/content";
 
-// Built ahead of time where possible; a CMS outage at build time shouldn't fail
-// the whole deploy — the pages then render on first visit instead.
 export async function generateStaticParams() {
   const posts = await getPosts("blog", 100).catch(() => []);
   return posts.map((p) => ({ slug: p.slug ?? "" }));
@@ -18,12 +16,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: post.seo?.title || post.title,
     description: post.seo?.description || post.excerpt || undefined,
-    // The post tags and anything typed into the SEO box, as one list.
     keywords: keywordsFor(post),
     openGraph: {
       type: "article",
       publishedTime: post.publishedAt ?? undefined,
-      // The banner doubles as the preview image when the post is shared.
       images: coverOf(post, "hero") ? [{ url: coverOf(post, "hero")!.url, alt: coverOf(post, "hero")!.alt }] : undefined,
     },
   };

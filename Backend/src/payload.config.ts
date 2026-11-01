@@ -38,11 +38,6 @@ const dirname = path.dirname(filename);
 
 const frontendUrl = process.env.FRONTEND_URL || "http://localhost:3000";
 
-// Uploaded images live in the S3 bucket whenever its credentials are set — as
-// they are on Railway, which wipes the server's own disk on every deploy, so
-// anything stored there would vanish. Without them (on a laptop) uploads fall
-// back to the local `media` folder. Files are served through Payload either
-// way, so the bucket can stay private.
 const s3 = {
   bucket: process.env.S3_BUCKET,
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
@@ -85,10 +80,6 @@ export default buildConfig({
     NasOfferCodes,
   ],
   globals: [SiteSettings, Navigation, CTABlocks, NasSettings],
-  /* Tables aren't in Lexical's default feature set, so a pasted comparison
-   * table arrived as a row of stray pipe characters and then vanished on save.
-   * The feature brings its own Markdown transformers, which is what lets a
-   * pipe table survive the Markdown the blog editor writes. */
   editor: lexicalEditor({ features: editorFeatures }),
   secret: process.env.PAYLOAD_SECRET || "dev-secret-change-me",
   typescript: {
@@ -96,10 +87,6 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: { connectionString: process.env.DATABASE_URI },
-    // No migration files exist yet — auto-sync the schema on boot instead.
-    // Fine while there's no real production data; switch to proper
-    // migrations (payload migrate:create / migrate) once the schema
-    // stabilizes and this DB holds real leads/content.
     push: true,
   }),
   sharp,
@@ -111,14 +98,10 @@ export default buildConfig({
       config: {
         credentials: { accessKeyId: s3.accessKeyId ?? "", secretAccessKey: s3.secretAccessKey ?? "" },
         region: s3.region,
-        // S3-compatible providers (Railway, R2, MinIO) address buckets by path.
         ...(s3.endpoint ? { endpoint: s3.endpoint, forcePathStyle: true } : {}),
       },
     }),
   ],
-  // Frontend is a separate app/origin now — it reads this API over HTTP
-  // (REST for content, an API-key-authenticated POST for lead creation),
-  // so both need to be allow-listed here.
   cors: [frontendUrl],
   csrf: [frontendUrl],
 });

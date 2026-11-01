@@ -1,17 +1,3 @@
-/* Rewrites the generated parts of docs/nas-configurator-spec.md from the price
- * list: §1.2 (drives) and §7 (the complete costing).
- *
- * Prices move often, so these sections are never edited by hand — run this and
- * the document matches what the configurator actually quotes.
- *
- *   # against the running API
- *   NODE_OPTIONS=--conditions=react-server npx tsx scripts/update-spec.ts
- *
- *   # or straight from the database, with no servers running:
- *   cd ../Backend && npx tsx src/seed/dump-catalogue.ts --json /tmp/cat.json
- *   CATALOGUE_JSON=/tmp/cat.json NODE_OPTIONS=--conditions=react-server \
- *     npx tsx scripts/update-spec.ts
- */
 import fs from "fs";
 import path from "path";
 import { loadCatalogue } from "@/lib/nas/cms";
@@ -23,9 +9,6 @@ import type { NasPricing } from "@/lib/nas/types";
 const SPEC = path.resolve(process.cwd(), "../docs/nas-configurator-spec.md");
 const REFERENCE_DIR = path.resolve(process.cwd(), "../docs/reference");
 
-/* The engine, copied beside the spec so another project can run exactly this
- * code rather than a paraphrase of it. All four are pure TypeScript — no DOM,
- * no imports outside themselves — which is what makes them portable. */
 const ENGINE_FILES = ["types.ts", "logic.ts", "configure.ts", "specs.ts"];
 
 const n = (v: number | null | undefined) => (v == null ? "—" : Math.round(v).toLocaleString("en-IN"));
@@ -43,8 +26,6 @@ function driveRows(S: NasPricing): Row[] {
   }
   return rows.sort((a, b) => a.cap - b.cap || a.line.localeCompare(b.line));
 }
-
-/* ---------------- §1.1 ---------------- */
 
 function unitsSection(S: NasPricing): string {
   const out: string[] = [];
@@ -72,8 +53,6 @@ function unitsSection(S: NasPricing): string {
   return out.join("\n");
 }
 
-/* ---------------- §1.2 ---------------- */
-
 function drivesSection(S: NasPricing, rows: Row[]): string {
   const lines = [...new Set(rows.map((r) => r.line))].sort();
   const out: string[] = [];
@@ -94,8 +73,6 @@ function drivesSection(S: NasPricing, rows: Row[]): string {
   return out.join("\n");
 }
 
-/* ---------------- §1.3's closing note ---------------- */
-
 function linesNote(S: NasPricing, rows: Row[]): string {
   const priced = [...new Set(rows.map((r) => r.line))].sort();
   const unpriced = S.driveLines.map((l) => l.name).filter((name) => !priced.includes(name));
@@ -108,8 +85,6 @@ function linesNote(S: NasPricing, rows: Row[]): string {
   out.push("");
   return out.join("\n");
 }
-
-/* ---------------- §5 ---------------- */
 
 function examplesSection(S: NasPricing): string {
   const out: string[] = [];
@@ -155,7 +130,6 @@ function examplesSection(S: NasPricing): string {
   say(`| Synology, any target | No build ever quotes a drive above 24 TB; QNAP never above 32 TB |`);
   say();
 
-  // The invariants, asserted here rather than claimed.
   const all = (over: Partial<Answers>) => derive({ ...INITIAL_ANSWERS, ...over }, S).builds;
   const singleDrive0 = all({ targetTB: 4, raid: "RAID0" }).filter((b) => b.drivesPerUnit < 2).length;
   const oddPairs1 = all({ targetTB: 20, raid: "RAID1" }).filter((b) => b.drivesPerUnit !== 2).length;
@@ -168,8 +142,6 @@ function examplesSection(S: NasPricing): string {
   say();
   return out.join("\n");
 }
-
-/* ---------------- §7 ---------------- */
 
 function costingSection(S: NasPricing, rows: Row[]): string {
   const out: string[] = [];
@@ -279,9 +251,6 @@ function costingSection(S: NasPricing, rows: Row[]): string {
     const a: Answers = { ...INITIAL_ANSWERS, includeInstall: true, includeAMC: true, ...c.answers };
     const d = derive(a, S);
     const b = d.build;
-    // A capacity nobody can build from whole drives is snapped to the nearest
-    // that can be — say so, rather than heading the table with a figure the
-    // build doesn't deliver.
     const moved = d.movedFrom != null ? ` _(asked for ${d.movedFrom} TB — not buildable from whole drives)_` : "";
     say(`#### ${c.label}${moved}`);
     say();
@@ -346,9 +315,6 @@ function costingSection(S: NasPricing, rows: Row[]): string {
   return out.join("\n");
 }
 
-/* ---------------- splice ---------------- */
-
-/** Replaces the text from `startsWith` up to (not including) `endsWith`. */
 function replaceSection(doc: string, startsWith: string, endsWith: string, replacement: string): string {
   const start = doc.indexOf(startsWith);
   if (start === -1) throw new Error(`couldn't find the section starting "${startsWith}"`);
@@ -357,9 +323,6 @@ function replaceSection(doc: string, startsWith: string, endsWith: string, repla
   return doc.slice(0, start) + replacement.trimEnd() + "\n\n" + doc.slice(end);
 }
 
-/** Replaces the prose that follows a section's table, leaving the table alone.
- *  Used for §1.3, whose specs are written by hand but whose closing note
- *  depends on which lines currently have prices. */
 function replaceAfterTable(doc: string, heading: string, nextHeading: string, replacement: string): string {
   const start = doc.indexOf(heading);
   if (start === -1) throw new Error(`couldn't find "${heading}"`);
@@ -372,8 +335,6 @@ function replaceAfterTable(doc: string, heading: string, nextHeading: string, re
   return doc.slice(0, start + afterTable + 1) + "\n" + replacement.trimEnd() + "\n\n" + doc.slice(end);
 }
 
-/** Copies the engine next to the spec, so the documented behaviour and the code
- *  that implements it can't drift apart. */
 function syncReferenceCode(): string[] {
   fs.mkdirSync(REFERENCE_DIR, { recursive: true });
   const copied: string[] = [];
@@ -399,8 +360,6 @@ async function main() {
   const S = toSalesPricing(cat);
   const rows = driveRows(S);
 
-  // Normalised to \n on the way in and written back the same way: an editor
-  // (or a script) that saves CRLF would otherwise break every anchor below.
   let doc = fs.readFileSync(SPEC, "utf8").replace(/\r\n/g, "\n");
   doc = replaceSection(doc, "### 1.1 NAS units", "### 1.2 ", unitsSection(S));
   doc = replaceSection(doc, "### 1.2 Drives", "### 1.3 ", drivesSection(S, rows));

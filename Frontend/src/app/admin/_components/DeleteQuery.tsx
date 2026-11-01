@@ -3,14 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-/* Deletes one enquiry, from wherever its card is shown.
- *
- * The confirmation is part of the page rather than a window.confirm: a browser
- * told to block this page's dialogs returns false from confirm() without
- * showing anything, and the button would look broken.
- *
- * On success the page is refreshed rather than the card just being hidden, so
- * the dashboard's counts above it agree with the list below. */
 export function DeleteQuery({ id, company }: { id: number | string; company: string }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);

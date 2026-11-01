@@ -25,7 +25,6 @@ export default async function NasConfigPage() {
           drives and RAID level together &mdash; priced from our live price list.
         </p>
         <div className="mt-8 sm:mt-10">
-          {/* The lead is linked to the NAS infrastructure record when it exists. */}
           <NasConfigurator company={companyInfo(settings)} infrastructureId={nas?.id ?? null} />
         </div>
       </div>

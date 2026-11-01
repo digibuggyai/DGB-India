@@ -3,24 +3,8 @@ import { logChanges } from "@/hooks/nasPriceLog";
 
 const staffOnly: Access = ({ req }) => Boolean(req.user && (req.user.role === "admin" || req.user.role === "sales"));
 
-/* Only the Frontend's offer route creates these, authenticating with the
- * service account's API key — the same arrangement the Leads collection uses.
- *
- * It reads them too, and has to: before issuing a code it checks whether this
- * customer already holds one, so that nobody can collect a fresh code by
- * filling the form again. That's why read isn't staff-only here, unlike Leads.
- * The only non-staff account is that service account, which is our own server;
- * there is no public signup. */
 const trustedCaller: Access = ({ req }) => Boolean(req.user);
 
-/* Discount codes handed out by the configurator's consultation offer.
- *
- * One code per customer, generated on the server: a code the browser made up
- * could be forged or handed round, and the sales team has to be able to answer
- * "is this code real, and is it this person's?" from the admin panel.
- *
- * Codes are never reissued or reused. When one is spent it's marked used,
- * which is what stops the same code being redeemed twice. */
 export const NasOfferCodes: CollectionConfig = {
   slug: "nas-offer-codes",
   labels: { singular: "Offer code", plural: "Offer codes" },
@@ -74,8 +58,6 @@ export const NasOfferCodes: CollectionConfig = {
   ],
   hooks: {
     beforeChange: [
-      // Marking a code used records when, without anyone having to set the
-      // date by hand; reopening it clears the date again.
       ({ data, originalDoc }) => {
         if (data.status === "used" && originalDoc?.status !== "used" && !data.usedAt) {
           return { ...data, usedAt: new Date().toISOString() };
@@ -86,7 +68,6 @@ export const NasOfferCodes: CollectionConfig = {
         return data;
       },
     ],
-    // Every change recorded in the activity log, deletions included.
     ...logChanges("offerCode", (doc) => `${doc.code} — ${doc.customerName}`),
   },
 };

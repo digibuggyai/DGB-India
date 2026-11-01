@@ -9,10 +9,6 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 await page.goto(url, { waitUntil: "networkidle" });
 
-// Scroll through incrementally so IntersectionObserver-based reveal
-// animations actually fire, same as a real user scrolling down. Re-measure
-// scrollHeight each step since a GSAP ScrollTrigger pin-spacer (see
-// ScrollHero) can change total document height as it recalculates.
 let y = 0;
 for (;;) {
   const height = await page.evaluate(() => document.body.scrollHeight);

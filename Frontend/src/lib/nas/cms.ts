@@ -11,13 +11,6 @@ import {
   type Kind,
 } from "./cms-types";
 
-/* Server-side access to the NAS price list in the DGB CMS.
- *
- * Anonymous reads (the public configurator) get quote prices only — the CMS
- * hides every minimum from requests without an admin session. Admin reads and
- * writes pass the signed-in admin's own CMS token, so the CMS enforces admin
- * rights itself as well. */
-
 const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 export const COLLECTION: Record<Kind, string> = {
@@ -51,7 +44,6 @@ function errorMessage(data: unknown, status: number): string {
 }
 
 async function cms<T>(path: string, { token, method = "GET", body }: Options = {}): Promise<T> {
-  // Anonymous reads are cached and tagged, so a saved price can clear them at once.
   const cacheable = !token && method === "GET";
   const res = await fetch(`${API}/api${path}`, {
     method,
@@ -72,13 +64,9 @@ export async function loadCatalogue(token?: string | null): Promise<Catalogue> {
   const [models, drives, driveLines, upgrades, settings, logs] = await Promise.all([
     cms<{ docs: CmsModel[] }>("/nas-models?limit=500&depth=0&sort=bays", { token }),
     cms<{ docs: CmsDrive[] }>("/nas-drives?limit=500&depth=0&sort=capacityTb", { token }),
-    // Specifications only — nothing is priced from them. If this collection
-    // isn't there yet (a CMS deploy lagging behind this one), the configurator
-    // still quotes; the drive step just shows no ⓘ.
     cms<{ docs: CmsDriveLine[] }>("/nas-drive-lines?limit=100&depth=0&sort=sortOrder", { token }).catch(() => ({ docs: [] as CmsDriveLine[] })),
     cms<{ docs: CmsUpgrade[] }>("/nas-upgrades?limit=500&depth=0&sort=name", { token }),
     cms<CmsSettings>("/globals/nas-settings?depth=0", { token }),
-    // The change log is admin-only; public reads skip it.
     token
       ? cms<{ docs: CmsLog[] }>("/nas-price-logs?limit=300&depth=0&sort=-createdAt", { token })
       : Promise.resolve({ docs: [] as CmsLog[] }),
@@ -102,10 +90,6 @@ export function updateSettings(token: string, data: Record<string, unknown>) {
   return cms("/globals/nas-settings", { token, method: "POST", body: data });
 }
 
-/** Drive-line specifications, in the shape both configurators read. There are
- *  no prices here, so public and sales payloads share it unchanged. Lines with
- *  nothing priced against them are kept: the drive step only lists the lines it
- *  has prices for, and the specs are ready the day one is stocked. */
 export function driveLinesFrom(c: Catalogue) {
   return c.driveLines.map((l) => ({
     name: l.name,
@@ -126,9 +110,6 @@ export function driveLinesFrom(c: Catalogue) {
   }));
 }
 
-/** Shapes the catalogue into the input the configurator's normaliser reads.
- *  Only active items, and no minimum field is copied — even when this is fed
- *  an admin read that contains them. */
 export function toPricingInput(c: Catalogue) {
   const hddPricing: Record<number, Record<string, { quote: number }>> = {};
   for (const d of c.drives) {
@@ -177,8 +158,6 @@ export function toPricingInput(c: Catalogue) {
   };
 }
 
-/* ---------------- admin input ---------------- */
-
 const str = (v: unknown) => String(v ?? "").trim();
 const num = (v: unknown) => {
   if (v === "" || v == null) return undefined;
@@ -217,7 +196,6 @@ const FIELDS: Record<Kind, Record<string, (v: unknown) => unknown>> = {
     active: Boolean,
   },
   drives: { capacityTb: num, line: str, quotePrice: num, minPrice: optionalNum, active: Boolean },
-  // Specifications only — a drive line carries no price of its own.
   driveLines: {
     name: str,
     brand: str,
@@ -248,7 +226,6 @@ const FIELDS: Record<Kind, Record<string, (v: unknown) => unknown>> = {
   },
 };
 
-/** Keeps only the fields that belong to this kind of item, coerced to the right type. */
 export function sanitize(kind: Kind, body: unknown): Record<string, unknown> {
   const src = (body && typeof body === "object" ? body : {}) as Record<string, unknown>;
   const out: Record<string, unknown> = {};

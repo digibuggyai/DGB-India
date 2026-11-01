@@ -18,8 +18,6 @@ export async function Footer() {
             className="inline-flex items-center rounded bg-white px-3 py-2"
             aria-label={settings?.siteName || "DGB India Enterprise"}
           >
-            {/* The logo PNG has no alpha channel, so against this dark footer it
-                sits on a light chip rather than showing as a bare white block. */}
             <Logo className="h-9 w-auto" />
           </Link>
           <p className="mt-4 max-w-sm text-sm text-ink-muted">

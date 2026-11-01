@@ -38,7 +38,6 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero — centered, narrow */}
       <section
         className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-32"
         style={
@@ -61,7 +60,6 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Built Around Your Environment */}
       <section className="border-b border-[#e0e4e7] bg-white py-12 sm:py-24">
         <div className="container-page">
           <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
@@ -82,7 +80,6 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Where Networking Matters */}
       <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-16">
           <div>
@@ -105,7 +102,6 @@ export function NetworkingPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Designed for How You Work */}
       <section className="border-t border-[#e0e4e7] bg-white py-12 sm:py-24">
         <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#e0e4e7] sm:gap-12 lg:grid-cols-2 lg:gap-0">
           <div className="p-6 sm:p-10 lg:p-12">

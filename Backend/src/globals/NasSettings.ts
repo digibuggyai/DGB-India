@@ -1,11 +1,8 @@
 import type { FieldAccess, GlobalConfig } from "payload";
 import { logSettingsChange } from "../hooks/nasPriceLog";
 
-// Admins and sales staff: sales quote against the floor, so they can read it.
 const staffOnly: FieldAccess = ({ req }) => req.user?.role === "admin" || req.user?.role === "sales";
 
-/* Installation and AMC rates for the NAS configurator. The minimums are
- * readable by admins only. */
 export const NasSettings: GlobalConfig = {
   slug: "nas-settings",
   label: "NAS Installation & AMC",

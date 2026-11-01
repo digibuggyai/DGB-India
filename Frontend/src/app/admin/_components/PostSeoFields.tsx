@@ -10,20 +10,11 @@ import {
   type Faq,
 } from "@/lib/blog-schema";
 
-/* The search-engine half of the post editor: what Google shows, the questions
- * block, and any extra structured data.
- *
- * None of it is required. A post saved without touching any of this looks
- * exactly as it does today — the page falls back to the title and the excerpt,
- * and still gets its BlogPosting and breadcrumb markup. */
-
 const inputClass =
   "w-full rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors placeholder:text-muted/70 focus:border-accent";
 const labelClass = "mb-1.5 block text-xs font-medium text-foreground/80";
 const sectionClass = "rounded-lg border border-border bg-background p-5";
 
-/** A length counter that warns rather than blocks: these are Google's
- *  truncation points, not rules, and a longer one is sometimes the right call. */
 function Counter({ value, ideal }: { value: string; ideal: number }) {
   const n = value.trim().length;
   const over = n > ideal;
@@ -35,9 +26,6 @@ function Counter({ value, ideal }: { value: string; ideal: number }) {
   );
 }
 
-/* Roughly what the result looks like. Not pixel-exact — Google rewrites titles
- * and descriptions whenever it likes — but close enough to catch a title that
- * reads badly or a description that stops mid-sentence. */
 function GooglePreview({ title, description, slug }: { title: string; description: string; slug: string }) {
   const shown = (text: string, limit: number) => (text.length > limit ? `${text.slice(0, limit - 1).trimEnd()}…` : text);
   return (
@@ -79,8 +67,6 @@ export function PostSeoFields({
   onFaqs: (v: Faq[]) => void;
   schemaJson: string;
   onSchemaJson: (v: string) => void;
-  /** Shown in the preview when the meta fields are left empty, because that is
-   *  what the live page falls back to. */
   fallbackTitle: string;
   fallbackDescription: string;
   slug: string;
@@ -100,9 +86,6 @@ export function PostSeoFields({
     const existing = schemaJson.trim();
     if (!existing) return onSchemaJson(json);
 
-    /* Already has something: make it a list rather than overwriting work.
-     * If the existing text is too broken to parse, the two are stacked with a
-     * blank line so nothing is lost and the author can see both. */
     const current = checkJsonLd(existing);
     if (!current.ok) return onSchemaJson(`${existing}\n\n${json}`);
     const list = Array.isArray(current.value) ? current.value : [current.value];

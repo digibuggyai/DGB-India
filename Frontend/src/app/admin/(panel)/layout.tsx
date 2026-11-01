@@ -5,8 +5,6 @@ import { getAdminUser } from "@/lib/admin-auth";
 import { AdminNav } from "../_components/AdminNav";
 import { LogoutButton } from "../_components/LogoutButton";
 
-// Auth guard for every page in the panel — the login route sits outside
-// this group so it stays reachable when signed out.
 export default async function PanelLayout({ children }: { children: React.ReactNode }) {
   const user = await getAdminUser();
   if (!user) redirect("/admin/login");

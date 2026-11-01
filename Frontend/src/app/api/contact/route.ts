@@ -3,10 +3,6 @@ import { checkHuman, clientIp } from "@/lib/spam-guard";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-// Relationship ids arrive from <select> elements as strings ("5"), but the
-// Postgres relationship columns are integers and Payload rejects the string
-// form with "invalid relationships". Coerce here — this route is the single
-// chokepoint every lead form posts through.
 function toRelationId(value: unknown): number | string | undefined {
   if (value === undefined || value === null || value === "") return undefined;
   const asNumber = Number(value);
@@ -29,8 +25,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Name, company and email are required." }, { status: 400 });
   }
 
-  /* Honeypot, timing, rate limit and Turnstile — see lib/spam-guard. Every
-   * layer fails open, so an unconfigured key cannot block a real enquiry. */
   const human = await checkHuman(body, req);
   if (!human.ok) {
     console.warn("[contact] rejected a submission:", human.reason, "from", clientIp(req));
@@ -47,8 +41,6 @@ export async function POST(req: NextRequest) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      // Service-account auth — see Backend's Users collection (useAPIKey)
-      // and the Leads collection's `create` access rule.
       Authorization: `users API-Key ${apiKey}`,
     },
     body: JSON.stringify({

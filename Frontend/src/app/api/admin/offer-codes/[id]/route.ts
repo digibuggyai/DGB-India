@@ -5,10 +5,6 @@ const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").rep
 
 const STATUSES = new Set(["issued", "used", "void"]);
 
-/* Marking a discount code used, void, or outstanding again.
- *
- * Only the status is editable from here — the code itself and whose it is are
- * what make it worth anything, so those can only be changed in the CMS. */
 export async function PATCH(req: Request, ctx: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin();
   if (!auth) return forbidden();

@@ -1,12 +1,3 @@
-/* Does a post survive the trip the blog editor puts it through?
- *
- * Markdown typed (or pasted) in the admin editor is converted to Lexical on
- * save and back to Markdown on read. Anything the editor's feature set doesn't
- * understand is dropped silently at the first step — which is how a pasted
- * comparison table used to disappear.
- *
- *   npx tsx src/seed/check-markdown-roundtrip.ts
- */
 import "../../scripts/load-env.mts";
 import { convertLexicalToMarkdown, convertMarkdownToLexical, editorConfigFactory } from "@payloadcms/richtext-lexical";
 import { getPayload } from "payload";
@@ -49,7 +40,6 @@ Choose cloud storage if you want:
 
 async function main() {
   const payload: any = await getPayload({ config });
-  // Built from the same features as the field, which is the whole point.
   const editorConfig = await editorConfigFactory.fromFeatures({ config: payload.config, features: editorFeatures });
 
   const lexical = convertMarkdownToLexical({ editorConfig, markdown: SAMPLE });

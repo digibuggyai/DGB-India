@@ -5,39 +5,15 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Field, btnPrimary, btnSecondary, inputClass } from "./ui";
 
 import { HumanCheck, useHumanFields } from "@/components/forms/HumanCheck";
-/* The consultation offer on the NAS configurator.
- *
- * Someone who has been configuring for half a minute is weighing a real
- * purchase and is the likeliest person on the site to want a word with us.
- * This offers that, with a reason to take it up.
- *
- * Everything the offer promises is in OFFER below, in one place, because it is
- * a promise: whatever this says, the sales team has to honour. Change the
- * wording or the amount here and the popup, the terms and the note that
- * reaches the lead all change together. */
 const OFFER = {
-  /** How long someone configures before we offer to help. Counted in time
-   *  actually spent on the page, not wall-clock. */
   delaySeconds: 5,
-  /** The most the coupon can be worth, in rupees. Must match /api/nas-offer,
-   *  which is what actually issues the code. */
   maxOff: 2000,
-  /** Once someone has asked for a consultation they hold a code, so there's
-   *  nothing to offer them for a while. */
   rememberDaysAfterSending: 30,
-  /** Closing it isn't a refusal for all time — just not now. */
   rememberDaysAfterClosing: 1,
 };
 
-/* Versioned, so that changing the rules below doesn't leave visitors sitting
- * behind a record written under the old ones. Bump the suffix whenever the
- * meaning of what's stored changes. */
 const STORAGE_KEY = "dgb-nas-consult-offer.v2";
 
-/* Forces the popup even for someone who has already seen it: add ?offer=1 to
- * the page's address. Closing it or sending it hides it for a month, which is
- * right for a visitor but makes it impossible to look at twice — this is how
- * you check it, and how you demonstrate it. */
 function forced(): boolean {
   try {
     return new URLSearchParams(window.location.search).get("offer") === "1";
@@ -48,15 +24,6 @@ function forced(): boolean {
 
 type Answer = { at: number; kind: "sent" | "closed" };
 
-/* Whether to leave this visitor alone for now.
- *
- * Someone who asked for a consultation already has their code, so they're left
- * for a month. Someone who just closed it is asked again on their next visit a
- * day later — closing a popup means "not now", not "never".
- *
- * Browser storage can throw or come back empty — a private window, blocked site
- * data — and none of that should stop the page working, so any failure means
- * "show it". */
 function answeredRecently(): boolean {
   if (forced()) return false;
   try {
@@ -72,12 +39,10 @@ function answeredRecently(): boolean {
 }
 
 function remember(kind: Answer["kind"]) {
-  // Don't record a forced viewing — it's a test, not a visitor's answer.
   if (forced()) return;
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ at: Date.now(), kind } satisfies Answer));
   } catch {
-    /* nothing to do — it reappears on the next visit, which is no worse than before */
   }
 }
 
@@ -85,17 +50,13 @@ type State = "idle" | "sending" | "sent";
 
 export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: () => string }) {
   const [open, setOpen] = useState(false);
-  // Honeypot, timing and Turnstile — invisible to a real visitor.
   const human = useHumanFields();
   const [state, setState] = useState<State>("idle");
   const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState({ name: "", company: "", email: "", phone: "" });
-  /** The customer's own code, as issued by the server. */
   const [code, setCode] = useState<string | null>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
-  /* The wait is in time spent on the page, not wall-clock: a tab left open in
-   * the background shouldn't come back to a popup already waiting. */
   useEffect(() => {
     if (!enabled || answeredRecently()) return;
     let elapsed = 0;
@@ -125,7 +86,6 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
     };
   }, [enabled]);
 
-  // Closing it counts as an answer of "not now" — we ask again another day.
   function close() {
     remember("closed");
     setOpen(false);
@@ -160,8 +120,6 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
     setError(null);
     setState("sending");
     try {
-      // This files the enquiry and issues this customer their own code — the
-      // code is made on the server, never here.
       const res = await fetch("/api/nas-offer", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -171,8 +129,6 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
           company,
           email,
           phone: form.phone.trim() || undefined,
-          // What they had configured, so whoever calls back already knows what
-          // they were pricing — and the price match is judged on it.
           configuration: summary(),
           sourceUrl: window.location.href,
         }),
@@ -229,8 +185,6 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
                 <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted">Your code</p>
                 <p className="font-display mt-1 text-2xl font-bold tracking-tight text-tint-foreground">{code}</p>
                 <p className="mt-0.5 text-xs text-muted">Yours alone — issued to {form.email.trim()}.</p>
-                {/* No claim about an email here: the site doesn't send one, so
-                    the code has to be worth keeping from this screen alone. */}
                 <p className="mt-1.5 text-xs leading-relaxed text-muted">
                   Note it down or take a screenshot — quote it on your call for up to ₹{OFFER.maxOff.toLocaleString("en-IN")} off your
                   quotation. We have it against your enquiry either way.
@@ -325,8 +279,6 @@ export function ConsultOffer({ enabled, summary }: { enabled: boolean; summary: 
                 </button>
               </div>
 
-              {/* The offer is a promise the sales team has to keep, so its limits
-                  are stated here rather than left for the call. */}
               <p className="text-[11px] leading-relaxed text-muted">
                 One coupon per customer, applied to your formal quotation and not combinable with other offers. The price match needs a
                 written quote for the same unit, drives and RAID level, from a seller in India, valid on the day. If we can&rsquo;t beat

@@ -4,10 +4,6 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
 import { getPartners } from "@/lib/content";
 
-// The brands DGB India builds with. `slug` is the filename to drop into
-// Frontend/public/partners/ — e.g. "nvidia" matches nvidia.svg / nvidia.png.
-// Where no file exists the brand name renders as a wordmark instead, so the
-// strip reads correctly even before any logo assets are added.
 const BRANDS: { name: string; slug: string }[] = [
   { name: "MSI", slug: "msi" },
   { name: "NVIDIA", slug: "nvidia" },
@@ -20,8 +16,8 @@ const BRANDS: { name: string; slug: string }[] = [
   { name: "G.SKILL", slug: "gskill" },
   { name: "DeepCool", slug: "deepcool" },
   { name: "Samsung", slug: "samsung" },
-  { name: "BenQ", slug: "benq" }, // monitors
-  { name: "Dell", slug: "dell" }, // monitors
+  { name: "BenQ", slug: "benq" },
+  { name: "Dell", slug: "dell" },
   { name: "Seagate", slug: "seagate" },
   { name: "WD", slug: "wd" },
   { name: "QNAP", slug: "qnap" },
@@ -30,9 +26,6 @@ const BRANDS: { name: string; slug: string }[] = [
 
 const LOGO_EXTENSIONS = [".svg", ".png", ".webp", ".jpg", ".jpeg"];
 
-// Read public/partners once per render so a logo is picked up whatever
-// extension it was saved with. Missing directory is the normal "no logos
-// added yet" case, not an error.
 function readLocalLogos(): Record<string, string> {
   const dir = path.join(process.cwd(), "public", "partners");
   let files: string[] = [];
@@ -57,8 +50,6 @@ export async function Partners() {
   const cmsPartners = await getPartners();
   const localLogos = readLocalLogos();
 
-  // CMS partners win when the collection has been filled in; otherwise fall
-  // back to the fixed brand list above + whatever is in public/partners/.
   const items: LogoItem[] = cmsPartners.length
     ? cmsPartners.map((p) => ({
         name: p.name,
@@ -68,7 +59,6 @@ export async function Partners() {
 
   if (items.length === 0) return null;
 
-  // Rendered twice so the -50% translate loops without a visible seam.
   const track = [...items, ...items];
 
   return (

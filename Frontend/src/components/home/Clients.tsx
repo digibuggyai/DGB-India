@@ -1,9 +1,6 @@
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 
-// The organisations DGB India has delivered for, with the sector each works in.
-// Names are written as the client roster records them. No logos: using a
-// customer's mark needs their permission, and we hold none on file.
 const CLIENTS: { name: string; industry: string }[] = [
   { name: "Government of India", industry: "Public sector" },
   { name: "Innovatiview India Ltd", industry: "IT equipment rental" },

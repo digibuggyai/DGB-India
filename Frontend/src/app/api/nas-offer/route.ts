@@ -2,25 +2,10 @@ import { randomInt } from "crypto";
 import { NextResponse } from "next/server";
 import { checkHuman, clientIp } from "@/lib/spam-guard";
 
-/* The configurator's consultation offer: files the enquiry as a lead and
- * issues that customer their own discount code.
- *
- * The code is made here rather than in the browser. A code the page invented
- * could be forged or shared around, and the sales team has to be able to look
- * one up and see whose it is and whether it's been spent — so it exists as a
- * record in the CMS before the customer is ever shown it.
- *
- * Someone who asks twice gets the code they already have back, rather than a
- * second one. */
-
 const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
-/** The most a code can take off, in rupees. Mirrors the popup's own copy. */
 const VALUE_MAX = 2000;
 
-/* No 0/O/1/I/5/S: these are read aloud over the phone and typed back in.
- * 32 characters, six of them — about a billion codes, so a guess is hopeless
- * and a clash is rare enough that three tries always finds a free one. */
 const ALPHABET = "ABCDEFGHJKLMNPQRTUVWXYZ2346789";
 
 function newCode(): string {
@@ -59,8 +44,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Name, company and a valid work email are required." }, { status: 400 });
   }
 
-  /* This route hands out a discount code, so it is worth more to a bot than
-   * the contact form is. Same guard. */
   const human = await checkHuman((body ?? {}) as Record<string, unknown>, req);
   if (!human.ok) {
     console.warn("[nas-offer] rejected a submission:", human.reason, "from", clientIp(req));
@@ -74,7 +57,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    // Already has a live code? Give them that one back rather than a second.
     const existing = await cms(
       `/nas-offer-codes?where[email][equals]=${encodeURIComponent(email)}&where[status][equals]=issued&limit=1&depth=0`,
       apiKey,
@@ -101,8 +83,6 @@ export async function POST(req: Request) {
       }),
     });
 
-    /* A clash is improbable but not impossible, and `code` is unique in the
-     * CMS — so a rejected code is retried rather than handed to the customer. */
     let issued: string | null = null;
     let lastError: unknown = null;
     for (let attempt = 0; attempt < 3 && !issued; attempt++) {

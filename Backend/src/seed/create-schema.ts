@@ -1,12 +1,3 @@
-/* Builds Payload's tables in an empty database.
- *
- * Payload keeps the schema in step with the config on boot (`push: true`), so
- * starting it once against a new database is all it takes — no migration files,
- * no dump to restore, and no dependency on the version the old provider ran.
- * This boots it without the web server, reports what it made, and exits.
- *
- *   DATABASE_URI="postgres://…new…" npx tsx src/seed/create-schema.ts
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import pg from "pg";
@@ -22,7 +13,6 @@ async function main() {
   }
   console.log(`Building the schema in ${new URL(uri).host}…\n`);
 
-  // Booting Payload is what creates the tables.
   await getPayload({ config });
 
   const client = new pg.Client({ connectionString: uri, ssl: { rejectUnauthorized: false } });

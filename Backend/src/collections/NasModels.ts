@@ -2,13 +2,8 @@ import type { Access, CollectionConfig, FieldAccess } from "payload";
 import { logChanges } from "../hooks/nasPriceLog";
 
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
-// Admins and sales staff: sales quote against the floor, so they can read it.
 const staffOnly: FieldAccess = ({ req }) => req.user?.role === "admin" || req.user?.role === "sales";
 
-/* NAS units the configurator (/nas-config) can quote.
- *
- * Anyone can read these — the public configurator does — but `minPrice` is
- * readable by admins only, so an anonymous REST request never receives it. */
 export const NasModels: CollectionConfig = {
   slug: "nas-models",
   admin: {
@@ -44,9 +39,6 @@ export const NasModels: CollectionConfig = {
     { name: "network", type: "text", admin: { description: "Built-in ports, e.g. \"2.5GbE ×2\"." } },
     { name: "networkUpgrade", type: "text", admin: { description: "Optional upgrade path, e.g. \"10GbE via PCIe card\"." } },
 
-    /* Detailed specifications, shown on the configurator's model cards. All
-     * optional: a unit with none of them still quotes, it just shows less. Keep
-     * them as the manufacturer words them — they are quoted to customers. */
     { name: "cpu", label: "Processor", type: "text", admin: { description: "e.g. \"AMD Ryzen V1500B\"." } },
     { name: "cpuCores", label: "Cores", type: "text", admin: { description: "e.g. \"4 cores / 8 threads, 2.2 GHz\"." } },
     { name: "memory", label: "Memory (installed)", type: "text", admin: { description: "e.g. \"4 GB DDR4 ECC\"." } },

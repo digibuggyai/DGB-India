@@ -6,7 +6,6 @@ export const Media: CollectionConfig = {
   access: {
     read: () => true,
   },
-  // Every change recorded in the activity log, deletions included.
   hooks: logChanges("media", (doc) => String(doc.filename ?? doc.alt ?? doc.id)),
   fields: [
     {

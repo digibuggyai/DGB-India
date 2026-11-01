@@ -13,10 +13,6 @@ import {
   type Kind,
 } from "@/lib/nas/cms-types";
 
-/* Admin editor for the NAS configurator's price list: add, update and remove
- * units, drives and upgrades, and set installation and AMC. Minimum prices are
- * visible here only — the public configurator never receives them. */
-
 type Rec = Record<string, unknown> & { id?: number };
 
 type FieldDef = {
@@ -42,8 +38,6 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
     { key: "raid", label: "RAID levels", type: "raid", required: true, wide: true },
     { key: "expandable", label: "Expandable", type: "checkbox" },
     { key: "active", label: "Active in configurator", type: "checkbox" },
-    // Shown on the configurator's specifications card. Optional — blanks are
-    // left out there rather than shown as gaps.
     { key: "cpu", label: "Processor", type: "text", placeholder: "AMD Ryzen V1500B" },
     { key: "cpuCores", label: "Cores", type: "text", placeholder: "4 cores / 8 threads, 2.2 GHz" },
     { key: "memory", label: "Memory", type: "text", placeholder: "4 GB DDR4 ECC" },
@@ -65,8 +59,6 @@ const FIELDS: Record<Kind | "settings", FieldDef[]> = {
     { key: "minPrice", label: "With-tax minimum (₹)", type: "number", step: 100 },
     { key: "active", label: "Active in configurator", type: "checkbox" },
   ],
-  // Specifications of a drive family, shown on the configurator's drive step.
-  // No price here — those stay per capacity on the Hard drives tab.
   driveLines: [
     { key: "name", label: "Drive line", type: "text", required: true, placeholder: "IronWolf Pro" },
     { key: "brand", label: "Made by", type: "text", required: true, placeholder: "Seagate" },
@@ -164,8 +156,6 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
     () => [...catalogue.driveLines].sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999) || a.name.localeCompare(b.name)),
     [catalogue.driveLines],
   );
-  // Which lines actually have drives priced against them — a line nobody can
-  // buy still deserves its specs on record, but the tab should say so.
   const pricedLines = useMemo(() => new Set(catalogue.drives.filter((d) => d.active).map((d) => d.line.toLowerCase())), [catalogue.drives]);
   const upgrades = useMemo(
     () => [...catalogue.upgrades].sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name)),
@@ -370,12 +360,6 @@ export function PricingManager({ initial }: { initial: Catalogue }) {
 
 type Column = { label: string; align?: "right"; render: (r: Rec) => ReactNode };
 
-/* Shows or hides an item in the configurator, from the row itself.
- *
- * It's the switch the price list is used through day to day — a drive goes out
- * of stock, a model is withdrawn — so it shouldn't cost an Edit, a tick and a
- * Save. The item is kept either way; this only decides whether customers can
- * be quoted it. */
 function ActiveSwitch({ on, busy, label, onToggle }: { on: boolean; busy: boolean; label: string; onToggle: () => void }) {
   return (
     <span className="inline-flex items-center gap-2">
@@ -420,9 +404,7 @@ function KindSection({
   onChanged: (message: string) => Promise<void>;
   describe: (r: Rec) => string;
   emptyText?: string;
-  /** Anything this tab needs explained before the table. */
   intro?: ReactNode;
-  /** Gives every row a switch that shows or hides it in the configurator. */
   toggleable?: boolean;
 }) {
   const [editing, setEditing] = useState<number | "new" | null>(null);
@@ -591,7 +573,6 @@ function RecordForm({
   submitLabel: string;
   onSubmit: (values: Rec) => Promise<void>;
   onCancel?: () => void;
-  /** Offers to fill the specifications in from the maker's own spec sheet. */
   assistKind?: "models" | "upgrades";
 }) {
   const [values, setValues] = useState<Rec>(initial);
@@ -668,15 +649,6 @@ function RecordForm({
 
 type LookupResult = { fields: Record<string, unknown>; source: string | null; filled: string[]; notes: string[] };
 
-/* Fills a new item's specifications in from the maker's own spec sheet.
- *
- * For a Synology model the name is enough — its spec table is fetched and
- * read. QNAP's site answers our server with a challenge page instead, so for
- * those the admin pastes the specifications and the same reader parses them.
- * For RAM and network cards the name alone says everything.
- *
- * Nothing is saved here. Values land in the form, the admin sees what was
- * filled and from where, and every field stays editable. */
 function SpecAssist({
   kind,
   values,
@@ -879,8 +851,6 @@ function FieldInput({ def, value, onChange }: { def: FieldDef; value: unknown; o
   );
 }
 
-/* ---------------- change log ---------------- */
-
 const LOG_FIELD_LABELS: Record<string, string> = {
   model: "Model",
   brand: "Brand",
@@ -917,7 +887,6 @@ const ACTION_STYLES: Record<CmsLog["action"], { label: string; className: string
   deleted: { label: "Removed", className: "border-border-strong bg-tint text-tint-foreground" },
 };
 
-// Fixed time zone so the server render and the browser agree.
 const logTime = new Intl.DateTimeFormat("en-IN", {
   timeZone: "Asia/Kolkata",
   day: "numeric",

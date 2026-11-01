@@ -1,7 +1,6 @@
 import type { Post } from "@/payload-types";
 import { FeaturedPostCard, PostCard } from "./PostCard";
 
-/* The newest post leads, full width; the rest follow in a grid. */
 export function PostList({ posts, basePath }: { posts: Post[]; basePath: string }) {
   if (posts.length === 0) {
     return (

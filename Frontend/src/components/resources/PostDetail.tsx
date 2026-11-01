@@ -7,8 +7,6 @@ import { PostCard } from "./PostCard";
 import { authorOf, coverOf, keywordsFor, postDate, postTags, readingLabel } from "./postMeta";
 import { breadcrumbSchema, checkJsonLd, faqSchema, withContext, type Faq } from "@/lib/blog-schema";
 
-/* One article: header, body, a route to a quote, and more to read. */
-
 export function PostDetail({
   post,
   kicker,
@@ -25,10 +23,6 @@ export function PostDetail({
   const tags = postTags(post);
   const meta = [postDate(post), readingLabel(post)].filter(Boolean);
 
-  /* What a search engine reads instead of guessing from the markup: who wrote
-   * it, when, what it is about and which picture represents it. Only facts the
-   * post actually carries go in — an empty field is left out rather than
-   * filled with the site's name. */
   const base = process.env.NEXT_PUBLIC_SERVER_URL || "https://www.dgbindia.com";
   const url = `${base}${basePath}/${post.slug}`;
 
@@ -48,8 +42,6 @@ export function PostDetail({
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
   };
 
-  /* The same trail that is drawn above the title, so the Google result reads
-   * "Resources › Blog › …" rather than a bare address. */
   const breadcrumb = breadcrumbSchema([
     { name: "Resources", url: `${base}/resources` },
     { name: kicker === "Insight" ? "Insights" : "Blog", url: `${base}${basePath}` },
@@ -60,10 +52,6 @@ export function PostDetail({
     .map((f) => ({ question: f.question ?? "", answer: f.answer ?? "" }))
     .filter((f) => f.question.trim() && f.answer.trim());
 
-  /* Anything the author wrote by hand. It was checked when it was saved, both
-   * in the editor and by the CMS, so a bad value can't reach this point — but
-   * it is parsed again rather than trusted, because this is the step that
-   * prints it into the page. */
   const customCheck = checkJsonLd(post.schemaJson ?? "");
   const custom = customCheck.ok && customCheck.value ? withContext(customCheck.value) : null;
 
@@ -75,9 +63,6 @@ export function PostDetail({
         <script
           key={i}
           type="application/ld+json"
-          /* Built from the post's own fields and from schema an admin saved —
-           * never from anything a reader can set. JSON.stringify escapes the
-           * quotes, and a closing </script> is refused when it is saved. */
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
@@ -138,9 +123,6 @@ export function PostDetail({
             <h2 id="post-faqs" className="font-display text-2xl font-bold tracking-tight text-foreground">
               Frequently asked questions
             </h2>
-            {/* These are on the page because the FAQ markup above describes
-                them. Google rejects the markup when the answers aren't visible,
-                so the two are rendered from the same list and can't drift. */}
             <dl className="mt-6 divide-y divide-border border-y border-border">
               {faqs.map((faq, i) => (
                 <div key={i} className="py-5">

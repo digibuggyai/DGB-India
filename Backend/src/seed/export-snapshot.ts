@@ -1,17 +1,3 @@
-/* Writes every row in the database to a single JSON file.
- *
- * A backup that needs nothing installed: no pg_dump, no Docker, no client
- * tools. Take one before moving providers, and again before anything else
- * irreversible. `copy-database.ts --from <file>` puts it back.
- *
- * The file holds everything, including password hashes and every enquiry
- * anyone has ever submitted. Keep it out of the repository and off shared
- * drives.
- *
- *   npx tsx src/seed/export-snapshot.ts                       → ./snapshot-<date>.json
- *   npx tsx src/seed/export-snapshot.ts C:/backups/dgb.json
- *   npx tsx src/seed/export-snapshot.ts out.json "postgres://…"  → another database
- */
 import "../../scripts/load-env.mts";
 import fs from "fs";
 import pg from "pg";

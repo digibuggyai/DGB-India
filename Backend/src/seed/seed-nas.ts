@@ -1,9 +1,3 @@
-// Loads the NAS configurator price list (models, drives, installation, AMC)
-// into the CMS. Values are from the pricing sheet: quote price and the
-// "with tax minimum".
-//
-// Safe to re-run: it only creates what's missing and never overwrites a price
-// already in the CMS, so edits made in the admin panel are kept.
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";

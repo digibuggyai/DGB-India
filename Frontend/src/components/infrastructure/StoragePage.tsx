@@ -38,7 +38,6 @@ export function StoragePage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero */}
       <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
           <ImagePanel url={heroImageUrl} className="h-[220px] border-[#d9bcc1] bg-white/40 sm:h-[280px] lg:h-[340px]" />
@@ -57,7 +56,6 @@ export function StoragePage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* More Than Just Capacity */}
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page mx-auto max-w-2xl text-center">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">More Than Just Capacity.</h2>
@@ -73,7 +71,6 @@ export function StoragePage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Where Storage Matters */}
       <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold text-white sm:text-[28px]">Where Storage Matters</h2>
@@ -98,7 +95,6 @@ export function StoragePage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Plan for the Data You Have */}
       <section className="border-t border-[#e0e4e7] bg-white py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>

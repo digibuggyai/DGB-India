@@ -5,14 +5,6 @@ import type {
   PayloadRequest,
 } from "payload";
 
-/* Audit trail for everything staff can change: price list, posts, enquiries,
- * images, accounts and discount codes. Every add, edit and removal is written
- * with the signed-in user's email and the fields that changed.
- *
- * The entry is written in the same request (and transaction) as the change, so
- * a change cannot land without its record. Deletions matter most: they are the
- * one action that leaves nothing behind to inspect afterwards. */
-
 type Doc = Record<string, unknown>;
 type Change = { field: string; from: unknown; to: unknown };
 type Entry = {
@@ -26,19 +18,10 @@ type Entry = {
 
 type LogWriter = { create: (args: object) => Promise<unknown> };
 
-// Bookkeeping fields, not something an admin changed.
 const IGNORED = new Set(["id", "createdAt", "updatedAt", "title", "globalType"]);
 
-/* Never written to the log, whatever changes.
- *
- * A log is read by more people than the record it describes, and it outlives
- * it. A password hash or an API key copied into one would be a credential
- * sitting in a table meant for browsing. The field is recorded as changed; its
- * value is not. */
 const SECRET = new Set(["password", "hash", "salt", "apiKey", "apiKeyIndex", "resetPasswordToken", "resetPasswordExpiration", "sessions"]);
 
-/* Long text is recorded as a length rather than in full: an article body would
- * otherwise copy the whole post into the log on every save. */
 const summarise = (value: unknown) =>
   typeof value === "string" && value.length > 300 ? `(${value.length} characters)` : value;
 

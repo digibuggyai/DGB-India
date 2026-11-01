@@ -22,7 +22,6 @@ export function NasPage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero */}
       <section className="border-b border-[#e0e4e7] bg-white py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center lg:gap-16">
           <div>
@@ -41,7 +40,6 @@ export function NasPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* One Place for Your Projects */}
       <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-10 lg:grid-cols-[0.42fr_1fr] lg:items-center lg:gap-16">
           <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
@@ -60,7 +58,6 @@ export function NasPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Where NAS Makes a Difference */}
       <section className="bg-white py-12 sm:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold sm:text-[28px]">Where NAS Makes a Difference</h2>
@@ -86,7 +83,6 @@ export function NasPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Storage That Grows With Your Work */}
       <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#d9bcc1] sm:gap-12 lg:grid-cols-2 lg:gap-0">
           <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />

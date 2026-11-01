@@ -15,12 +15,6 @@ import { inr } from "@/lib/nas/logic";
 import type { Build, DriveLine, NasModel, RaidLevel } from "@/lib/nas/types";
 import { Badge, btnPrimary, btnSecondary } from "./ui";
 
-/* Specifications for a recommended unit: a hover card on the ⓘ, the full list
- * on click, and a side-by-side comparison of the shortlist. */
-
-/** The ⓘ on a model card. Hover or keyboard focus shows the summary; clicking
- *  opens the full specifications. It sits inside the card's label, so the click
- *  must be kept from selecting the unit underneath. */
 function InfoDot({ name, specs, onOpen }: { name: string; specs: Spec[]; onOpen: () => void }) {
   return (
     <span className="group/info relative inline-flex">
@@ -59,7 +53,6 @@ export function InfoButton({ build, onOpen }: { build: Build; onOpen: () => void
   return <InfoDot name={build.model.id} specs={keySpecs(build.model)} onOpen={onOpen} />;
 }
 
-/** The same ⓘ on a drive line tile. */
 export function DriveInfoButton({ line, onOpen }: { line: DriveLine; onOpen: () => void }) {
   return <InfoDot name={line.name} specs={keyDriveSpecs(line)} onOpen={onOpen} />;
 }
@@ -169,8 +162,6 @@ export function SpecsDialog({ build, raid, chosen, onChoose, onClose }: { build:
   );
 }
 
-/** What's worth knowing about this drive in this unit. Warnings first — a
- *  customer who reads only the first line should read the one that matters. */
 export function DriveNotes({ model, line, drivesPerUnit }: { model: NasModel; line: DriveLine; drivesPerUnit: number }) {
   const notes = driveNotes(model, line, drivesPerUnit).sort((a, b) => (a.tone === b.tone ? 0 : a.tone === "warn" ? -1 : 1));
   if (!notes.length) return null;
@@ -193,7 +184,6 @@ export function DriveNotes({ model, line, drivesPerUnit }: { model: NasModel; li
   );
 }
 
-/** Full specifications for a drive family, with how it suits the chosen unit. */
 export function DriveSpecsDialog({
   line,
   model,

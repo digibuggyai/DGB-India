@@ -2,26 +2,13 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import type { CompanyInfo, Estimate } from "./types";
 
-/* The downloadable NAS estimate.
- *
- * Adapted from the DigiBuggy sales tool's quotation PDF, with two deliberate
- * differences. It's an estimate a visitor builds for themselves, so there is no
- * sales rep, signature or validity period. And the DGB logo is dark artwork on
- * an opaque ground, so the letterhead is white with a maroon rule rather than a
- * coloured band the logo couldn't sit on.
- *
- * Like the original it prints one price per line — the quote price. There is no
- * minimum anywhere in the data this receives.
- *
- * Imported on demand by the configurator, so jsPDF only loads when asked for. */
-
 type RGB = [number, number, number];
 
-const ACCENT: RGB = [128, 32, 44]; // --accent
-const ACCENT_SOFT: RGB = [236, 220, 223]; // --tint
-const INK: RGB = [16, 21, 28]; // --foreground
-const MUTED: RGB = [92, 97, 102]; // --muted
-const RULE: RGB = [229, 232, 234]; // --border
+const ACCENT: RGB = [128, 32, 44];
+const ACCENT_SOFT: RGB = [236, 220, 223];
+const INK: RGB = [16, 21, 28];
+const MUTED: RGB = [92, 97, 102];
+const RULE: RGB = [229, 232, 234];
 
 const LOGO_URL = "/dgb_logo.png";
 const MARGIN = 42;
@@ -50,8 +37,6 @@ export async function downloadEstimatePdf(estimate: Estimate, company: CompanyIn
 
   doc.save(filename(estimate));
 }
-
-/* ---------------- letterhead ---------------- */
 
 function header(doc: jsPDF, e: Estimate, company: CompanyInfo, pageW: number, logo: Logo | null): number {
   const top = 36;
@@ -116,8 +101,6 @@ function parties(doc: jsPDF, e: Estimate, company: CompanyInfo, pageW: number, y
 
   return y + 15 + tallest * 12.5 + 22;
 }
-
-/* ---------------- what is being quoted ---------------- */
 
 function configuration(doc: jsPDF, e: Estimate, pageW: number, y: number): number {
   y = sectionHeading(doc, "Configuration", pageW, y);
@@ -191,7 +174,6 @@ function lineItems(doc: jsPDF, e: Estimate, pageW: number, y: number): number {
     },
   });
 
-  // autotable records where it finished on the document; it isn't in its types.
   const finalY = (doc as unknown as { lastAutoTable?: { finalY?: number } }).lastAutoTable?.finalY;
   return (finalY ?? y) + 8;
 }
@@ -221,8 +203,6 @@ function notes(doc: jsPDF, e: Estimate, pageW: number, pageH: number, y: number)
   }
 }
 
-/* The contact block. An estimate gets forwarded and acted on later, so the
-   address and phone have to be on the page itself. */
 function footer(doc: jsPDF, company: CompanyInfo, pageW: number, pageH: number, page: number, pages: number) {
   const contact = [company.phones.join("  ·  "), company.email].filter(Boolean).join("   ·   ");
   const lines = [company.address, contact].filter(Boolean);
@@ -242,8 +222,6 @@ function footer(doc: jsPDF, company: CompanyInfo, pageW: number, pageH: number, 
   lines.forEach((line, i) => doc.text(line, pageW - MARGIN, top + 14 + i * 10, { align: "right" }));
   if (pages > 1) doc.text(`Page ${page} of ${pages}`, MARGIN, top + 26);
 }
-
-/* ---------------- helpers ---------------- */
 
 function sectionHeading(doc: jsPDF, label: string, pageW: number, y: number): number {
   setText(doc, ACCENT);
@@ -265,8 +243,6 @@ function setDraw(doc: jsPDF, c: RGB) {
   doc.setDrawColor(c[0], c[1], c[2]);
 }
 
-/* jsPDF's built-in Helvetica is WinAnsi-encoded and has no rupee glyph, so the
-   currency is spelled out. The page itself still uses ₹. */
 function rupees(n: number): string {
   return "Rs. " + Math.round(n).toLocaleString("en-IN");
 }
@@ -280,10 +256,6 @@ function filename(e: Estimate): string {
   return `DGB-India-NAS-Estimate-${who || e.ref}.pdf`;
 }
 
-/** Loads the logo once, downscaled and with its baked-in white margin trimmed.
- *  The source is ~1774×887 and ~830 KB — far more than a letterhead needs. A
- *  missing or unreadable logo isn't an error: the header falls back to the
- *  company name, so an estimate can always be produced. */
 export async function loadLogo(): Promise<Logo | null> {
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {

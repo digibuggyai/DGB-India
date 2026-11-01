@@ -27,7 +27,7 @@ const stageHeight = await page.evaluate(() => {
   const el = document.querySelector("[data-scroll-stage]") as HTMLElement | null;
   return el ? el.getBoundingClientRect().height : 0;
 });
-const pinRange = Math.max(stageHeight - 900, 1); // ScrollTrigger's actual "top top" -> "bottom bottom" scroll distance
+const pinRange = Math.max(stageHeight - 900, 1);
 console.log("mode:", mode, "stageHeight:", stageHeight, "pinRange:", pinRange);
 
 await page.screenshot({ path: `${outDir}\\hero-0.png` });
@@ -35,7 +35,7 @@ await page.screenshot({ path: `${outDir}\\hero-0.png` });
 const fractions = [0.05, 0.18, 0.3, 0.45, 0.6, 0.75, 0.95];
 for (const f of fractions) {
   await page.evaluate((y) => window.scrollTo(0, y), Math.round(pinRange * f));
-  await page.waitForTimeout(1200); // let scrub:0.6 catch up before capturing
+  await page.waitForTimeout(1200);
   await page.screenshot({ path: `${outDir}\\hero-${f}.png` });
 }
 

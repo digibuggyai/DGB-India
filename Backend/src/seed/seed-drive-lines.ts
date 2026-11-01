@@ -1,10 +1,3 @@
-// The specifications of each hard drive family the configurator can quote,
-// taken from the manufacturers' own pages and datasheets in September 2026.
-//
-// Lines are listed here whether or not they're currently stocked: the specs
-// are ready the moment prices are added for them.
-//
-// Safe to re-run: it updates the fields below and leaves anything else alone.
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -40,8 +33,6 @@ const LINES: Line[] = [
     cache: "256 MB (512 MB on the largest capacities)",
     interface: "SATA 6 Gb/s",
     recording: "CMR",
-    // The 24 TB and larger drives are rated far higher than the rest of the
-    // line — Seagate's 24 TB datasheet, not the older 20 TB one.
     workloadTbYear: "300 TB/year (550 TB/year on 24 TB and larger)",
     mtbf: "1.2 million hours (2.5 million on 24 TB and larger)",
     warrantyYears: 5,
@@ -106,7 +97,6 @@ const LINES: Line[] = [
     driveClass: "enterprise",
     series: "HAT5300 / HAT5310 / HAT5320",
     rpm: "7,200 rpm",
-    // From Synology's HAT5300 datasheet, which the product page doesn't carry.
     cache: "256 MB (8 TB), 512 MB (12 TB and above)",
     interface: "SATA 6 Gb/s",
     recording: "CMR",

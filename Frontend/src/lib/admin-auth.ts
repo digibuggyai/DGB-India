@@ -11,8 +11,6 @@ export type AdminUser = {
   role: "admin" | "editor" | "sales" | "service";
 };
 
-// Roles allowed to sign in through the frontend admin login — staff who
-// need to see leads, not the "service" account used by the contact form.
 const ALLOWED_ROLES = new Set(["admin", "sales"]);
 
 export async function getAdminUser(): Promise<AdminUser | null> {

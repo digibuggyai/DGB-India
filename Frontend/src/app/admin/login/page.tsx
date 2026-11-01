@@ -34,7 +34,6 @@ export default function AdminLoginPage() {
         setLoading(false);
         return;
       }
-      // Confirm it worked before the page changes under them.
       setNotice({ kind: "success", message: "Signed in. Opening the admin panel…" });
       window.setTimeout(() => {
         router.push("/admin");

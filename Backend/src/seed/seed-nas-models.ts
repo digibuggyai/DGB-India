@@ -1,10 +1,3 @@
-// Applies the chassis prices in nas-model-prices.ts to the CMS, the way
-// seed-nas-drives.ts does for drives: corrects prices that have moved and
-// leaves everything else — specs, Active ticks — alone.
-//
-// Safe to re-run: it only writes rows that actually differ, and it touches
-// quotePrice and minPrice only. A model in the CMS with no price on the sheet
-// is reported rather than changed.
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -36,8 +29,6 @@ async function main() {
       continue;
     }
 
-    /* A floor above its own quote would let the configurator quote below the
-     * floor, which is the one thing this pricing must never do. */
     const finalQuote = changes.quotePrice ?? doc.quotePrice;
     const finalMin = changes.minPrice ?? doc.minPrice;
     if (typeof finalMin === "number" && finalMin >= finalQuote) {

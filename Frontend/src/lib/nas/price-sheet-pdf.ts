@@ -3,13 +3,6 @@ import autoTable from "jspdf-autotable";
 import { loadLogo } from "./pdf";
 import { priceSheetFilename, type Cell, type Section } from "./price-sheet";
 
-/* The internal NAS price sheet as a PDF: every item with its quote, its floor
- * and the margin between them. Landscape, because the unit table is wide.
- *
- * Marked INTERNAL on every page — unlike the customer estimate in pdf.ts, this
- * one deliberately carries floor prices. Loaded on demand, so jsPDF only
- * arrives when someone asks for a download. */
-
 type RGB = [number, number, number];
 const ACCENT: RGB = [128, 32, 44];
 const TINT: RGB = [236, 220, 223];
@@ -82,8 +75,6 @@ function header(doc: WithTable, pageW: number, companyName: string, logo: Awaite
   return ruleY + 28;
 }
 
-/** Prices as figures, text as text. Column headings carry the ₹, so the cells
- *  stay clean numbers that line up. */
 function cell(v: Cell): string {
   if (v == null) return "—";
   if (typeof v === "number") return Number.isInteger(v) ? v.toLocaleString("en-IN") : v.toLocaleString("en-IN", { maximumFractionDigits: 2 });
@@ -110,7 +101,6 @@ function renderSection(doc: WithTable, section: Section, pageW: number, pageH: n
     return y + 32;
   }
 
-  // Numbers right-aligned: the money columns are the point of the sheet.
   const numeric = new Set<number>();
   section.columns.forEach((c, i) => {
     if (/\(₹\)|\(%\)|\(TB\)|Bays/.test(c)) numeric.add(i);

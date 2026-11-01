@@ -17,7 +17,6 @@ export function RequirementForm({
   infrastructure: Option[];
 }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  // Honeypot, timing and Turnstile — invisible to a real visitor.
   const human = useHumanFields();
   const [error, setError] = useState<string | null>(null);
 

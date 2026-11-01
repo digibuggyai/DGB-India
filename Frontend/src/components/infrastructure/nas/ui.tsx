@@ -1,9 +1,5 @@
 import type { ReactNode } from "react";
 
-/* Primitives for the NAS configurator, built from the site's own tokens: the
- * maroon accent marks the active choice, the blush tint is its ground, and
- * step numbers sit on ink. */
-
 const focusRing =
   "has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent has-[:focus-visible]:ring-offset-2 has-[:focus-visible]:ring-offset-background";
 
@@ -56,10 +52,6 @@ export function Step({
   );
 }
 
-/** A radio choice. `row` lays title and subtitle side by side for list-style
- *  groups. `disabled` is for a choice nothing in the price list can build: it
- *  greys out and can't be picked, rather than accepting the click and failing
- *  afterwards. */
 export function Tile({
   name,
   checked,
@@ -197,8 +189,6 @@ export function Note({ children }: { children: ReactNode }) {
   return <p className="text-sm leading-relaxed text-muted">{children}</p>;
 }
 
-/** Inline notice. Not a live region by default — derived notices change on every
- *  keystroke while a budget is typed, and shouldn't be announced each time. */
 export function Alert({ tone, live = false, children }: { tone: "error" | "warn"; live?: boolean; children: ReactNode }) {
   const styles = tone === "error" ? "border-border-strong bg-tint text-tint-foreground" : "border-[#f2e0bd] bg-[#fdf3e3] text-[#6b4a10]";
   return (

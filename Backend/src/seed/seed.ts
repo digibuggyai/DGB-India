@@ -1,6 +1,3 @@
-// Seeds representative content for the Industry -> Workload -> Application ->
-// Requirement -> Infrastructure graph so the site isn't empty on first run.
-// Safe to re-run: it checks for existing records by slug/email before creating.
 import "../../scripts/load-env.mts";
 import crypto from "node:crypto";
 import fs from "node:fs";
@@ -51,7 +48,6 @@ const lexical = (text: string) => ({
 async function main() {
   const payload = await getPayload({ config });
 
-  // --- Admin user ---
   const existingAdmin = await payload.find({
     collection: "users",
     where: { email: { equals: "harshit.digibuggy@gmail.com" } },
@@ -70,12 +66,6 @@ async function main() {
     console.log("Created admin user harshit.digibuggy@gmail.com (password: DGB-Enterprise-2026!) — change this after first login.");
   }
 
-  // --- Service account for Frontend -> Backend writes (e.g. the contact form) ---
-  // Payload hashes `apiKey` at rest and never returns the plaintext back on
-  // read, so we generate it ourselves (rather than relying on Payload to
-  // auto-generate one and reading it back — that returns undefined) and
-  // write that same plaintext into Frontend/.env. Safe to re-run: if
-  // Frontend/.env already has a key, we leave the existing one alone.
   const existingService = await payload.find({
     collection: "users",
     where: { email: { equals: "frontend-service@dgbindia.local" } },
@@ -109,7 +99,6 @@ async function main() {
     console.log("Frontend/.env was missing BACKEND_SERVICE_API_KEY — rotated the service account's key and wrote it there.");
   }
 
-  // --- Infrastructure ---
   const infra = await upsertInfrastructure(payload, [
     { name: "Compute", category: "compute", summary: "The processing core of every workload we design for." },
     { name: "Servers", category: "compute", parentName: "Compute", summary: "Rack and tower servers for general-purpose enterprise compute.", capabilities: ["Dual-socket high-core-count CPUs", "ECC memory up to multiple TB", "Redundant power and hot-swap storage"], businessValue: ["Consolidate workloads onto fewer, more reliable systems", "Predictable performance for production applications"] },
@@ -122,7 +111,6 @@ async function main() {
     { name: "Backup", category: "data-protection", parentName: "Data Protection", summary: "Automated backup, replication and disaster recovery.", capabilities: ["Immutable, air-gapped backup targets", "Application-consistent snapshots", "Tested recovery runbooks"], businessValue: ["Recover from ransomware or hardware failure in hours, not weeks", "Meet compliance and client data-retention requirements"] },
   ]);
 
-  // --- Applications ---
   const apps = await upsertApplications(payload, [
     { name: "Autodesk Maya", vendor: "Autodesk", category: "3d-rendering", optimisationNotes: "Viewport and simulation are CPU/GPU hybrid; scales with core count and VRAM." },
     { name: "Houdini", vendor: "SideFX", category: "simulation", optimisationNotes: "Simulation is heavily multi-threaded CPU work; large sims are memory-bound." },
@@ -134,7 +122,6 @@ async function main() {
     { name: "QuantLib backtesting engines", vendor: "Open Source", category: "trading-quant", optimisationNotes: "CPU-bound, latency-sensitive; benefits from high clock speed and NVMe scratch storage." },
   ]);
 
-  // --- Workloads ---
   const workloads = await upsertWorkloads(payload, [
     {
       name: "Rendering",
@@ -187,7 +174,6 @@ async function main() {
     },
   ]);
 
-  // --- Industries ---
   const industryDefs = [
     {
       name: "Architecture & Engineering",
@@ -258,7 +244,6 @@ async function main() {
 
   const industries = await upsertIndustries(payload, industryDefs, workloads, apps, infra);
 
-  // --- Case study (VFX) ---
   const vfx = industries.find((i) => i.name === "VFX & Animation");
   if (vfx) {
     const existing = await payload.find({ collection: "case-studies", where: { slug: { equals: "animation-studio-render-pipeline" } }, limit: 1 });
@@ -287,7 +272,6 @@ async function main() {
     }
   }
 
-  // --- Case study (AI & ML) ---
   const ml = industries.find((i) => i.name === "AI & Machine Learning");
   if (ml) {
     const existing = await payload.find({ collection: "case-studies", where: { slug: { equals: "ml-team-multi-gpu-training-cluster" } }, limit: 1 });
@@ -316,7 +300,6 @@ async function main() {
     }
   }
 
-  // --- Case study (Trading & Finance) ---
   const trading = industries.find((i) => i.name === "Trading & Finance");
   if (trading) {
     const existing = await payload.find({ collection: "case-studies", where: { slug: { equals: "quant-desk-backtest-turnaround" } }, limit: 1 });
@@ -345,7 +328,6 @@ async function main() {
     }
   }
 
-  // --- Posts ---
   await upsertPost(payload, {
     title: "Why VRAM, not core count, decides your GPU render farm size",
     slug: "vram-vs-core-count-gpu-render-farm",

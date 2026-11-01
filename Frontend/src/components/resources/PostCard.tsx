@@ -3,10 +3,6 @@ import Link from "next/link";
 import type { Post } from "@/payload-types";
 import { coverOf, postDate, postTags, readingLabel } from "./postMeta";
 
-/* Cards for the blog and insights listings. A post without a cover image gets
- * a drawn cover instead — engineering-paper grid on ink, with its section and
- * lead tag — so the grid reads as designed whether or not anyone uploaded art. */
-
 export function CoverArt({ post, className = "" }: { post: Post; className?: string }) {
   const cover = coverOf(post);
   if (cover) {

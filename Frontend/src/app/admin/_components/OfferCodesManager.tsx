@@ -3,13 +3,6 @@
 import { useMemo, useState } from "react";
 import type { OfferCode } from "../_lib/offer-codes";
 
-/* The discount codes the configurator has issued, and what's become of them.
- *
- * The job this does on a sales call is: someone reads out a code, and you need
- * to know within seconds whether it's real, whose it is, what they were
- * pricing, and whether it's already been spent. So the search matches the code
- * and the customer, and marking one used is one click. */
-
 type Status = OfferCode["status"];
 
 const STATUS: Record<Status, { label: string; className: string }> = {

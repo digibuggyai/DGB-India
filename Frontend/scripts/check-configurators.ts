@@ -1,15 +1,3 @@
-/* Proves what each configurator is actually handed.
- *
- * The sales screen must show the floor beside every quote; the customer screen
- * must never receive a floor at all. Both must carry the prices now in the
- * database. This builds both payloads from the real catalogue and checks them.
- *
- * Dump a catalogue with floors, then run this against it:
- *
- *   cd ../Backend && npx tsx src/seed/dump-catalogue.ts --json /tmp/cat.json
- *   cd ../Frontend && NODE_OPTIONS=--conditions=react-server  *     npx tsx scripts/check-configurators.ts /tmp/cat.json
- *
- * Exits non-zero on any leak or mismatch, so it can gate a price change. */
 import fs from "fs";
 import { toSalesPricing } from "@/lib/nas/sales-pricing";
 import { normalisePricing } from "@/lib/nas/normalise";
@@ -33,16 +21,9 @@ const assert = (cond: unknown, msg: string) => {
 
 const sales = toSalesPricing(catalogue);
 
-/* The customer payload is built the way the public route builds it: the sales
- * payload is NOT the input — the public route loads a catalogue read with a
- * public token, where the CMS has already withheld the minimums. Passing the
- * sales payload through is the harsher test, since every floor is present in
- * the input and must still not come out. */
 const publicResult = normalisePricing(JSON.parse(JSON.stringify(sales)));
 assert(publicResult.ok, "the public payload failed to normalise");
 const customer = publicResult.ok ? publicResult.pricing : null!;
-
-/* ---------- the floor reaches the sales screen ---------- */
 
 check("every active chassis carries a floor for sales", () => {
   const missing = sales.models.filter((m) => m.min == null).map((m) => m.id);
@@ -76,11 +57,7 @@ check("every floor sits below its own quote", () => {
   assert(!bad.length, `floor not below quote: ${bad.join(", ")}`);
 });
 
-/* ---------- the floor never reaches the customer ---------- */
-
 check("the customer payload contains no floor anywhere", () => {
-  /* A deep scan rather than a field-by-field check: this catches a floor that
-   * arrives under some future name, or nested somewhere nobody thought of. */
   const found: string[] = [];
   const walk = (value: unknown, path: string) => {
     if (Array.isArray(value)) return value.forEach((v, i) => walk(v, `${path}[${i}]`));
@@ -96,9 +73,6 @@ check("the customer payload contains no floor anywhere", () => {
 });
 
 check("no floor value appears in the customer payload, under any key", () => {
-  /* Belt and braces: take the actual floor numbers and look for them in the
-   * serialised customer payload. A floor that survived under a renamed key
-   * would be caught here even if the key test missed it. */
   const floors = new Set<number>();
   for (const m of sales.models) if (m.min != null) floors.add(m.min);
   for (const lines of Object.values(sales.hddPricing)) {
@@ -106,7 +80,6 @@ check("no floor value appears in the customer payload, under any key", () => {
   }
   const json = JSON.stringify(customer);
   const leaked = [...floors].filter((f) => {
-    // Only count it if the number is not also a legitimate quote price.
     const isAlsoAQuote =
       sales.models.some((m) => m.quote === f) ||
       Object.values(sales.hddPricing).some((lines) => Object.values(lines).some((p) => p.quote === f));
@@ -114,8 +87,6 @@ check("no floor value appears in the customer payload, under any key", () => {
   });
   assert(!leaked.length, `floor values found in the customer payload: ${leaked.join(", ")}`);
 });
-
-/* ---------- both screens carry the prices now in the database ---------- */
 
 const activeModels = catalogue.models.filter((m) => m.active);
 const activeDrives = catalogue.drives.filter((d) => d.active);

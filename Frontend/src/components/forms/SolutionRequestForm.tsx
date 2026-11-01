@@ -7,16 +7,8 @@ import { HumanCheck, useHumanFields } from "./HumanCheck";
 const inputClass =
   "w-full rounded-md border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none";
 
-/**
- * Short lead-capture form: organization, contact person, work email, phone,
- * and requirement details — nothing else. Posts to the same /api/contact
- * endpoint the full RequirementForm uses (backend Leads collection), so no
- * new backend wiring is needed. `source` is passed in and sent as a hidden
- * field so leads can be traced back to the page/CTA that generated them.
- */
 export function SolutionRequestForm({ source }: { source?: string }) {
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
-  // Honeypot, timing and Turnstile — invisible to a real visitor.
   const human = useHumanFields();
   const [error, setError] = useState<string | null>(null);
 

@@ -1,12 +1,5 @@
 import type { Catalogue } from "./cms-types";
 
-/* The price list as a sheet: one block per kind of item, ready to become a CSV
- * or a PDF table.
- *
- * This is the internal sheet — it carries the floor price and the margin beside
- * every quote, so it is produced only inside the admin panel and only from a
- * catalogue loaded with a staff token. */
-
 export type Cell = string | number | null;
 export type Section = { title: string; note?: string; columns: string[]; rows: Cell[][] };
 
@@ -75,8 +68,6 @@ export function buildPriceSheet(c: Catalogue): Section[] {
   return [models, drives, upgrades, services];
 }
 
-/** Excel opens this directly. A BOM keeps the rupee sign intact, and CRLF line
- *  endings keep older versions happy. */
 export function toCsv(sections: Section[]): string {
   const esc = (v: Cell) => {
     if (v == null) return "";
@@ -100,7 +91,6 @@ export function priceSheetFilename(ext: "csv" | "pdf"): string {
   return `DGB-India-NAS-price-sheet-${stamp}.${ext}`;
 }
 
-/** Hands the file to the browser. */
 export function downloadFile(content: BlobPart, filename: string, type: string): void {
   const url = URL.createObjectURL(new Blob([content], { type }));
   const link = document.createElement("a");

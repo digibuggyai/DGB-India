@@ -3,8 +3,6 @@ import { BlogError, listImages, uploadImage } from "@/lib/blog-admin";
 import { IMAGE_MAX_BYTES, IMAGE_TYPES } from "@/lib/blog-types";
 import { requireAdmin } from "@/lib/nas/admin-guard";
 
-/* Banner and article images for the admin Blog tab. */
-
 const forbidden = () => NextResponse.json({ error: "Only admins can upload images." }, { status: 403 });
 const failed = (err: unknown) =>
   NextResponse.json(
@@ -34,7 +32,6 @@ export async function POST(req: Request) {
   }
 }
 
-/** Looks up images already written into an article, for its thumbnails. */
 export async function GET(req: Request) {
   const auth = await requireAdmin();
   if (!auth) return forbidden();

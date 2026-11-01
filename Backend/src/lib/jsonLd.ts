@@ -1,23 +1,7 @@
-/* Checking hand-written JSON-LD before it reaches a page.
- *
- * The blog editor lets an author paste their own schema. Whatever they paste is
- * printed into a <script type="application/ld+json"> tag on the live post, so
- * it is checked here as well as in the browser: the admin panel is not the only
- * way into the CMS, and a broken blob would either be ignored by Google or, if
- * it contained a closing tag, break out of the script element entirely.
- *
- * The rules are deliberately shallow. Schema.org has hundreds of types and
- * validating them properly is Google's job, not ours — this catches the
- * mistakes that make the markup worthless or unsafe, and lets everything else
- * through. */
-
 export const SCHEMA_MAX_CHARS = 20000;
 
 export type SchemaCheck = { ok: true; value: unknown } | { ok: false; error: string };
 
-/** `</script` in any casing ends the script element early, so the rest of the
- *  page would be parsed as markup. Payload escapes on output, but a second
- *  guard here costs nothing and the failure is silent otherwise. */
 const CLOSING_TAG = /<\/script/i;
 
 function checkEntry(entry: unknown, where: string): string | null {
@@ -31,13 +15,6 @@ function checkEntry(entry: unknown, where: string): string | null {
   return null;
 }
 
-/**
- * Parses and sanity-checks a block of JSON-LD.
- *
- * Accepts a single object or an array of them, with or without "@context" —
- * the renderer adds the context when it is missing, since leaving it out is the
- * single most common mistake and an easy one to fix for the author.
- */
 export function checkJsonLd(raw: string): SchemaCheck {
   const text = raw.trim();
   if (!text) return { ok: true, value: null };
@@ -69,8 +46,6 @@ export function checkJsonLd(raw: string): SchemaCheck {
   return problem ? { ok: false, error: problem } : { ok: true, value: parsed };
 }
 
-/** Adds "@context" where the author left it out, so the markup is valid as
- *  written rather than quietly ignored by search engines. */
 export function withContext(value: unknown): unknown {
   const add = (entry: unknown) =>
     entry && typeof entry === "object" && !Array.isArray(entry) && !("@context" in entry)

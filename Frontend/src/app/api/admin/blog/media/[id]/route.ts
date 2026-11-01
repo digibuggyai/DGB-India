@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { BlogError, updateImageAlt } from "@/lib/blog-admin";
 import { requireAdmin } from "@/lib/nas/admin-guard";
 
-/** Updates an image's description — what screen readers and search engines read. */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const auth = await requireAdmin();
   if (!auth) return NextResponse.json({ error: "Only admins can edit images." }, { status: 403 });

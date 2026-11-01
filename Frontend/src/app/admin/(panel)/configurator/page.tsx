@@ -3,8 +3,6 @@ import { NasConfigurator } from "@/components/infrastructure/nas/NasConfigurator
 import { companyInfo } from "@/lib/company";
 import { getInfrastructureBySlug, getSiteSettings } from "@/lib/content";
 
-// Prices are read per request through a staff-only route, so nothing here is
-// cached where a customer-facing render could pick it up.
 export const dynamic = "force-dynamic";
 
 export default async function AdminConfiguratorPage() {

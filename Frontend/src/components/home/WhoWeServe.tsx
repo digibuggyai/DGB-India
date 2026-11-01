@@ -41,7 +41,6 @@ export async function WhoWeServe() {
                 className="flip-card group block h-[300px] rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[340px] lg:h-[380px]"
               >
                 <div className="flip-card-inner h-full w-full">
-                  {/* Front */}
                   <div className="flip-card-face flip-card-front h-full w-full overflow-hidden rounded-xl border border-border">
                     <div
                       className="relative flex h-full w-full flex-col justify-end bg-cover bg-center bg-ink-800 p-5"
@@ -64,7 +63,6 @@ export async function WhoWeServe() {
                       <div className="relative font-display mt-1 text-[17px] font-semibold text-white">{ind.name}</div>
                     </div>
                   </div>
-                  {/* Back */}
                   <div className="flip-card-face flip-card-back flex h-full w-full flex-col rounded-xl border-t-[3px] border-accent bg-ink-800 px-6 py-7">
                     <span className="text-xs font-semibold tracking-widest text-[#b06f79]">
                       {String(i + 1).padStart(2, "0")}

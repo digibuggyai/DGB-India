@@ -1,11 +1,3 @@
-// Imports the articles in ./posts as DRAFTS, ready for review in the site's
-// admin Blog tab. Nothing is published: an admin reads each one and publishes it.
-//
-// Run only once the deployed backend has the Markdown support in Posts.ts —
-// the import relies on its hook to turn Markdown into the CMS's rich text.
-//
-// Safe to re-run: a post whose slug already exists is left untouched, so edits
-// made after the first import are never overwritten.
 import "../../scripts/load-env.mts";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,7 +12,6 @@ const AUTHOR = { name: "DGB India Team", role: "Infrastructure engineering" };
 
 type Draft = { title: string; slug: string; type: "blog" | "insight"; tags: string[]; excerpt: string; body: string };
 
-/** A small front-matter reader: `key: value` lines between two `---` lines. */
 function parse(file: string): Draft {
   const raw = fs.readFileSync(file, "utf8").replace(/\r\n/g, "\n");
   const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -74,7 +65,7 @@ async function main() {
         bodyMarkdown: draft.body,
         tags: draft.tags.map((tag) => ({ tag })),
         author: author.id,
-        publishedAt: null, // a draft until someone reviews and publishes it
+        publishedAt: null,
       },
     });
     console.log(`  + ${draft.type.padEnd(7)} ${draft.title}  (${post.readingMinutes ?? "?"} min read)`);

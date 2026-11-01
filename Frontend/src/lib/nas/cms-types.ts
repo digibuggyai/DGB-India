@@ -1,8 +1,3 @@
-/* The NAS configurator's price list as stored in the DGB CMS.
- *
- * `minPrice` / `installMin` / `amcMinPercent` are only present when read with
- * an admin session — the CMS withholds them from anonymous requests. */
-
 export const RAID_OPTIONS = ["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"] as const;
 
 export type Kind = "models" | "drives" | "upgrades" | "driveLines";
@@ -44,8 +39,6 @@ export type CmsDrive = {
   active: boolean;
 };
 
-/** A drive family's specifications. Carries no price — `name` ties it to the
- *  priced drives in CmsDrive.line. */
 export type CmsDriveLine = {
   id: number;
   name: string;
@@ -102,6 +95,5 @@ export type Catalogue = {
   driveLines: CmsDriveLine[];
   upgrades: CmsUpgrade[];
   settings: CmsSettings;
-  /** Newest first. Admin reads only — empty for public reads. */
   logs: CmsLog[];
 };

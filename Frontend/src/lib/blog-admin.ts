@@ -3,10 +3,6 @@ import { revalidatePath } from "next/cache";
 import { MAX_FAQS, checkJsonLd } from "./blog-schema";
 import { postPath, type AdminAuthor, type AdminImage, type AdminPost, type PostType } from "./blog-types";
 
-/* Server-side access to posts and their images for the admin Blog tab. Every
- * call carries the signed-in admin's own CMS token, so the CMS enforces who may
- * write, and drafts and scheduled posts come back too. */
-
 const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000").replace(/\/$/, "");
 
 export class BlogError extends Error {
@@ -34,16 +30,10 @@ async function cms<T>(path: string, token: string, init: { method?: string; json
       signal: AbortSignal.timeout(60000),
     });
   } catch (err) {
-    /* The CMS was unreachable — wrong address, asleep, or the upload took longer
-     * than a minute. Saying so beats "something went wrong", which sent us
-     * looking in the wrong place for an hour. */
     const why = err instanceof Error && err.name === "TimeoutError" ? "took too long to answer" : "couldn't be reached";
     throw new BlogError(`The CMS at ${API} ${why}.`, 502);
   }
 
-  /* A platform error — a size limit, a gateway timeout — answers with HTML, not
-   * JSON. Reading that as JSON gives an empty object and a message that says
-   * nothing, so the status and a snippet of the body are kept. */
   const body = await res.text();
   let data: CmsErrors = {};
   try {
@@ -134,7 +124,6 @@ export async function listAuthors(token: string): Promise<AdminAuthor[]> {
   return res.docs.map((a) => ({ id: a.id, name: a.name }));
 }
 
-/** Only the fields the editor manages, each coerced to what the CMS expects. */
 export function sanitizePost(input: unknown): Record<string, unknown> {
   const src = (input && typeof input === "object" ? input : {}) as Record<string, unknown>;
   const out: Record<string, unknown> = {};
@@ -159,11 +148,6 @@ export function sanitizePost(input: unknown): Record<string, unknown> {
     out.publishedAt = d && !Number.isNaN(d.getTime()) ? d.toISOString() : null;
   }
 
-  /* Only the three keys this editor owns. Payload merges a group rather than
-   * replacing it — checked against the CMS, not assumed — so `image` and
-   * `noIndex`, which are set in the CMS and have no field here, survive a save
-   * made from the site. All three are sent together so that clearing one is
-   * distinguishable from not editing it. */
   if ("metaTitle" in src || "metaDescription" in src || "metaKeywords" in src) {
     out.seo = {
       title: text(src.metaTitle) || null,
@@ -172,8 +156,6 @@ export function sanitizePost(input: unknown): Record<string, unknown> {
     };
   }
 
-  /* A question with no answer, or the reverse, is markup Google rejects and a
-   * half-written block on the page — so a pair has to be complete to count. */
   if ("faqs" in src && Array.isArray(src.faqs)) {
     out.faqs = src.faqs
       .map((f) => {
@@ -187,7 +169,6 @@ export function sanitizePost(input: unknown): Record<string, unknown> {
   if ("schemaJson" in src) {
     const raw = String(src.schemaJson ?? "").trim();
     const check = checkJsonLd(raw);
-    // The CMS refuses bad schema too; failing here gives the author the better message.
     if (!check.ok) throw new BlogError(`Custom schema: ${check.error}`, 400);
     out.schemaJson = raw || null;
   }
@@ -209,10 +190,6 @@ export async function deletePost(token: string, id: number): Promise<void> {
   await cms(`/posts/${id}`, token, { method: "DELETE" });
 }
 
-/* ---------------- images ---------------- */
-
-/** Stores an image in the CMS's media library. The CMS makes the preview,
- *  card and banner sizes itself. */
 export async function uploadImage(token: string, file: File, alt: string): Promise<AdminImage> {
   const form = new FormData();
   form.append("file", file, file.name);
@@ -236,8 +213,6 @@ export async function updateImageAlt(token: string, id: number, alt: string): Pr
   return image;
 }
 
-/** The listings, the resources hub, the sitemap and the post itself show a
- *  change straight away rather than after the page cache runs out. */
 export function revalidateBlog(post?: { type: PostType; slug: string }) {
   for (const path of ["/resources", "/resources/blog", "/resources/insights", "/sitemap.xml"]) revalidatePath(path);
   if (post?.slug) revalidatePath(postPath(post));

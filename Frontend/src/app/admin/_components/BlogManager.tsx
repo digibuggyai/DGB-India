@@ -20,10 +20,6 @@ import {
   type PostType,
 } from "@/lib/blog-types";
 
-/* The admin Blog tab: every post, draft and scheduled post, and an editor that
- * writes in Markdown. The CMS converts it to its own rich text on save, so a
- * post written here can still be edited in the CMS, and the other way round. */
-
 const STATUS_STYLE: Record<PostStatus, { label: string; className: string }> = {
   published: { label: "Published", className: "border-[#cbe7d3] bg-[#e6f4ea] text-[#1e4d2b]" },
   scheduled: { label: "Scheduled", className: "border-[#f2e0bd] bg-[#fdf3e3] text-[#6b4a10]" },
@@ -73,12 +69,6 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
     setNotice({ kind: "success", message: "Post deleted." });
   }
 
-  /* Deleting from the list, without opening the post first.
-   *
-   * The confirmation is part of the page rather than a window.confirm: a
-   * browser that has been told to block this page's dialogs returns false from
-   * confirm() without showing anything, so the button would appear to do
-   * nothing at all. */
   async function removeFromList(post: AdminPost) {
     setConfirmingId(null);
     setDeletingId(post.id);
@@ -239,11 +229,8 @@ export function BlogManager({ initialPosts, authors }: { initialPosts: AdminPost
   );
 }
 
-/* ---------------- editor ---------------- */
-
 type Publish = "draft" | "now" | "schedule" | "keep";
 
-/** A date the datetime-local input understands, in the viewer's own time. */
 function toLocalInput(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -285,13 +272,11 @@ function PostEditor({
   const [metaKeywords, setMetaKeywords] = useState(post?.metaKeywords ?? "");
   const [faqs, setFaqs] = useState<Faq[]>(post?.faqs ?? []);
   const [schemaJson, setSchemaJson] = useState(post?.schemaJson ?? "");
-  // Images written into the article, by id, and any alt text edited here.
   const [images, setImages] = useState<Record<number, AdminImage>>({});
   const [altEdits, setAltEdits] = useState<Record<number, string>>({});
 
   const inlineIds = useMemo(() => imageIdsIn(body), [body]);
 
-  // Thumbnails for images already in the article when it's opened.
   useEffect(() => {
     const missing = imageIdsIn(post?.bodyMarkdown ?? "");
     if (!missing.length) return;
@@ -315,7 +300,6 @@ function PostEditor({
     form.append("alt", alt);
     const res = await fetch("/api/admin/blog/media", { method: "POST", body: form });
     const data = (await res.json().catch(() => ({}))) as { image?: AdminImage; error?: string };
-    // The status matters when the body isn't ours: 413 is a size limit, 504 a timeout.
     if (!res.ok || !data.image) throw new Error(data.error || `Couldn't upload the image — the server answered ${res.status}.`);
     return data.image;
   }
@@ -344,7 +328,6 @@ function PostEditor({
     try {
       const image = await upload(file, "");
       setImages((prev) => ({ ...prev, [image.id]: image }));
-      // The editor shows the picture itself; the post still stores the token.
       setBody((current) => `${current.replace(/\s*$/, "")}${current.trim() ? "\n\n" : ""}${imageToken(image.id)}\n`);
     } catch (err) {
       onError(err instanceof Error ? err.message : "Couldn't upload the image.");
@@ -353,7 +336,6 @@ function PostEditor({
     }
   }
 
-  /** Saves any image descriptions changed since they were uploaded. */
   async function saveAltText() {
     const edits: [number, string][] = Object.entries(altEdits)
       .map(([id, alt]) => [Number(id), alt.trim()] as [number, string])
@@ -388,8 +370,6 @@ function PostEditor({
     e.preventDefault();
     if (!title.trim()) return onError("Give the post a title.");
     if (publish === "schedule" && !scheduleAt) return onError("Pick the date and time to publish it.");
-    /* Broken schema would be refused by the CMS anyway; catching it here keeps
-     * the authors unsaved work in the form rather than losing the round trip. */
     const schemaCheck = checkJsonLd(schemaJson);
     if (!schemaCheck.ok) return onError(`Custom schema: ${schemaCheck.error}`);
 
@@ -472,7 +452,6 @@ function PostEditor({
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
-        {/* writing */}
         <div className="space-y-4">
           <label className="block">
             <span className="sr-only">Title</span>
@@ -508,8 +487,6 @@ function PostEditor({
               value={body}
               onChange={setBody}
               imageUrl={(id) => images[id]?.url}
-              // A pasted screenshot or a dropped file is uploaded and stored
-              // with the post, the same as one added with the Image button.
               onUploadImage={async (file) => {
                 const image = await upload(file, "");
                 setImages((prev) => ({ ...prev, [image.id]: image }));
@@ -594,7 +571,6 @@ function PostEditor({
           />
         </div>
 
-        {/* settings */}
         <aside className="space-y-5 rounded-lg border border-border bg-background p-5 lg:self-start">
           <div>
             <span className={labelClass}>Banner image</span>

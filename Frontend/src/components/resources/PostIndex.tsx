@@ -3,8 +3,6 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getPosts } from "@/lib/content";
 import { PostList } from "./PostList";
 
-/* The Blog and Insights listing pages: one layout, two sections. */
-
 const SECTIONS = {
   blog: {
     title: "Blog",
@@ -22,7 +20,6 @@ const SECTIONS = {
 
 export async function PostIndex({ type }: { type: keyof typeof SECTIONS }) {
   const section = SECTIONS[type];
-  // A CMS hiccup shows the empty state rather than an error page.
   const posts = await getPosts(type, 50).catch(() => []);
 
   return (

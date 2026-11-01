@@ -1,19 +1,6 @@
-/* Structured data for posts: the schema the site generates, and the schema an
- * author writes by hand.
- *
- * This runs in the browser (the editor checks as you type) and on the server
- * (the post page renders the markup), so it must not import anything
- * server-only.
- *
- * The validation here is deliberately a twin of Backend/src/lib/jsonLd.ts
- * rather than a shared import: the two are separate packages with no common
- * workspace. Keep the rules in step — the CMS is the one that actually refuses
- * bad data, and this copy exists so the author finds out before they save. */
-
 export const SCHEMA_MAX_CHARS = 20000;
 export const MAX_FAQS = 30;
 
-/** Aim, not a limit. Past these, Google truncates with an ellipsis. */
 export const META_TITLE_IDEAL = 60;
 export const META_DESCRIPTION_IDEAL = 160;
 
@@ -21,7 +8,6 @@ export type Faq = { question: string; answer: string };
 
 export type SchemaCheck = { ok: true; value: unknown } | { ok: false; error: string };
 
-/** `</script` in any casing ends the script element early. */
 const CLOSING_TAG = /<\/script/i;
 
 function checkEntry(entry: unknown, where: string): string | null {
@@ -35,7 +21,6 @@ function checkEntry(entry: unknown, where: string): string | null {
   return null;
 }
 
-/** Parses and sanity-checks hand-written JSON-LD. One object, or a list. */
 export function checkJsonLd(raw: string): SchemaCheck {
   const text = raw.trim();
   if (!text) return { ok: true, value: null };
@@ -70,8 +55,6 @@ export function checkJsonLd(raw: string): SchemaCheck {
   return problem ? { ok: false, error: problem } : { ok: true, value: parsed };
 }
 
-/** Adds "@context" where the author left it out — the commonest omission, and
- *  one that makes search engines ignore the block entirely. */
 export function withContext(value: unknown): unknown {
   const add = (entry: unknown) =>
     entry && typeof entry === "object" && !Array.isArray(entry) && !("@context" in entry)
@@ -80,8 +63,6 @@ export function withContext(value: unknown): unknown {
   return Array.isArray(value) ? value.map(add) : add(value);
 }
 
-/** FAQs as FAQPage markup. Google only honours this when the same questions
- *  are visible on the page, which is why the post renders them too. */
 export function faqSchema(faqs: Faq[]): object | null {
   const usable = faqs.filter((f) => f.question.trim() && f.answer.trim());
   if (!usable.length) return null;
@@ -96,8 +77,6 @@ export function faqSchema(faqs: Faq[]): object | null {
   };
 }
 
-/** The trail shown above the title, as markup — so the result in Google reads
- *  "Resources › Blog › …" instead of a bare URL. */
 export function breadcrumbSchema(items: { name: string; url: string }[]): object {
   return {
     "@context": "https://schema.org",
@@ -111,8 +90,6 @@ export function breadcrumbSchema(items: { name: string; url: string }[]): object
   };
 }
 
-/* Starting points for the Custom schema box. Each is valid as it stands, so an
- * author can insert one and edit the values rather than learning the shape. */
 export const SCHEMA_TEMPLATES: { label: string; hint: string; json: string }[] = [
   {
     label: "HowTo",

@@ -115,8 +115,6 @@ export const getTestimonials = cache(async (limit = 10) => {
 });
 
 export const getPartners = cache(async () => {
-  // depth 1 so the `logo` upload comes back populated (with its url) rather
-  // than as a bare media ID — the homepage Partners strip renders the logo.
   const res = await payloadFind<Partner>("partners", { limit: 50, depth: 1 });
   return res.docs;
 });

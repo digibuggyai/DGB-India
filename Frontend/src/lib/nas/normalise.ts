@@ -1,17 +1,6 @@
 import "server-only";
 import type { DriveLine, HddPricing, NasModel, NasPricing, RaidLevel, Upgrade } from "./types";
 
-/* Turns the price list read from the CMS into the shape the configurator reads.
- *
- * Every object is rebuilt field by field, never spread from the input. That is
- * the point of this file. The CMS already withholds minimum prices from public
- * reads, but if an admin read were ever passed in by mistake, a `min` or
- * `minPrice` would still not be copied across — there is no line here that
- * reads one.
- *
- * There is no built-in fallback price list: a public page shouldn't quote stale
- * figures. Unusable data is reported as a failure instead. */
-
 const RAID_LEVELS = new Set<string>(["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"]);
 
 type Obj = Record<string, unknown>;
@@ -19,15 +8,12 @@ type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === "object" && v !== null && !Array.isArray(v);
 const toStr = (v: unknown): string => String(v ?? "").trim();
 
-/** An optional figure: absent, blank or nonsensical all become null. */
 const toNum = (v: unknown): number | null => {
   if (v == null || v === "") return null;
   const n = Number(v);
   return Number.isFinite(n) && n >= 0 ? n : null;
 };
 
-/** Only an https link is passed on — a spec URL is rendered as a link, and
- *  javascript: or data: has no business reaching an anchor. */
 const toUrl = (v: unknown): string => (/^https:\/\/\S+$/i.test(toStr(v)) ? toStr(v) : "");
 
 export type NormaliseResult = { ok: true; pricing: NasPricing } | { ok: false; reason: string };
@@ -83,8 +69,6 @@ export function normalisePricing(raw: unknown): NormaliseResult {
     .filter((c) => Number.isFinite(c) && hddPricing[c])
     .sort((a, b) => a - b);
 
-  // Drive specifications. No price is carried here, so nothing to strip — but
-  // they're rebuilt field by field like everything else in this file.
   const driveLines: DriveLine[] = (Array.isArray(d.driveLines) ? d.driveLines : [])
     .filter(isObj)
     .map((l) => ({
@@ -108,7 +92,6 @@ export function normalisePricing(raw: unknown): NormaliseResult {
 
   const install = { quote: Number(isObj(d.install) ? d.install.quote : NaN) };
 
-  // `rmaRate` is what the field was called before it was renamed to AMC.
   const amcRaw: Obj = isObj(d.amcRate) ? d.amcRate : isObj(d.rmaRate) ? d.rmaRate : {};
   const amcRate = { quote: Number(amcRaw.quote) };
 

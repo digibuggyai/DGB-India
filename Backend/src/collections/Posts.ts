@@ -11,40 +11,18 @@ import { logChanges } from "@/hooks/nasPriceLog";
 import { slugField } from "@/fields/slug";
 import { seoField } from "@/fields/seo";
 
-/* Enough for a thorough post; past this it is a sign something has gone wrong,
- * and Google stops reading them anyway. */
 const MAX_FAQS = 30;
 
-/* The last line of defence for hand-written schema. The admin panel checks the
- * same thing as you type, but the CMS has its own API and its own editor, so
- * nothing invalid gets stored whichever door it came through. */
 const validateSchemaJson = (value: string | null | undefined) => {
   const result = checkJsonLd(String(value ?? ""));
   return result.ok ? true : result.error;
 };
 
-/* Blog and insight posts.
- *
- * A post can be written two ways: in the CMS's rich-text editor (`body`), or as
- * Markdown from the site's own admin panel (`bodyMarkdown`). The hooks below
- * keep the two in step, so whichever was edited last is the one both show —
- * nobody has to know which tool the other person used. */
-
-// Published means "the publish date has arrived". Signed-in staff also see
-// drafts (no date) and scheduled posts (a date still to come).
 const readPublished: Access = ({ req }) =>
   req.user ? true : { publishedAt: { less_than_equal: new Date().toISOString() } };
 
-// Writing is for admins and editors — not sales or the site's service account.
 const canWrite: Access = ({ req }) => req.user?.role === "admin" || req.user?.role === "editor";
 
-/* The converter needs the editor's configuration; building it once per process
- * is plenty, since it only depends on the Payload config.
- *
- * Built from our own feature list rather than `editorConfigFactory.default`,
- * which returns Lexical's stock set. A converter that doesn't know about a
- * feature drops it without a word: with the default config, a Markdown table
- * came back as a paragraph full of pipe characters. */
 let editorConfigPromise: ReturnType<typeof editorConfigFactory.fromFeatures> | null = null;
 const editorConfigFor = (config: Parameters<typeof editorConfigFactory.default>[0]["config"]) =>
   (editorConfigPromise ??= editorConfigFactory.fromFeatures({ config, features: editorFeatures }));
@@ -66,13 +44,10 @@ const syncBody: CollectionBeforeChangeHook = async ({ data, originalDoc, req }) 
 
   const markdown: string = data.bodyMarkdown ?? originalDoc?.bodyMarkdown ?? "";
   const words = wordCount(markdown);
-  // About 200 words a minute for technical reading.
   data.readingMinutes = words ? Math.max(1, Math.round(words / 200)) : null;
   return data;
 };
 
-// Posts written before Markdown support have a body but no Markdown. Fill it in
-// on read, so the site's editor never opens one of them blank and wipes it.
 const markdownFromBody: FieldHook = async ({ value, siblingData, req }) => {
   if (value || !siblingData?.body) return value;
   try {
@@ -96,7 +71,6 @@ export const Posts: CollectionConfig = {
     update: canWrite,
     delete: canWrite,
   },
-  // Every change recorded in the activity log, deletions included.
   hooks: {
     beforeChange: [syncBody],
     ...logChanges("post", (doc) => String(doc.title)),
@@ -121,7 +95,6 @@ export const Posts: CollectionConfig = {
     {
       name: "bodyMarkdown",
       type: "textarea",
-      // The CMS uses the rich editor above; this is the site admin's copy.
       admin: { hidden: true },
       hooks: { afterRead: [markdownFromBody] },
     },

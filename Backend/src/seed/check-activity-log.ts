@@ -1,11 +1,3 @@
-/* Does every change get recorded — and are secrets kept out of the record?
- *
- * Creates, edits and deletes one throwaway enquiry and one account, then reads
- * the log back. Deletion is the case that matters: it's the only action that
- * leaves nothing else behind to inspect.
- *
- *   npx tsx src/seed/check-activity-log.ts
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -35,7 +27,6 @@ async function main() {
     return r.docs;
   };
 
-  /* ---- an enquiry, through its whole life ---- */
   const lead = await payload.create({
     collection: "leads",
     data: { name: "Log Check", company: "Check Co", email: `${TAG}@example.com`, phone: "9000000002" },
@@ -54,7 +45,6 @@ async function main() {
   check("the deletion keeps what was lost", leadLog[2]?.changes?.some((c: any) => c.field === "email" && String(c.from).includes(TAG)));
   check("the collection is recorded", leadLog[2]?.collection === "leads", leadLog[2]?.collection ?? "none");
 
-  /* ---- an account: the same, but nothing secret may be written ---- */
   const user = await payload.create({
     collection: "users",
     data: { name: "Log Check", email: `${TAG}@dgbindia.local`, password: "a-very-long-test-password", role: "editor" },
@@ -71,7 +61,6 @@ async function main() {
   const secretFields = userLog.flatMap((e: any) => (e.changes ?? []).filter((c: any) => ["password", "hash", "salt", "apiKey"].includes(c.field)));
   check("secret fields are listed but their values hidden", secretFields.every((c: any) => c.from === "(hidden)" && c.to === "(hidden)"), `${secretFields.length} secret fields seen`);
 
-  /* ---- clean the log of this test ---- */
   const mine = await payload.find({
     collection: "nas-price-logs",
     where: { createdAt: { greater_than: since } },

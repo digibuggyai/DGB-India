@@ -1,6 +1,3 @@
-// Generated line-icon art for the "How We Work" step cards, matching the
-// site's existing outline-icon style (see InfraIcon.tsx / IndustryArt.tsx).
-
 const stroke = "#a9b0b6";
 const accent = "#80202c";
 
@@ -12,7 +9,6 @@ function Icon({ children, size = 40 }: { children: React.ReactNode; size?: numbe
   );
 }
 
-/** Understand — a magnifier over a document, reading requirements. */
 function UnderstandIcon() {
   return (
     <Icon>
@@ -26,7 +22,6 @@ function UnderstandIcon() {
   );
 }
 
-/** Design — a pencil drafting a blueprint grid. */
 function DesignIcon() {
   return (
     <Icon>
@@ -44,7 +39,6 @@ function DesignIcon() {
   );
 }
 
-/** Deploy — a rocket/upward arrow launching from a rack base. */
 function DeployIcon() {
   return (
     <Icon>
@@ -58,7 +52,6 @@ function DeployIcon() {
   );
 }
 
-/** Support — a shield with a wrench, ongoing protection & maintenance. */
 function SupportIcon() {
   return (
     <Icon>
@@ -83,7 +76,6 @@ const ICON: Record<string, () => React.ReactNode> = {
   Support: SupportIcon,
 };
 
-/** Renders the matching outline icon for a "How We Work" step title. */
 export function ProcessIcon({ title }: { title: string }) {
   const IconCmp = ICON[title];
   if (!IconCmp) return null;

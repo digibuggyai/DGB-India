@@ -34,7 +34,6 @@ export function ServersPage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero — centered */}
       <section
         className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-32"
         style={
@@ -57,7 +56,6 @@ export function ServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Built for Your Environment */}
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
@@ -74,7 +72,6 @@ export function ServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Where Servers Fit */}
       <section className="border-b border-[#e5e8ea] bg-[#f4f5f6] py-12 sm:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold sm:text-[28px]">Where Servers Fit</h2>
@@ -93,7 +90,6 @@ export function ServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Built to Keep Business Moving */}
       <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>

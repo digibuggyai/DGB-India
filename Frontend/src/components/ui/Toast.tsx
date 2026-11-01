@@ -2,10 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-/* A brief message in the corner of the screen reporting the outcome of
- * something the person just did. Errors are announced to screen readers and
- * stay long enough to read; successes are short, since the page moves on. */
-
 export type ToastKind = "success" | "error";
 
 const STYLES: Record<ToastKind, { border: string; badge: string }> = {
@@ -22,13 +18,11 @@ export function Toast({
   kind: ToastKind;
   message: string;
   onClose: () => void;
-  /** Milliseconds before it closes itself. Omit to leave it until dismissed. */
   duration?: number;
 }) {
   const [shown, setShown] = useState(false);
   const style = STYLES[kind];
 
-  // Paint once off-screen, then transition in, so the slide is actually seen.
   useEffect(() => {
     const frame = requestAnimationFrame(() => setShown(true));
     return () => cancelAnimationFrame(frame);

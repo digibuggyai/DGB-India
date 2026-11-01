@@ -3,8 +3,6 @@ import { getAdminToken } from "@/lib/admin-auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-// Relationship fields come back populated (depth=1) as objects, or as a bare
-// id if the related doc was removed.
 export type Rel = { id: number | string; name?: string | null } | number | string | null;
 
 export type Query = {
@@ -35,8 +33,6 @@ export async function getQueries(limit = 200): Promise<Query[]> {
   const token = await getAdminToken();
   if (!token) return [];
 
-  // depth=1 so `industry` / `interestedInfrastructure` come back with names
-  // rather than bare relationship ids.
   const res = await fetch(`${API_URL}/api/leads?limit=${limit}&depth=1&sort=-createdAt`, {
     headers: { Authorization: `JWT ${token}` },
     cache: "no-store",
@@ -52,7 +48,6 @@ export function relName(rel: Rel): string | null {
   return null;
 }
 
-// Explicit locale so the server-rendered string is deterministic.
 export function formatDate(iso: string): string {
   const d = new Date(iso);
   const date = d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });

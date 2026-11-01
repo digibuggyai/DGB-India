@@ -38,7 +38,6 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
 
   return (
     <>
-      {/* Hero */}
       <section
         className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-28"
         style={
@@ -64,7 +63,6 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Built for Heavy Workloads */}
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page">
           <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
@@ -86,7 +84,6 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* Where GPU Servers Make a Difference */}
       <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold text-[#2e3236] sm:text-[28px]">
@@ -110,7 +107,6 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
         </div>
       </section>
 
-      {/* The Right GPU for the Right Work */}
       <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>

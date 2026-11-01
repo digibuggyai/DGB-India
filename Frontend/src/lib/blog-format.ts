@@ -1,42 +1,19 @@
-/* Turning pasted content into Markdown.
- *
- * Someone writing a post drafts it in Word, Google Docs, Notion or another
- * site, then pastes it in. The clipboard carries that text twice: once as HTML,
- * with its headings, bullets, bold and links intact, and once as plain text,
- * which is a flat wall of lines. A textarea takes the plain flavour, so all the
- * structure is thrown away before the author ever sees it — and they end up
- * marking up every heading and bullet again by hand.
- *
- * So: read the HTML when it's there, and fall back to reading the shape of the
- * plain text when it isn't. Neither is ever a perfect guess, which is why every
- * caller of this file offers an undo.
- */
-
 export type FormatResult = {
   markdown: string;
-  /** What changed, in the words the notice shows the author. */
   changes: string[];
-  /** Things the author has to deal with themselves. */
   warnings: string[];
 };
-
-/* ---------------- shared tidying ---------------- */
 
 const clean = (s: string) =>
   s
     .replace(/\r\n?/g, "\n")
-    // Word and Docs pad with non-breaking and zero-width characters.
     .replace(/ /g, " ")
     .replace(/[​-‍﻿]/g, "")
     .replace(/[ \t]+$/gm, "");
 
-/** Never more than one blank line between blocks, and none at either end. */
 const tidyBlankLines = (s: string) => s.replace(/\n{3,}/g, "\n\n").trim();
 
-/** Markdown's own characters, escaped so pasted prose doesn't turn into markup. */
 const escapeInline = (s: string) => s.replace(/([*_`[\]])/g, "\\$1");
-
-/* ---------------- HTML → Markdown ---------------- */
 
 const BLOCK = new Set([
   "P", "DIV", "H1", "H2", "H3", "H4", "H5", "H6", "UL", "OL", "LI", "BLOCKQUOTE",
@@ -45,18 +22,11 @@ const BLOCK = new Set([
 
 const isBold = (el: Element) => {
   const weight = (el as HTMLElement).style?.fontWeight;
-  // Google Docs wraps a whole copied document in <b style="font-weight:normal">.
-  // Taking that at face value makes the entire article bold — and, worse,
-  // inline, which flattens every heading and list inside it.
   if (weight === "normal" || weight === "400") return false;
   if (/^(B|STRONG)$/.test(el.tagName)) return true;
-  // Docs marks real bold with a weight rather than a <strong>.
   return weight === "bold" || (/^\d+$/.test(weight ?? "") && Number(weight) >= 600);
 };
 
-/** Does this element contain block-level content? An inline tag that wraps
- *  blocks — Docs' <b> wrapper, a <span> around paragraphs — has to be walked
- *  as a container, or everything inside it collapses onto one line. */
 const wrapsBlocks = (el: Element): boolean =>
   [...el.children].some((c) => BLOCK.has(c.tagName) || wrapsBlocks(c));
 
@@ -64,7 +34,6 @@ const isItalic = (el: Element) => /^(I|EM)$/.test(el.tagName) || (el as HTMLElem
 
 type Ctx = { images: number; tables: number };
 
-/** Inline content: bold, italic, code, links. Block children are handled above. */
 function inline(node: Node, ctx: Ctx): string {
   if (node.nodeType === Node.TEXT_NODE) return escapeInline((node.textContent ?? "").replace(/\s+/g, " "));
   if (node.nodeType !== Node.ELEMENT_NODE) return "";
@@ -74,9 +43,6 @@ function inline(node: Node, ctx: Ctx): string {
   if (el.tagName === "BR") return "\n";
 
   if (el.tagName === "IMG") {
-    /* An image that's already ours — uploaded through the editor and carrying
-     * its media id — is written back as the token the post stores. Any other
-     * <img> points at someone else's server, so it's counted and dropped. */
     const mediaId = el.getAttribute("data-media-id");
     if (mediaId && /^\d+$/.test(mediaId)) return `![media:${mediaId}]()`;
     ctx.images++;
@@ -89,7 +55,6 @@ function inline(node: Node, ctx: Ctx): string {
   if (el.tagName === "CODE" || el.tagName === "TT") return `\`${inner.replace(/\\([*_`[\]])/g, "$1")}\``;
   if (el.tagName === "A") {
     const href = (el as HTMLAnchorElement).getAttribute("href") ?? "";
-    // Only real links survive; Docs wraps everything in anchors to itself.
     if (!/^(https?:|mailto:|\/)/i.test(href)) return inner;
     return `[${inner}](${href})`;
   }
@@ -100,15 +65,12 @@ function inline(node: Node, ctx: Ctx): string {
   return inner;
 }
 
-/** A heading, list, quote or paragraph, as one Markdown block. */
 function block(el: Element, ctx: Ctx, depth = 0): string {
   const tag = el.tagName;
 
   if (/^H[1-6]$/.test(tag)) {
     const text = inline(el, ctx).trim();
     if (!text) return "";
-    // The page already prints the post's Title as its h1, so a pasted h1 is
-    // demoted rather than competing with it.
     const level = Math.max(2, Number(tag[1]));
     return `${"#".repeat(level)} ${text}`;
   }
@@ -166,7 +128,6 @@ function block(el: Element, ctx: Ctx, depth = 0): string {
   return inline(el, ctx).trim();
 }
 
-/** Walks a container, emitting one block per block-level child. */
 function children(el: Element, ctx: Ctx, depth = 0): string {
   const out: string[] = [];
   let run = "";
@@ -194,8 +155,6 @@ function children(el: Element, ctx: Ctx, depth = 0): string {
   return out.join("\n\n");
 }
 
-/** The editor's own HTML, as the Markdown a post is stored as. Block-level
- *  images sit in their own paragraph, which is how the token is written. */
 export function editorHtmlToMarkdown(html: string): string {
   return htmlToMarkdown(html).markdown;
 }
@@ -206,8 +165,6 @@ export function htmlToMarkdown(html: string): FormatResult {
 
   const ctx: Ctx = { images: 0, tables: 0 };
   const markdown = tidyBlankLines(clean(children(doc.body, ctx)))
-    // Word writes its list numbers as text followed by spacing spans, which
-    // leaves "1.One copy" once the spans are stripped.
     .replace(/^(\d{1,2}[.)])(?=\S)/gm, "$1 ");
 
   const changes: string[] = [];
@@ -225,15 +182,10 @@ export function htmlToMarkdown(html: string): FormatResult {
   return { markdown, changes, warnings };
 }
 
-/* ---------------- plain text → Markdown ---------------- */
-
 const BULLET_GLYPH = /^[\s]*[•●▪‣·◦*–—-]\s+/;
 const NUMBERED = /^[\s]*(\d{1,2})[.)]\s+/;
 const ENDS_SENTENCE = /[.!?:;,]$/;
 
-/* A table copied out of Word, Excel, Sheets or a web page arrives in the plain
- * flavour as tab-separated cells, one row per line. Turning that back into a
- * table is the difference between a comparison table and a wall of fragments. */
 const isTabRow = (line: string) => line.includes("\t") && line.split("\t").filter((c) => c.trim()).length >= 2;
 
 function tabbedTable(rows: string[]): string {
@@ -241,12 +193,9 @@ function tabbedTable(rows: string[]): string {
   const width = Math.max(...cells.map((c) => c.length));
   const pad = (c: string[]) => [...c, ...Array(width - c.length).fill("")];
   const line = (c: string[]) => `| ${pad(c).join(" | ")} |`;
-  // The first row is the header — which is what a copied table almost always
-  // leads with, and Markdown requires one either way.
   return [line(cells[0]), `| ${Array(width).fill("---").join(" | ")} |`, ...cells.slice(1).map(line)].join("\n");
 }
 
-/** Text that already carries Markdown is only re-spaced, never restructured. */
 function looksLikeMarkdown(lines: string[]): boolean {
   const meaningful = lines.filter((l) => l.trim());
   if (!meaningful.length) return false;
@@ -254,9 +203,6 @@ function looksLikeMarkdown(lines: string[]): boolean {
   return marked / meaningful.length >= 0.25;
 }
 
-/** Is this line a heading rather than a sentence? Short, self-contained, and
- *  introducing what follows — a question or a bare phrase, never a sentence
- *  with a full stop, and never a run of fragments like "2TB? 4TB? 8TB?". */
 function isHeading(line: string, next: string | undefined): boolean {
   const t = line.trim();
   if (!t || t.length > 70) return false;
@@ -264,16 +210,10 @@ function isHeading(line: string, next: string | undefined): boolean {
   if (words < 2 || words > 12) return false;
   if ((t.match(/[?!.]/g) ?? []).length > 1) return false;
   if (/[.,;:]$/.test(t)) return false;
-  // Something has to follow it, or it's the last line of a paragraph.
   if (!next || !next.trim()) return false;
   return t.endsWith("?") || !ENDS_SENTENCE.test(t);
 }
 
-/**
- * Reads the shape of flat pasted text: runs of short lines become lists,
- * standalone questions become headings, everything else becomes a paragraph of
- * its own so the post isn't one unbroken wall.
- */
 export function tidyPlainText(text: string, title = ""): FormatResult {
   const lines = clean(text).split("\n");
   const changes: string[] = [];
@@ -286,8 +226,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
   const blocks: string[] = [];
   let i = 0;
 
-  // A line the author wrote as a bullet already, or one that reads like a list
-  // item: short, and not a sentence.
   const listish = (l: string) => {
     const t = l.trim();
     return Boolean(t) && !BULLET_GLYPH.test(t) && !NUMBERED.test(t) && t.length <= 60 && !ENDS_SENTENCE.test(t) && !t.endsWith("?");
@@ -302,7 +240,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
       continue;
     }
 
-    // A run of tab-separated lines is a table someone copied.
     if (isTabRow(lines[i])) {
       const rows: string[] = [];
       while (i < lines.length && isTabRow(lines[i])) {
@@ -313,7 +250,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
       continue;
     }
 
-    // Bullets and numbers the author typed themselves.
     if (BULLET_GLYPH.test(t) || NUMBERED.test(t)) {
       const items: string[] = [];
       while (i < lines.length && (BULLET_GLYPH.test(lines[i].trim()) || NUMBERED.test(lines[i].trim()))) {
@@ -326,8 +262,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
       continue;
     }
 
-    // An unmarked list: several short fragments in a row, or a couple of them
-    // straight after a line that ends in a colon.
     const afterColon = blocks.length > 0 && /:$/.test(blocks[blocks.length - 1]);
     let run = 0;
     while (i + run < lines.length && listish(lines[i + run])) run++;
@@ -348,10 +282,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
     i++;
   }
 
-  // The first line is usually the article's own title, which the post already
-  // has in its own field — drop it rather than print it twice. Otherwise it
-  // opens the piece, so it reads as a heading — but only when something
-  // follows it: a one-line paste is a line, not a title.
   if (blocks.length) {
     const first = blocks[0].replace(/^#+\s*/, "").trim().toLowerCase();
     const heading = title.trim().toLowerCase();
@@ -363,8 +293,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
     }
   }
 
-  // Counted from the finished text rather than tallied along the way, so what
-  // the author is told matches what they can see.
   const markdown = tidyBlankLines(blocks.join("\n\n"));
   const count = (re: RegExp) => (markdown.match(re) ?? []).length;
   const headings = count(/^#{2,6} /gm);
@@ -377,14 +305,6 @@ export function tidyPlainText(text: string, title = ""): FormatResult {
   return { markdown, changes, warnings };
 }
 
-/**
- * Puts formatted content into the box at the cursor, and says where the cursor
- * should end up.
- *
- * Blocks need a blank line around them or Markdown runs them together — but a
- * single sentence dropped into the middle of a paragraph is not a block, and
- * splitting the line around it would be wrong.
- */
 export function insertFormatted(body: string, start: number, end: number, markdown: string): { text: string; caret: number } {
   const before = body.slice(0, start);
   const after = body.slice(end);
@@ -394,22 +314,15 @@ export function insertFormatted(body: string, start: number, end: number, markdo
   return { text: before + lead + markdown + tail + after, caret: (before + lead + markdown).length };
 }
 
-/** Whether a paste is worth reformatting at all. A word, a URL or a single
- *  line goes in as the browser would put it — restructuring something dropped
- *  into the middle of a sentence would be obnoxious. */
 export function worthFormatting(html: string, text: string): boolean {
   if (!text.trim() && !html.trim()) return false;
   if (html.trim()) return true;
   return text.trim().split("\n").filter((l) => l.trim()).length >= 3;
 }
 
-/** What the editor calls on paste: HTML when the clipboard has it, the text's
- *  own shape when it doesn't. */
 export function formatPasted({ html, text, title }: { html?: string; text: string; title?: string }): FormatResult {
   if (html && html.trim()) {
     const fromHtml = htmlToMarkdown(html);
-    // A clipboard can carry HTML that holds nothing but a bare line of text —
-    // no better than the plain flavour, so fall through to reading its shape.
     if (fromHtml.markdown.trim() && fromHtml.changes.length) return fromHtml;
     if (fromHtml.markdown.trim()) return tidyPlainText(fromHtml.markdown, title);
   }

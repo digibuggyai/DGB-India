@@ -25,18 +25,10 @@ import { ConsultOffer } from "./ConsultOffer";
 import { CompareDialog, DriveInfoButton, DriveNotes, DriveSpecsDialog, InfoButton, SpecsDialog } from "./specs";
 
 import { HumanCheck, useHumanFields } from "@/components/forms/HumanCheck";
-/* The NAS configurator on the NAS infrastructure page.
- *
- * Built from DigiBuggy's internal sales configurator, adapted for visitors:
- * quote prices only (no minimum reaches the browser — see /api/nas-pricing), no
- * sales-rep fields, and the quotation step files a lead in the CMS instead of
- * printing a rep's name. */
 
 type Props = {
   company: CompanyInfo;
   infrastructureId: number | string | null;
-  /** "sales" reads the staff price list and shows the internal floor beside
-   *  every quote. The public page never passes it. */
   source?: "public" | "sales";
 };
 
@@ -70,11 +62,9 @@ type Details = { name: string; company: string; email: string; phone: string; lo
 
 const EMPTY_DETAILS: Details = { name: "", company: "", email: "", phone: "", location: "" };
 const MODELS_SHOWN = 5;
-/** Columns the comparison table can hold before it stops being readable. */
 const MODELS_COMPARED = 5;
 
 function Configurator({ pricing: P, company, infrastructureId, source = "public" }: Props & { pricing: NasPricing }) {
-  // Honeypot, timing and Turnstile — invisible to a real visitor.
   const human = useHumanFields();
   const sales = source === "sales";
   const [a, setA] = useState<Answers>(INITIAL_ANSWERS);
@@ -85,8 +75,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
   const [downloadError, setDownloadError] = useState<string | null>(null);
   const [showAllModels, setShowAllModels] = useState(false);
   const [specsFor, setSpecsFor] = useState<Build | null>(null);
-  // Drive line whose specifications are open, by name — the line list is
-  // rebuilt whenever the drive size changes, so holding the object would go stale.
   const [driveSpecsFor, setDriveSpecsFor] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
 
@@ -108,11 +96,8 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
   const nicOptions = P.upgrades.filter((u) => u.category === "NIC");
   const hasUpgrades = ramOptions.length + nicOptions.length > 0;
 
-  // Which bay sizes, drive sizes and drive lines can actually be built. Options
-  // that can't are greyed out rather than accepted and then refused.
   const can = useMemo(() => feasibleOptions(a, P, d), [a, P, d]);
   const cantLabel = d.mode === "budget" ? "Doesn't fit your budget" : "Can't reach this target";
-  // The tightest fit at that size — the same build the size is offered for.
   const reach = (tier: number) => {
     const fits = can.bayPool.filter((b) => b.model.bays === tier);
     if (!fits.length) return cantLabel;
@@ -120,7 +105,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
     const spare = best.model.bays - best.drivesPerUnit;
     return `${best.drivesPerUnit}× ${best.driveCap} TB${best.units > 1 ? ` · ${best.units} units` : ""}${spare > 0 ? ` · ${spare} spare` : ""}`;
   };
-  // A pinned choice stays clickable even when it stops working, so there's always a way back.
   const blocked = (ok: boolean, isChecked: boolean) => !ok && !isChecked && !d.error;
 
   const capacityPresets = useMemo(
@@ -141,8 +125,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
 
   const step = { upgrades: 9, addons: hasUpgrades ? 10 : 9, details: hasUpgrades ? 11 : 10 };
 
-  // Phone/tablet: a running total pinned to the bottom while the steps are on
-  // screen, gone again once the full estimate is in view.
   const stepsRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLElement>(null);
   const [stepsInView, setStepsInView] = useState(false);
@@ -164,7 +146,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
     if (mode === "budget") {
       update({ storageMode: "budget", raidAuto: true, budget: a.budget && a.budget > 0 ? a.budget : 200000 });
     } else {
-      // Carry the budget build across, so capacity mode starts from what was on screen.
       update({ storageMode: "capacity", raid: d.raid, targetTB: build ? build.totalUsable : a.targetTB });
     }
   }
@@ -199,7 +180,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
         total: price.total,
         customer: { name: details.name.trim(), company: details.company.trim(), location: details.location.trim() },
       };
-      // Loaded on demand: jsPDF is ~400 KB and most visitors never download.
       const { downloadEstimatePdf } = await import("@/lib/nas/pdf");
       await downloadEstimatePdf(estimate, company);
     } catch (err) {
@@ -268,7 +248,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
     <>
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px] lg:items-start xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-8">
         <div ref={stepsRef} className="grid gap-4 xl:grid-cols-2">
-          {/* 1 · storage */}
           <Step
             n={1}
             title="How much storage do you need?"
@@ -372,7 +351,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             )}
           </Step>
 
-          {/* 2 · RAID */}
           <Step n={2} title="RAID level" desc="How drives are arranged: how much raw capacity is usable, and how many drive failures the array survives.">
             {a.storageMode === "budget" ? (
               a.raidAuto ? (
@@ -401,7 +379,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             </div>
           </Step>
 
-          {/* 3 · bays */}
           <Step n={3} title="Drive bays" desc="How many drives the unit holds. Auto picks the size that fits best.">
             <div className="grid grid-cols-3 gap-2">
               <Tile compact name="bays" checked={a.bays == null} onSelect={() => update({ bays: null })} title="Auto" sub="Best fit" />
@@ -423,7 +400,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             ) : null}
           </Step>
 
-          {/* 4 · brand */}
           <Step n={4} title="Brand" desc="Leave it open unless you have a preference — it widens what we can recommend.">
             <div className="grid grid-cols-3 gap-2">
               <Tile name="brand" checked={a.brand === "any"} onSelect={() => update({ brand: "any" })} title="Any" sub="Recommend from all" />
@@ -440,7 +416,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             </div>
           </Step>
 
-          {/* 5 · expansion */}
           <Step n={5} title="Room to expand" desc="Optional. Some units take an expansion enclosure for more drives later.">
             <CheckTile
               checked={a.expandable}
@@ -455,7 +430,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             </Note>
           </Step>
 
-          {/* 6 · recommended unit */}
           <Step n={6} title="Recommended NAS" desc="Worked out from your choices — unit, drives and drive count together, best value first." className="xl:col-span-2">
             {d.error ? (
               <Alert tone="error">Nothing to recommend until the storage above can be built.</Alert>
@@ -508,7 +482,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             )}
           </Step>
 
-          {/* 7 · network */}
           <Step n={7} title="Network speed" desc="What the recommended unit connects at out of the box." className="xl:col-span-2">
             {!build ? (
               <Note>Choose a unit above to see its network ports.</Note>
@@ -551,7 +524,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             ) : null}
           </Step>
 
-          {/* 8 · drives */}
           <Step n={8} title="Drives" desc="We pick these for you. Choose a size or drive line and the recommendation updates." className="xl:col-span-2">
             {build ? (
               <Note>
@@ -599,8 +571,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                       disabled={off}
                       onSelect={() => update({ driveLine: l })}
                       title={
-                        // The ⓘ sits inside the tile's label, so it stops the
-                        // click from selecting the line underneath itself.
                         <span className="flex items-center gap-1.5">
                           {l}
                           {spec ? <DriveInfoButton line={spec} onOpen={() => setDriveSpecsFor(l)} /> : null}
@@ -613,13 +583,11 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
               </div>
             </div>
             {a.driveCap == null && a.driveLine ? <Note>Priced at whichever size the recommendation picks.</Note> : null}
-            {/* How the drives in the current recommendation suit the unit it runs in. */}
             {build && findLine(P.driveLines, build.driveLine) ? (
               <DriveNotes model={build.model} line={findLine(P.driveLines, build.driveLine)!} drivesPerUnit={build.drivesPerUnit} />
             ) : null}
           </Step>
 
-          {/* 9 · upgrades — only when something is priced */}
           {hasUpgrades ? (
             <Step n={step.upgrades} title="RAM & network upgrades" desc="Optional, one per unit. Our team confirms compatibility before you order." className="xl:col-span-2">
               {ramOptions.length ? (
@@ -657,7 +625,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             </Step>
           ) : null}
 
-          {/* add-ons */}
           <Step n={step.addons} title="Installation & support" desc="Both optional." className="xl:col-span-2">
             <CheckTile
               checked={a.includeInstall}
@@ -675,7 +642,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
             />
           </Step>
 
-          {/* details → lead */}
           <Step
             id="nas-details"
             n={step.details}
@@ -763,7 +729,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
 
         </div>
 
-        {/* live estimate */}
         <aside
           ref={panelRef}
           id="nas-estimate"
@@ -894,8 +859,6 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
         />
       ) : null}
 
-      {/* Offered only on the public page, and only to someone who hasn't
-          already asked us for a quotation. */}
       {source === "public" ? (
         <ConsultOffer
           enabled={lead.status === "idle"}
@@ -968,8 +931,6 @@ function ModelCard({
           {recommended ? <Badge tone="accent">Recommended</Badge> : null}
           {b.model.expandable ? (
             <Badge tone="tint">
-              {/* A bay total reads as "to 9 bays"; a method reads as "via a
-                  USB enclosure" — never a number we haven't verified. */}
               {expansionIsMeasured(b.model)
                 ? `Expandable to ${expansionLabel(b.model)!.replace(" · up to", " ·")}`
                 : expansionLabel(b.model)

@@ -1,19 +1,3 @@
-/* The QNAP specifications that were missing or imprecise, from QNAP's own
- * hardware spec sheets (October 2026).
- *
- * Every figure already on record was checked against those sheets and matched;
- * what follows fills the blanks — USB ports and warranty were never recorded
- * for any QNAP unit — and tightens two entries:
- *
- *   TS-462-4G  the N4505 is 2 cores and 2 threads, not just "2 cores"
- *   TS-464-8G  QNAP ships this model with either an N5105 or an N5095, and
- *              lists both; naming one was a coin toss
- *
- * Synology's seven units were verified the same day against synology.com and
- * needed no change, which is why none appear here.
- *
- *   npx tsx src/seed/seed-qnap-specs.ts
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";

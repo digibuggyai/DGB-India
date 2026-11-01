@@ -8,35 +8,11 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { editorHtmlToMarkdown } from "@/lib/blog-format";
 import { markdownToEditorHtml, markdownToHtml, looksLikeMarkdown } from "@/lib/blog-markdown";
 
-/* The article editor.
- *
- * What the writer sees is what the post will look like: headings are headings,
- * bold is bold, a list is a list. Underneath, a post is still stored as
- * Markdown — the same Markdown the CMS and the site already agree on — so this
- * is a change of surface, not of storage. Nothing needs migrating and the CMS's
- * own editor still opens every post.
- *
- * Paste is the reason it exists. Word, Google Docs and web pages put HTML on
- * the clipboard, which arrives here with its structure intact; ChatGPT's copy
- * button puts Markdown on it as plain text, which is converted before it lands;
- * a screenshot arrives as a file and is uploaded.
- *
- * Underline, highlight, subscript, superscript and heading anchors are all
- * deliberately absent: Markdown cannot write any of them, so they would vanish
- * the moment a post was saved. A button that silently does nothing is worse
- * than no button. */
-
 type Props = {
-  /** The post, as Markdown. */
   value: string;
   onChange: (markdown: string) => void;
-  /** Resolves an uploaded image's id to a URL it can be shown at. */
   imageUrl: (id: number) => string | undefined;
-  /** Rendered into the toolbar — the Image control lives here. */
   children?: ReactNode;
-  /** Uploads a file and returns the stored image, so a pasted screenshot or a
-   *  dropped file becomes part of the post rather than a link to someone
-   *  else's server. Without it, paste and drop fall back to doing nothing. */
   onUploadImage?: (file: File) => Promise<{ id: number; url: string; alt?: string }>;
   onUploadError?: (message: string) => void;
 };
@@ -67,7 +43,6 @@ function Button({
       aria-label={title}
       aria-pressed={Boolean(isActive)}
       disabled={disabled}
-      // The editor keeps focus, so the caret doesn't jump when a button is hit.
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => {
         onClick();
@@ -98,22 +73,14 @@ const SHORTCUTS: [string, string][] = [
 ];
 
 export function RichEditor({ value, onChange, imageUrl, children, onUploadImage, onUploadError }: Props) {
-  /* The Markdown this editor last produced. Without it, every keystroke would
-   * round-trip back through the parser and reset the caret to the top. */
   const emitted = useRef<string | null>(null);
   const editorRef = useRef<Editor | null>(null);
 
-  /* Full screen is a state flag rather than the Fullscreen API, so the editor
-   * keeps its React tree and the caret and undo history survive. */
   const [full, setFull] = useState(false);
-  /** The raw Markdown view, when it is open. */
   const [source, setSource] = useState<string | null>(null);
   const [spellcheck, setSpellcheck] = useState(true);
   const [menu, setMenu] = useState<"chars" | "help" | null>(null);
 
-  /* Uploads each image and puts it where the cursor (or the drop) was. The post
-   * stores the media id, never a URL, so the picture survives the CMS moving
-   * its files. */
   async function insertFiles(files: File[], at?: number) {
     if (!onUploadImage) {
       onUploadError?.("Use the Image button to add a picture.");
@@ -139,10 +106,7 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         heading: { levels: [2, 3, 4] },
         link: { openOnClick: false, autolink: true, HTMLAttributes: { rel: "noreferrer noopener" } },
       }),
-      // Pasted tables are kept — a comparison table is often the point of the post.
       TableKit.configure({ table: { resizable: false } }),
-      /* The media id has to survive as an attribute: it is what the post stores,
-       * and what tells our own images apart from a pasted hotlink. */
       ImageExtension.extend({
         addAttributes() {
           return {
@@ -164,7 +128,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
           "prose prose-sm max-w-none min-h-[28rem] px-4 py-3 focus:outline-none prose-headings:font-semibold prose-headings:text-foreground prose-p:text-foreground prose-li:text-foreground prose-a:text-accent prose-table:text-xs prose-th:text-foreground",
       },
       handlePaste(view, event) {
-        // A screenshot on the clipboard arrives as a file, not as text.
         const files = [...(event.clipboardData?.files ?? [])].filter((f) => f.type.startsWith("image/"));
         if (files.length) {
           event.preventDefault();
@@ -173,7 +136,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         }
         const text = event.clipboardData?.getData("text/plain") ?? "";
         const html = event.clipboardData?.getData("text/html") ?? "";
-        // HTML on the clipboard already carries the structure; TipTap reads it.
         if (html.trim() || !looksLikeMarkdown(text)) return false;
         event.preventDefault();
         editorRef.current?.chain().focus().insertContent(markdownToHtml(text)).run();
@@ -183,7 +145,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         const files = [...((event as DragEvent).dataTransfer?.files ?? [])].filter((f) => f.type.startsWith("image/"));
         if (!files.length) return false;
         event.preventDefault();
-        // Dropped where the pointer is, not at the end of the article.
         const at = view.posAtCoords({ left: (event as DragEvent).clientX, top: (event as DragEvent).clientY })?.pos;
         void insertFiles(files, at);
         return true;
@@ -198,13 +159,10 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
 
   editorRef.current = editor;
 
-  /* Content set from outside — opening a post, or undoing — is loaded in.
-   * Anything this editor produced is ignored, or typing fights the parser. */
   useEffect(() => {
     if (!editor || value === emitted.current) return;
     editor.commands.setContent(markdownToEditorHtml(value, imageUrl), { emitUpdate: false });
     emitted.current = value;
-    // imageUrl changes as thumbnails arrive; re-running on it would reset the caret.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, editor]);
 
@@ -217,9 +175,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
     return () => document.removeEventListener("keydown", onKey);
   }, [full]);
 
-  /* Clipboard buttons need the browser's permission, which Firefox never grants
-   * for rich content. Ctrl+V always works, so a refusal says so rather than
-   * failing silently. */
   async function readClipboard(plain: boolean) {
     const active = editorRef.current;
     if (!active) return;
@@ -253,7 +208,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
     return <div className="min-h-[28rem] rounded-md border border-border bg-background px-4 py-3 text-sm text-muted">Loading the editor…</div>;
   }
 
-  /** The block type under the cursor, for the Format menu. */
   const currentBlock = editor.isActive("codeBlock")
     ? "pre"
     : editor.isActive("heading", { level: 2 })
@@ -279,7 +233,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
           : "overflow-hidden rounded-md border border-border bg-background focus-within:border-accent"
       }
     >
-      {/* Row one: clipboard, history, links, what you can insert, how you view it. */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-surface px-2 py-1.5">
         <Button editor={editor} title="Cut" label="✂" onClick={() => document.execCommand("cut")} />
         <Button editor={editor} title="Copy" label="⧉" onClick={() => document.execCommand("copy")} />
@@ -298,7 +251,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
           onClick={() => {
             const next = !spellcheck;
             setSpellcheck(next);
-            // ProseMirror owns the element, so the attribute is set on it directly.
             document.querySelector<HTMLElement>(".ProseMirror")?.setAttribute("spellcheck", String(next));
           }}
         />
@@ -374,7 +326,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
               setSource(editorHtmlToMarkdown(editor.getHTML()));
               return;
             }
-            // Coming back: what was typed in the box becomes the post.
             onChange(source);
             editor.commands.setContent(markdownToEditorHtml(source, imageUrl), { emitUpdate: false });
             emitted.current = source;
@@ -383,7 +334,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         />
       </div>
 
-      {/* Row two: text formatting, lists, block type. */}
       <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-surface px-2 py-1.5">
         <Button editor={editor} title="Bold (Ctrl+B)" label={<b>B</b>} isActive={editor.isActive("bold")} onClick={() => editor.chain().focus().toggleBold().run()} />
         <Button editor={editor} title="Italic (Ctrl+I)" label={<i>I</i>} isActive={editor.isActive("italic")} onClick={() => editor.chain().focus().toggleItalic().run()} />
@@ -476,7 +426,6 @@ export function RichEditor({ value, onChange, imageUrl, children, onUploadImage,
         </span>
       </div>
 
-      {/* Table controls, only while the cursor is inside a table. */}
       {editor.isActive("table") ? (
         <div className="flex flex-wrap items-center gap-0.5 border-b border-border bg-tint/40 px-2 py-1.5">
           <span className="px-1 text-xs font-medium text-muted">Table</span>

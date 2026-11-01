@@ -1,12 +1,3 @@
-/* What's in the database: server version, table sizes and exact row counts.
- *
- * Run it against the old database and the new one after a migration; the two
- * reports should agree line for line. Reads nothing but catalogue metadata and
- * counts, so it is safe against production.
- *
- *   npx tsx src/seed/db-report.ts                 → the database in .env
- *   npx tsx src/seed/db-report.ts "postgres://…"  → any other
- */
 import "../../scripts/load-env.mts";
 import pg from "pg";
 
@@ -36,7 +27,6 @@ async function main() {
   let total = 0;
   const counts: [string, number][] = [];
   for (const { table_name } of tables) {
-    // Counted rather than estimated: after a migration an estimate proves nothing.
     const { rows } = await client.query(`select count(*)::int as n from "${table_name}"`);
     counts.push([table_name, rows[0].n]);
     total += rows[0].n;

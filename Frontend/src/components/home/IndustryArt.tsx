@@ -1,9 +1,3 @@
-// Generated line-art backgrounds for the "Who We Serve" flip cards, matching
-// the design mockup's abstract per-industry visuals (radial burst, network
-// graph, candlestick chart, film strip). Used when the CMS has no real
-// `heroImage` set for that industry yet — swap this out per-slug once real
-// photography/renders are uploaded to the CMS.
-
 const GRID = (
   <pattern id="ia-grid" width="24" height="24" patternUnits="userSpaceOnUse">
     <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#ffffff14" strokeWidth="1" />
@@ -26,7 +20,6 @@ function Base({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** VFX & Animation — a red/white radial burst around a ringed center. */
 function VfxArt() {
   const rays = Array.from({ length: 64 }, (_, i) => {
     const angle = (i / 64) * Math.PI * 2;
@@ -59,7 +52,6 @@ function VfxArt() {
   );
 }
 
-/** AI & Machine Learning — a node/edge network graph with a highlighted path. */
 function AiArt() {
   const cols = 3;
   const rows = 7;
@@ -113,7 +105,6 @@ function AiArt() {
   );
 }
 
-/** Trading & Finance — a candlestick chart with an upward-trending close line. */
 function TradingArt() {
   const bars = Array.from({ length: 22 }, (_, i) => {
     const x = 24 + i * 12;
@@ -147,7 +138,6 @@ function TradingArt() {
   );
 }
 
-/** Media & Production — a film strip with one highlighted frame and a waveform. */
 function MediaArt() {
   const frameCount = 6;
   const stripX = 60,
@@ -202,9 +192,6 @@ const ART: Record<string, () => React.ReactNode> = {
   "media-production": MediaArt,
 };
 
-/** Renders the matching abstract art for a given industry slug, or null if
- *  that industry doesn't have a generated treatment (e.g. Architecture &
- *  Engineering, which uses a plain dark panel in the source design). */
 export function IndustryArt({ slug }: { slug: string }) {
   const Art = ART[slug];
   if (!Art) return null;

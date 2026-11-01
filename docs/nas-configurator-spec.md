@@ -5,7 +5,7 @@ catalogue it quotes from, and the rules it quotes by. Written to be
 implementable without reading the original source, though the source is
 referenced throughout for anyone who wants it.
 
-**Snapshot taken:** 26 October 2026, from the live CMS.
+**Snapshot taken:** 1 November 2026, from the live CMS.
 
 > **This file contains internal floor prices.** The `Min` columns are the lowest
 > a salesperson may go, and they must never reach a browser. If you port this,

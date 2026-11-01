@@ -29,7 +29,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
 
   return (
     <>
-      {/* Hero */}
       <section
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center"
         style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
@@ -54,7 +53,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* From Imagination to Screen */}
       <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page mx-auto max-w-[860px] text-center">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[30px] lg:text-[38px]">
@@ -72,7 +70,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* Powering the Creative Pipeline */}
       <section className="border-t border-[#e5e8ea] bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[0.62fr_1.38fr] lg:gap-12">
           <div className="lg:sticky lg:top-[108px] lg:self-start">
@@ -103,7 +100,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* Built for Demanding Productions */}
       <section className="bg-[#202326] py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
           <div
@@ -129,7 +125,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* Every Frame Matters */}
       <section className="border-y border-[#d9bcc1] bg-[#ecdcdf] py-14 sm:py-18 lg:py-24">
         <div className="container-page">
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">Every Frame Matters</h2>
@@ -153,7 +148,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* Built Around Your Creative Tools */}
       <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
           <PuzzleReveal imageUrl={heroImageUrl} />
@@ -183,7 +177,6 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         </div>
       </section>
 
-      {/* Bring Your Vision to Life */}
       <section className="bg-[#202326] py-16 sm:py-20 lg:py-28">
         <div className="container-page mx-auto max-w-[780px] text-center">
           <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[46px]">

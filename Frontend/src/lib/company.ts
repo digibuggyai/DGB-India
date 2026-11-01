@@ -1,10 +1,5 @@
 import type { CompanyInfo } from "@/lib/nas/types";
 
-/* DGB India's contact details as they appear in the site footer.
- *
- * The CMS contact fields (Site Settings → contact) win when they're filled in.
- * They are empty today, so without these a document such as the NAS estimate
- * PDF would print blank lines where the address and phone should be. */
 export const COMPANY_DEFAULTS: CompanyInfo = {
   name: "DGB India Enterprise",
   address: "207, Second Floor, Mansarovar Building, 90, Nehru Place, New Delhi, Delhi 110019",

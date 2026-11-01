@@ -4,7 +4,6 @@ import importedConfig from "../payload.config";
 
 const config = (importedConfig as any)?.default ?? importedConfig;
 
-/** A real 2×2 PNG, so sharp has something valid to resize. */
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFElEQVR4nGP8z/CfAQ0woYsMLUEAZkwBD2YUpBwAAAAASUVORK5CYII=",
   "base64",

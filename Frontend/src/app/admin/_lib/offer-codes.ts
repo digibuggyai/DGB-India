@@ -3,9 +3,6 @@ import { getAdminToken } from "@/lib/admin-auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-/* The discount codes the configurator's consultation offer has handed out.
- * Staff-only: every row carries a customer's name, email and phone. */
-
 export type OfferCode = {
   id: number;
   code: string;

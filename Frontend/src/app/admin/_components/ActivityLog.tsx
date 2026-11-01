@@ -3,13 +3,6 @@
 import { useMemo, useState } from "react";
 import type { ActivityEntry } from "../_lib/activity";
 
-/* The activity log.
- *
- * It answers one question quickly: what happened to this thing, and who did it?
- * Deletions lead, because they're the only action that leaves nothing behind to
- * inspect afterwards — when eleven enquiries disappear, this is the only place
- * that can say when and by whom. */
-
 const ACTION = {
   created: { label: "Added", className: "border-[#cbe7d3] bg-[#e6f4ea] text-[#1e4d2b]" },
   updated: { label: "Edited", className: "border-border bg-surface text-muted" },
@@ -36,7 +29,6 @@ const when = (iso: string) => {
   return `${date} · ${time}`;
 };
 
-/** A changed value, short enough to sit in a table. */
 function value(v: unknown): string {
   if (v === null || v === undefined || v === "") return "—";
   if (typeof v === "boolean") return v ? "yes" : "no";

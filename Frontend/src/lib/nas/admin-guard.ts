@@ -3,14 +3,11 @@ import { NextResponse } from "next/server";
 import { getAdminToken, getAdminUser } from "@/lib/admin-auth";
 import { CmsError } from "./cms";
 
-/** The signed-in admin and their CMS token, or null for anyone else. */
 export async function requireAdmin() {
   const [user, token] = await Promise.all([getAdminUser(), getAdminToken()]);
   return user && user.role === "admin" && token ? { user, token } : null;
 }
 
-/** Admins and sales staff. Sales see floor prices and quote from them, but
- *  cannot change the price list. */
 export async function requireStaff() {
   const [user, token] = await Promise.all([getAdminUser(), getAdminToken()]);
   const allowed = user && (user.role === "admin" || user.role === "sales");

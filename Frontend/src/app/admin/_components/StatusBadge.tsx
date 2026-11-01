@@ -1,6 +1,3 @@
-// Light-theme status pills, keyed to the site palette — "new" uses the
-// blush tint (--tint / --tint-foreground) that the public site uses for
-// its highlight bands, so it reads as on-brand rather than generic.
 const STATUS_STYLES: Record<string, string> = {
   new: "bg-[#ecdcdf] text-[#4d1219] border-[#d9bcc1]",
   contacted: "bg-[#e7eef7] text-[#1e3a5f] border-[#cfe0f0]",

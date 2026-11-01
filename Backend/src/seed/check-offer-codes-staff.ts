@@ -1,12 +1,3 @@
-/* The half of the offer-code flow that only staff can see: that the enquiry is
- * filed as a lead, that marking a code used stamps the date, and that a
- * customer whose code has been spent gets a fresh one rather than the old one.
- *
- * Runs through the local API, so it isn't limited by the service account's
- * rights the way an HTTP test is. Everything it creates is deleted at the end.
- *
- *   npx tsx src/seed/check-offer-codes-staff.ts
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -60,7 +51,6 @@ async function main() {
   check("the spent code is kept on record beside the new one", all.docs.length === 2, String(all.docs.length));
   check("only one of them is outstanding", all.docs.filter((d: any) => d.status === "issued").length === 1);
 
-  // Two codes are never the same.
   const everyCode = await payload.find({ collection: "nas-offer-codes", limit: 500, overrideAccess: true, depth: 0 });
   const seen = everyCode.docs.map((d: any) => d.code);
   check("every code on record is unique", new Set(seen).size === seen.length, `${seen.length} codes`);

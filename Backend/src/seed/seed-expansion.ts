@@ -1,25 +1,3 @@
-/* How far each unit grows with an expansion enclosure attached.
- *
- * The two brands do this differently, and the catalogue has to say so:
- *
- *   Synology expands only on units built for it, over a dedicated port, with a
- *   DX-series shelf. Its spec pages publish both the bay count and the raw
- *   capacity, and every figure below was read off them (October 2026). Where a
- *   model has no expansion, Synology says nothing at all — DS223J, DS225+ and
- *   DS425+ are standalone units, confirmed on their own pages.
- *
- *   QNAP expands over USB, on nearly every model it sells, with a TR- or TL-
- *   series enclosure. Its spec sheets carry a "JBOD Expansion: supported" line
- *   rather than a bay total, and how many enclosures a model takes lives on an
- *   interactive compatibility page that can't be read automatically. So those
- *   units are marked expandable — which is what the spec sheet says — and
- *   carry a note instead of a number, except where we already hold a figure.
- *
- * A bay count nobody has verified would end up on a customer's quotation, so
- * none is invented here.
- *
- *   npx tsx src/seed/seed-expansion.ts
- */
 import "../../scripts/load-env.mts";
 import { getPayload } from "payload";
 import importedConfig from "../payload.config";
@@ -29,7 +7,6 @@ const config = (importedConfig as any)?.default ?? importedConfig;
 type Expansion = { expandable: boolean; baysWithExpansion: number | null; expansionNote: string };
 
 const UNITS: Record<string, Expansion> = {
-  // Synology — figures from synology.com, October 2026.
   "DS223J": { expandable: false, baysWithExpansion: null, expansionNote: "" },
   "DS225+": { expandable: false, baysWithExpansion: null, expansionNote: "" },
   "DS425+": { expandable: false, baysWithExpansion: null, expansionNote: "" },
@@ -38,7 +15,6 @@ const UNITS: Record<string, Expansion> = {
   "DS1525+": { expandable: true, baysWithExpansion: 15, expansionNote: "Two DX525 expansion units" },
   "DS1825+": { expandable: true, baysWithExpansion: 18, expansionNote: "Two DX525 expansion units" },
 
-  // QNAP — every model supports JBOD expansion over USB.
   "TS-233-2G": { expandable: true, baysWithExpansion: null, expansionNote: "USB expansion enclosure (TR- or TL-series)" },
   "TS-216G-4G": { expandable: true, baysWithExpansion: null, expansionNote: "USB expansion enclosure (TR- or TL-series)" },
   "TS-433-4G": { expandable: true, baysWithExpansion: null, expansionNote: "USB expansion enclosure (TR- or TL-series)" },

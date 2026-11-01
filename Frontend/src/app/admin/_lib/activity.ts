@@ -3,10 +3,6 @@ import { getAdminToken } from "@/lib/admin-auth";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-/* Everything staff have changed: the price list, posts, enquiries, images,
- * accounts and discount codes. Admin-only — the entries name people and quote
- * what they edited. */
-
 export type ActivityEntry = {
   id: number;
   action: "created" | "updated" | "deleted";

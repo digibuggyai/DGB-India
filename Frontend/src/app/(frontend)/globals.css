@@ -14,7 +14,6 @@
   --accent-foreground: #ffffff;
   --accent-2: #661821;
 
-  /* Design-language extras */
   --ink-900: #202326;
   --ink-800: #2e3236;
   --ink-muted: #a9b0b6;
@@ -76,7 +75,6 @@ h1, h2, h3, h4, .font-display {
   text-transform: uppercase;
 }
 
-/* Reusable 3D flip-card primitives (WhoWeServe, HowWeWork). */
 .flip-card {
   perspective: 1400px;
 }
@@ -174,7 +172,6 @@ h1, h2, h3, h4, .font-display {
   animation: hero-drift-2 22s ease-in-out infinite;
 }
 
-/* Top route-change loading bar (see components/ui/RouteProgress.tsx) */
 @keyframes route-progress-grow {
   0% { width: 0%; opacity: 1; }
   80% { width: 88%; opacity: 1; }
@@ -221,7 +218,6 @@ h1, h2, h3, h4, .font-display {
   }
 }
 
-/* Infrastructure marquee (InfrastructureOverview) */
 @keyframes dgb-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(calc(-50% - 10px)); }
@@ -241,10 +237,6 @@ h1, h2, h3, h4, .font-display {
   }
 }
 
-/* Partner logo marquee (Partners) — left to right.
-   The track holds the logo set twice, and every slot carries its spacing as
-   padding rather than a flex `gap`, so the track is exactly two equal halves
-   and the -50%..0 travel loops seamlessly with no half-gap jump. */
 @keyframes dgb-logos {
   from { transform: translateX(-50%); }
   to { transform: translateX(0); }
@@ -265,14 +257,11 @@ h1, h2, h3, h4, .font-display {
     justify-content: center;
     animation: none;
   }
-  /* The second copy only exists to make the loop seamless — with the
-     animation off it would just list every brand twice. */
   .dgb-logos-track > [data-logo-clone] {
     display: none;
   }
 }
 
-/* 12-cell puzzle image reveal (Architecture & VFX pages) */
 @keyframes dgb-puzzle {
   0% { opacity: 1; transform: scale(1.06); }
   22% { opacity: 0; transform: scale(1); }

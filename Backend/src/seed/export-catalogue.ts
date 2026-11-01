@@ -1,14 +1,3 @@
-/* Writes the catalogue as JSON another project can seed itself from.
- *
- * Quote prices only. Floor prices are left out on purpose: this file lives in
- * the repository and is meant to be copied into other codebases, and a floor
- * that reaches a browser is the one mistake this system is built to prevent.
- * Pass --with-floors to include them, and then keep the file off any machine
- * that serves a public site.
- *
- *   npx tsx src/seed/export-catalogue.ts                      → docs/reference/catalogue.json
- *   npx tsx src/seed/export-catalogue.ts out.json --with-floors
- */
 import "../../scripts/load-env.mts";
 import fs from "fs";
 import path from "path";

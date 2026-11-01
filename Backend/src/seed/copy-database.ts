@@ -1,21 +1,3 @@
-/* Copies every row from one Postgres database into another.
- *
- * For moving the CMS between providers. Payload builds its own schema on boot
- * (`push: true`), so the target only needs the tables to exist — start the
- * backend against the new database once, let it create them, then run this to
- * bring the data over.
- *
- * Copying rows rather than restoring a dump avoids the version problem: a dump
- * taken from Postgres 18 does not reliably restore into 16 or 17, and managed
- * providers rarely run the newest release.
- *
- *   npx tsx src/seed/copy-database.ts "postgres://…target…"
- *   npx tsx src/seed/copy-database.ts "postgres://…target…" --force
- *   npx tsx src/seed/copy-database.ts "postgres://…target…" --from snapshot.json
- *
- * The source is DATABASE_URI from .env, or a snapshot taken by
- * export-snapshot.ts. Nothing is ever written to the source.
- */
 import "../../scripts/load-env.mts";
 import fs from "fs";
 import pg from "pg";
@@ -43,13 +25,6 @@ const countRows = async (client: pg.Client, table: string): Promise<number> => {
   return rows[0].n;
 };
 
-/* Which columns hold JSON.
- *
- * The driver reads a json column back as a JavaScript value, and on the way in
- * it turns an array into a Postgres array literal — `{"a","b"}` — rather than
- * JSON. A change-log entry, which is an array of edits, is rejected outright:
- * "invalid input syntax for type json". So JSON columns are stringified by
- * hand, and only those: doing it to every column would quote the strings. */
 const jsonColumnsIn = async (client: pg.Client, table: string): Promise<Set<string>> => {
   const { rows } = await client.query(
     `select column_name from information_schema.columns
@@ -70,8 +45,6 @@ async function main() {
     process.exit(1);
   }
 
-  /* The source is either the live database or a snapshot file. Reading from a
-   * file is what makes this a restore as well as a migration. */
   const snapshot: Snapshot | null = snapshotPath ? (JSON.parse(fs.readFileSync(snapshotPath, "utf8")) as Snapshot) : null;
   const source = snapshot ? null : process.env.DATABASE_URI;
 
@@ -100,7 +73,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Refuse to copy into a database that already holds data, unless told twice.
   const occupied: string[] = [];
   for (const table of sourceTables) {
     if ((await countRows(to, table)) > 0) occupied.push(table);
@@ -111,9 +83,6 @@ async function main() {
     process.exit(1);
   }
 
-  /* Foreign keys would otherwise dictate the order rows go in. As the owner of
-   * a fresh database we can turn the checks off for this session, put the rows
-   * back in any order, and let the constraints be rechecked at the end. */
   let deferred = true;
   try {
     await to.query("set session_replication_role = replica");
@@ -123,7 +92,6 @@ async function main() {
   }
 
   if (occupied.length) {
-    // Reverse order empties children before parents when keys aren't deferred.
     for (const table of [...sourceTables].reverse()) await to.query(`delete from "${table}"`);
     console.log(`Emptied ${occupied.length} tables on the target.\n`);
   }
@@ -158,8 +126,6 @@ async function main() {
     console.log(`  ${table.padEnd(34)} ${String(rows.length).padStart(5)}`);
   }
 
-  /* Identity and serial columns keep their own counter, which copying rows
-   * leaves behind. Without this the next insert reuses an id that's taken. */
   let sequences = 0;
   for (const table of sourceTables) {
     const { rows: cols } = await to.query(
@@ -179,7 +145,6 @@ async function main() {
 
   if (deferred) await to.query("set session_replication_role = default");
 
-  // Prove it, rather than assume it.
   let mismatches = 0;
   for (const table of sourceTables) {
     const before = from ? await countRows(from, table) : (snapshot!.tables[table] ?? []).length;

@@ -49,9 +49,6 @@ const TARGETS = [
   },
 ];
 
-// Locally-saved real photography/renders that take priority over the
-// generated InfraIcon fallback and over any CMS image is absent — key by
-// the card's display name in TARGETS.
 const STATIC_IMAGE: Record<string, string> = {
   DGX: "/dgx.png",
   Workstations: "/workstation.jpg",
@@ -61,9 +58,6 @@ const STATIC_IMAGE: Record<string, string> = {
   NAS: "/NAS.jpg",
 };
 
-// Product renders on plain/white backgrounds need `contain` so the object
-// isn't cropped in the short 170px card slot; full-bleed environment
-// photos look right cropped with `cover`. Defaults to "cover".
 const STATIC_IMAGE_FIT: Record<string, "cover" | "contain"> = {
   DGX: "contain",
   Servers: "contain",
@@ -110,7 +104,6 @@ export async function InfrastructureOverview() {
         <div className="dgb-marquee-track flex w-max gap-6 px-6 lg:px-10">
           {marqueeData.map((item, i) => (
             <div key={`${item.slug}-${i}`} className="group/card relative shrink-0" style={{ flex: "0 0 300px" }}>
-              {/* base card */}
               <div className="h-full overflow-hidden rounded-lg border border-[#e0e4e7] bg-white transition-opacity group-hover/card:opacity-0">
                 <div
                   className="h-[170px] bg-[#f3f4f5] bg-center bg-no-repeat"
@@ -129,7 +122,6 @@ export async function InfrastructureOverview() {
                 </div>
               </div>
 
-              {/* expand-on-hover panel */}
               <div
                 className="pointer-events-none absolute left-1/2 z-20 w-[144%] -translate-x-1/2 scale-90 rounded-lg border border-ink-800 bg-white opacity-0 shadow-[0_40px_80px_-24px_rgba(0,0,0,0.35)] transition-all duration-[280ms] group-hover/card:pointer-events-auto group-hover/card:scale-100 group-hover/card:opacity-100"
                 style={{ top: "-28px" }}

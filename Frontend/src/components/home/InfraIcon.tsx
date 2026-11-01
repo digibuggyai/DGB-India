@@ -1,7 +1,3 @@
-// Generated line-icon art for the infrastructure marquee cards, matching the
-// design mockup's simple outline-icon style (rack/disk/network diagrams).
-// Used when the CMS has no real `heroImage` set for that item yet.
-
 const stroke = "#2e3236";
 const accent = "#80202c";
 
@@ -13,7 +9,6 @@ function Icon({ children, size = 84 }: { children: React.ReactNode; size?: numbe
   );
 }
 
-/** DGX — a rack with four crossed connections to corner nodes. */
 function DgxIcon({ size }: { size?: number }) {
   return (
     <Icon size={size}>
@@ -37,7 +32,6 @@ function DgxIcon({ size }: { size?: number }) {
   );
 }
 
-/** Workstations — a monitor beside a document/spec sheet. */
 function WorkstationIcon({ size }: { size?: number }) {
   return (
     <Icon size={size}>
@@ -52,7 +46,6 @@ function WorkstationIcon({ size }: { size?: number }) {
   );
 }
 
-/** NAS — a stack of disks with the top ring highlighted. */
 function NasIcon({ size }: { size?: number }) {
   return (
     <Icon size={size}>
@@ -73,7 +66,6 @@ function NasIcon({ size }: { size?: number }) {
   );
 }
 
-/** Servers — a rack of unit bays, each with a status dot (some highlighted). */
 function ServerIcon({ size }: { size?: number }) {
   const rows = [0, 1, 2, 3, 4, 5, 6, 7];
   return (
@@ -93,7 +85,6 @@ function ServerIcon({ size }: { size?: number }) {
   );
 }
 
-/** Storage — three unit bays, each with an accent-highlighted second slot. */
 function StorageIcon({ size }: { size?: number }) {
   const rows = [0, 1, 2];
   return (
@@ -130,7 +121,6 @@ function StorageIcon({ size }: { size?: number }) {
   );
 }
 
-/** Networking — nodes on an octagon, connected to a central switch. */
 function NetworkingIcon({ size }: { size?: number }) {
   const n = 8;
   const pts = Array.from({ length: n }, (_, i) => {
@@ -154,7 +144,6 @@ function NetworkingIcon({ size }: { size?: number }) {
   );
 }
 
-/** Backup — a shield above a protected disk stack. */
 function BackupIcon({ size }: { size?: number }) {
   return (
     <Icon size={size}>
@@ -177,7 +166,6 @@ const ICON: Record<string, (props: { size?: number }) => React.ReactNode> = {
   Backup: BackupIcon,
 };
 
-/** Renders the matching outline icon for a given infrastructure item name. */
 export function InfraIcon({ name, size }: { name: string; size?: number }) {
   const IconCmp = ICON[name];
   if (!IconCmp) return null;

@@ -54,7 +54,6 @@ export default async function IndustryDetailPage({
 
   return (
     <>
-      {/* Hero */}
       <section
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-24 sm:py-32"
         style={{
@@ -89,7 +88,6 @@ export default async function IndustryDetailPage({
         </div>
       </section>
 
-      {/* Intro / concept narrative */}
       {industry.heroCopy && (
         <section className="border-b border-border py-20">
           <div className="container-page grid gap-10 lg:grid-cols-2">
@@ -103,7 +101,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Challenges */}
       {challenges.length > 0 && (
         <section className="border-b border-border bg-surface py-20">
           <div className="container-page">
@@ -127,7 +124,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Workloads */}
       {workloads.length > 0 && (
         <section className="border-b border-border py-20">
           <div className="container-page">
@@ -182,7 +178,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Applications */}
       {applications.length > 0 && (
         <section className="border-b border-border bg-surface py-20">
           <div className="container-page">
@@ -201,7 +196,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Requirements + architecture — blush 2-col */}
       {(industry.requirementsNarrative || industry.possibleArchitecture?.description) && (
         <section className="border-b border-tint-border bg-tint py-20">
           <div className="container-page grid gap-10 lg:grid-cols-2">
@@ -229,7 +223,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Recommended infrastructure */}
       {infra.length > 0 && (
         <section className="border-b border-border py-20">
           <div className="container-page">
@@ -249,7 +242,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Case studies */}
       {caseStudies.length > 0 && (
         <section className="border-b border-border bg-surface py-20">
           <div className="container-page">
@@ -270,7 +262,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* FAQ */}
       {faqs.length > 0 && (
         <section className="border-b border-border py-20">
           <div className="container-page max-w-3xl">
@@ -292,7 +283,6 @@ export default async function IndustryDetailPage({
         </section>
       )}
 
-      {/* Final CTA */}
       <section className="py-20">
         <div className="container-page">
           <div className="flex flex-col items-start gap-8 rounded-2xl bg-accent px-5 py-10 sm:px-8 sm:py-14 lg:flex-row lg:items-center lg:justify-between lg:px-14">

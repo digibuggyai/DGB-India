@@ -4,11 +4,6 @@ import { logChanges } from "@/hooks/nasPriceLog";
 const staffOnly: Access = ({ req }) =>
   Boolean(req.user && (req.user.role === "admin" || req.user.role === "sales"));
 
-// Any authenticated request may create a lead — in practice this is only
-// ever the Frontend app's /api/contact route, authenticating with a service
-// account's API key (Authorization: users API-Key <key>). There's no public
-// session-based signup, so "authenticated" here effectively means "trusted
-// server-to-server caller," not "any logged-in user."
 const authenticatedOnly: Access = ({ req }) => Boolean(req.user);
 
 export const Leads: CollectionConfig = {
@@ -24,7 +19,6 @@ export const Leads: CollectionConfig = {
     update: staffOnly,
     delete: ({ req }) => req.user?.role === "admin",
   },
-  // Every change recorded in the activity log, deletions included.
   hooks: logChanges("lead", (doc) => `${doc.name} — ${doc.company}`),
   fields: [
     { name: "name", type: "text", required: true },

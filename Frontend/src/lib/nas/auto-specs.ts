@@ -1,51 +1,20 @@
 import "server-only";
 
-/* Filling in a new item's specifications by itself, so adding a NAS model or a
- * RAM kit to the price list isn't twenty fields of typing.
- *
- * Three sources, in order of how much they can be trusted:
- *
- *   1. The manufacturer's own spec page, fetched and parsed. Synology serves
- *      its spec table in the HTML, so a model name is enough. QNAP answers
- *      server-side requests with a bot challenge and no content, so there is
- *      nothing to parse — for those, the admin pastes the spec sheet and the
- *      same parser reads it.
- *   2. Rules that hold for the whole brand, like the largest drive a unit
- *      accepts. These need no network and are applied either way.
- *   3. The item's own name, for RAM and network cards, where "8 GB DDR4 ECC"
- *      says everything the price list records.
- *
- * Nothing here saves anything: it proposes values, the admin sees what was
- * filled and from where, and what it can't determine it leaves blank rather
- * than guessing. These figures end up in front of customers. */
-
 export type Lookup = {
-  /** Proposed values, keyed as the price list's fields are. */
   fields: Record<string, unknown>;
-  /** The page they came from, if any. */
   source: string | null;
-  /** Labels of what was filled, for the admin to read back. */
   filled: string[];
-  /** Anything the admin should check or supply by hand. */
   notes: string[];
 };
 
-/* ---------------- brand rules ---------------- */
-
-/* The largest drive each brand's units accept. Synology's current DiskStations
- * top out at 24 TB per bay and QNAP's at 32 TB; the configurator never quotes
- * anything larger, so a new model inherits its brand's ceiling. */
 const MAX_DRIVE_TB: Record<string, number> = { synology: 24, qnap: 32 };
 
-/** RAID levels a chassis with this many bays can actually run. */
 function raidForBays(bays: number): string[] {
   if (bays < 2) return [];
   if (bays === 2) return ["RAID0", "RAID1"];
   if (bays === 3) return ["RAID0", "RAID1", "RAID5"];
   return ["RAID0", "RAID1", "RAID5", "RAID6", "RAID10"];
 }
-
-/* ---------------- reading a spec sheet ---------------- */
 
 const ENTITIES: Record<string, string> = {
   "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&nbsp;": " ",
@@ -59,23 +28,17 @@ const clean = (s: string) =>
     .replace(/\s+/g, " ")
     .trim();
 
-/** Label/value pairs out of an HTML spec table, or out of pasted text. */
 export function readSpecPairs(input: string): [string, string][] {
   const pairs: [string, string][] = [];
 
-  // Synology and QNAP both lay their specs out as table rows.
   const rows = input.match(/<tr[\s\S]*?<\/tr>/gi) ?? [];
   for (const rowHtml of rows) {
     const cells = [...rowHtml.matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi)].map((m) => clean(m[1])).filter(Boolean);
-    // The label is the last cell before the value — a row may lead with a
-    // section heading cell ("CPU") that spans several rows beneath it.
     if (cells.length >= 2) pairs.push([cells[cells.length - 2], cells[cells.length - 1]]);
   }
 
   if (pairs.length) return pairs;
 
-  // Pasted text: "Label: value", "Label<tab>value", or a label line followed
-  // by its value on the next line.
   const lines = input
     .split(/\r?\n/)
     .map((l) => clean(l))
@@ -87,7 +50,6 @@ export function readSpecPairs(input: string): [string, string][] {
       continue;
     }
     const next = lines[i + 1];
-    // A label is short and doesn't end in a full stop; a value follows it.
     if (next && lines[i].length <= 60 && !/[.!?]$/.test(lines[i]) && !/^\d/.test(lines[i])) {
       pairs.push([lines[i], next]);
       i++;
@@ -96,9 +58,6 @@ export function readSpecPairs(input: string): [string, string][] {
   return pairs;
 }
 
-/* A spec-sheet label as written, reduced to what it actually names. Makers
- * hang footnotes and links off their labels — Synology's is "Drive Bays (See
- * all supported drives)" — and those would stop every label from matching. */
 const labelKey = (s: string) =>
   s
     .replace(/\([^)]*\)?/g, " ")
@@ -111,9 +70,6 @@ const num = (v: string): number | null => {
   return m ? Number(m[0]) : null;
 };
 
-/* Which spec-sheet label feeds which field. Both makers are covered: Synology
- * writes "Drive Bays" and "Size (Height x Width x Depth)", QNAP writes "Drive
- * Bay" and "Dimensions". */
 const FIELD_LABELS: { key: string; label: string; match: RegExp; take?: (v: string) => unknown }[] = [
   { key: "cpu", label: "Processor", match: /^(cpu|processor)( model| name)?$/i },
   { key: "memory", label: "Memory", match: /^((system|pre-installed|installed) )?memory$/i },
@@ -127,7 +83,6 @@ const FIELD_LABELS: { key: string; label: string; match: RegExp; take?: (v: stri
   { key: "warranty", label: "Warranty", match: /^warranty$/i },
 ];
 
-/** Network ports, which both makers spread over one label per port type. */
 function readNetwork(pairs: [string, string][]): { network: string; networkUpgrade: string } {
   const ports: string[] = [];
   const upgrades: string[] = [];
@@ -136,7 +91,6 @@ function readNetwork(pairs: [string, string][]): { network: string; networkUpgra
     const speed = label.match(/(\d+(?:\.\d+)?)\s*(?:gbe|gigabit|gbps)/i);
     if (!speed || !/port|lan|ethernet/i.test(label)) continue;
     const count = num(value);
-    // "0" means the unit doesn't have that port type at all.
     if (count === 0) continue;
     const text = `${speed[1]}GbE${count && count > 1 ? ` ×${count}` : ""}`;
     if (/optional|expansion|pcie|add-on/i.test(`${label} ${value}`)) upgrades.push(text);
@@ -145,7 +99,6 @@ function readNetwork(pairs: [string, string][]): { network: string; networkUpgra
   return { network: [...new Set(ports)].join(", "), networkUpgrade: [...new Set(upgrades)].join(", ") };
 }
 
-/** Turns a spec sheet — fetched or pasted — into price-list fields. */
 export function fieldsFromSpecSheet(input: string, brand: string): { fields: Record<string, unknown>; filled: string[] } {
   const pairs = readSpecPairs(input);
   const fields: Record<string, unknown> = {};
@@ -160,7 +113,6 @@ export function fieldsFromSpecSheet(input: string, brand: string): { fields: Rec
     filled.push(def.label);
   }
 
-  // Cores, threads and clock speed read as one line on the specifications card.
   const cpuBits = [
     pairs.find(([l]) => /^cpu (core|cores)$/i.test(labelKey(l)))?.[1],
     pairs.find(([l]) => /^cpu thread/i.test(labelKey(l)))?.[1],
@@ -174,8 +126,6 @@ export function fieldsFromSpecSheet(input: string, brand: string): { fields: Rec
     filled.push("Cores");
   }
 
-  // Synology doesn't give M.2 slots a row of their own — the count sits in the
-  // drive-bay cell, as "2 × M.2 2280 NVMe SSD" under the SATA bays.
   if (fields.m2Slots == null) {
     for (const [, value] of pairs) {
       const m = value.match(/(\d+)\s*[×x]\s*M\.?2\b/i);
@@ -201,10 +151,6 @@ export function fieldsFromSpecSheet(input: string, brand: string): { fields: Rec
   return { fields, filled };
 }
 
-/* ---------------- rules that always apply ---------------- */
-
-/** What can be worked out without a spec sheet: the brand's drive ceiling, the
- *  RAID levels the bay count allows, and whether an expansion unit is on. */
 export function applyRules(fields: Record<string, unknown>, brand: string): { fields: Record<string, unknown>; filled: string[] } {
   const out = { ...fields };
   const filled: string[] = [];
@@ -237,11 +183,6 @@ export function applyRules(fields: Record<string, unknown>, brand: string): { fi
   return { fields: out, filled };
 }
 
-/* ---------------- the manufacturer's page ---------------- */
-
-/* Only these hosts are ever fetched. The model name arrives from a form, so
- * without an allow-list this would happily fetch anything an admin typed —
- * including an address inside our own network. */
 const ALLOWED_HOSTS = ["www.synology.com", "synology.com"];
 
 export function specPageUrl(brand: string, model: string): string | null {
@@ -268,15 +209,11 @@ async function fetchPage(url: string): Promise<string | null> {
     });
     if (!res.ok) return null;
     const html = await res.text();
-    // A challenge page or a "not found" both come back far too short to hold a
-    // spec table; treating one as specs would fill the form with nonsense.
     return html.length > 5000 ? html : null;
   } catch {
     return null;
   }
 }
-
-/* ---------------- NAS models ---------------- */
 
 export async function lookupModel({ model, brand, text }: { model: string; brand: string; text?: string }): Promise<Lookup> {
   const notes: string[] = [];
@@ -299,11 +236,6 @@ export async function lookupModel({ model, brand, text }: { model: string; brand
 
   let read = sheet ? fieldsFromSpecSheet(sheet, brand) : { fields: {} as Record<string, unknown>, filled: [] };
 
-  /* A wrong model name doesn't 404 — Synology answers with a marketing page,
-   * and odd rows on it do parse into something. Filling the form with another
-   * unit's figures is worse than filling nothing, so unless the processor or
-   * the bay count came through, this wasn't the unit's spec sheet and
-   * everything read from it is dropped. */
   if (read.filled.length && !read.fields.cpu && read.fields.bays == null) {
     read = { fields: {}, filled: [] };
     notes.push(
@@ -317,8 +249,6 @@ export async function lookupModel({ model, brand, text }: { model: string; brand
   const ruled = applyRules(read.fields, brand);
 
   if (sheet && !read.filled.length && !notes.length) {
-    // A page came back but held no specifications — a "not found" page, most
-    // likely. Recording its address as the spec link would be wrong.
     if (source) {
       notes.push(`${source} didn't look like a spec sheet — check the model name is spelt as ${brand} writes it, or paste the specifications below.`);
       source = null;
@@ -337,8 +267,6 @@ export async function lookupModel({ model, brand, text }: { model: string; brand
   };
 }
 
-/* ---------------- RAM and network cards ---------------- */
-
 const RAM_BRANDS: [RegExp, string][] = [
   [/\bd4(es|eu|ec|ne|nes)/i, "Synology"],
   [/\bram-?\d+gdr|qnap/i, "QNAP"],
@@ -352,9 +280,6 @@ const NIC_BRANDS: [RegExp, string][] = [
   [/intel/i, "Intel"],
 ];
 
-/* An upgrade's own name carries everything the price list records about it, so
- * this needs no network at all: "D4ES01-8G 8 GB DDR4 ECC" is a Synology RAM
- * kit of 8 GB DDR4 ECC, and "QXG-10G1T" is a 10GbE card with one port. */
 export function lookupUpgrade({ name, sku }: { name: string; sku?: string }): Lookup {
   const text = `${name} ${sku ?? ""}`.trim();
   const fields: Record<string, unknown> = {};
@@ -391,7 +316,6 @@ export function lookupUpgrade({ name, sku }: { name: string; sku?: string }): Lo
   }
 
   const brandRules = fields.category === "NIC" ? NIC_BRANDS : RAM_BRANDS;
-  // The SKU names the maker more reliably than the description does.
   const brand = brandRules.find(([re]) => re.test(sku ?? "") || re.test(text))?.[1];
   if (brand) {
     fields.brand = brand;

@@ -20,8 +20,6 @@ export function AdminNav() {
   return (
     <nav className="flex gap-1 overflow-x-auto">
       {TABS.map((tab) => {
-        // "/admin" is only active on an exact match, otherwise every tab
-        // would light up on the nested routes.
         const isActive =
           tab.href === "/admin" ? pathname === "/admin" : pathname.startsWith(tab.href);
 

@@ -7,29 +7,10 @@
 import { RAID_INFO, inr } from "./logic";
 import type { Build, DriveLine, NasModel, RaidLevel } from "./types";
 
-/* The specification of a unit, and of the configuration built on it, as
- * label/value pairs — one source for the hover card, the full specifications
- * dialog and the comparison table, so the three can't disagree.
- *
- * Only what the price list records, which is what the manufacturer's own spec
- * page says. A specification nobody filled in is left out rather than guessed:
- * these figures go in front of customers. */
-
 export type Spec = { label: string; value: string };
 
 const raidList = (model: NasModel) => model.raid.map((r) => RAID_INFO[r].title).join(", ");
 
-/* How far a unit grows with an expansion enclosure attached.
- *
- * The raw figure is the bay count times the largest drive the unit takes, which
- * is how the makers arrive at theirs: Synology publishes 216 TB for a DS925+
- * (9 bays × 24 TB), 432 TB for a DS1825+ and 360 TB for a DS1525+, and each one
- * comes out of this multiplication exactly. Deriving it means the two can never
- * drift apart as drive ceilings change.
- *
- * Null when the unit takes no expansion, or when the bay count isn't on record
- * — several QNAP figures aren't, and an invented number on a quotation is worse
- * than a missing one. */
 export function expansion(model: NasModel): { bays: number; rawTb: number | null } | null {
   if (!model.expandable || !model.baysWithExpansion || model.baysWithExpansion <= model.bays) return null;
   return {
@@ -38,24 +19,17 @@ export function expansion(model: NasModel): { bays: number; rawTb: number | null
   };
 }
 
-/* The same thing as a phrase: "9 bays · up to 216 TB raw".
- *
- * Where the maker doesn't publish a bay total — QNAP expands over USB and says
- * only that it's supported — the note stands in, so an expandable unit still
- * says something true rather than carrying a number nobody verified. */
 export function expansionLabel(model: NasModel): string | null {
   const grown = expansion(model);
   if (grown) return `${grown.bays} bays${grown.rawTb ? ` · up to ${grown.rawTb} TB raw` : ""}`;
   return model.expandable && model.expansionNote ? model.expansionNote : null;
 }
 
-/** True when the label is a bay count rather than a description of the method. */
 export const expansionIsMeasured = (model: NasModel): boolean => expansion(model) !== null;
 
 const row = (label: string, value: string | number | null | undefined): Spec | null =>
   value == null || value === "" ? null : { label, value: String(value) };
 
-/** The unit itself, independent of what's configured on it. */
 export function modelSpecs(model: NasModel): Spec[] {
   return [
     row("Brand", model.brand),
@@ -89,24 +63,19 @@ export function modelSpecs(model: NasModel): Spec[] {
   ].filter((s): s is Spec => s !== null);
 }
 
-/** The few that decide a shortlist — for the hover card on the ⓘ. */
 const KEY_LABELS = ["Drive bays", "Processor", "Memory", "Network ports", "Expansion unit"];
 
 export function keySpecs(model: NasModel): Spec[] {
   const all = modelSpecs(model);
   const picked = KEY_LABELS.map((label) => all.find((s) => s.label === label)).filter((s): s is Spec => s != null);
-  // A unit with almost nothing recorded still gets a useful card.
   return picked.length >= 3 ? picked : all.filter((s) => s.label !== "Brand").slice(0, 5);
 }
-
-/* ---------------- drives ---------------- */
 
 export const findLine = (lines: DriveLine[], name: string): DriveLine | undefined =>
   lines.find((l) => l.name.toLowerCase() === name.trim().toLowerCase());
 
 const CLASS_LABEL: Record<DriveLine["driveClass"], string> = { nas: "NAS", enterprise: "Enterprise" };
 
-/** Everything recorded about a drive family. */
 export function driveLineSpecs(line: DriveLine): Spec[] {
   return [
     row("Made by", line.brand),
@@ -123,7 +92,6 @@ export function driveLineSpecs(line: DriveLine): Spec[] {
   ].filter((s): s is Spec => s !== null);
 }
 
-/** The few that decide a drive — for the hover card on the ⓘ. */
 const DRIVE_KEY_LABELS = ["Class", "Spindle speed", "Workload rating", "MTBF", "Warranty"];
 
 export function keyDriveSpecs(line: DriveLine): Spec[] {
@@ -132,9 +100,6 @@ export function keyDriveSpecs(line: DriveLine): Spec[] {
   return picked.length >= 3 ? picked : all.slice(0, 5);
 }
 
-/** The workload rating as a number of TB/year, read out of whatever the CMS
- *  holds ("Up to 180 TB/year" → 180). Unparseable text yields null, and every
- *  rule that uses it then stays quiet rather than guessing. */
 function workloadTb(line: DriveLine): number | null {
   const m = line.workloadTbYear.match(/(\d[\d,]*)\s*TB/i);
   return m ? Number(m[1].replace(/,/g, "")) : null;
@@ -142,12 +107,6 @@ function workloadTb(line: DriveLine): number | null {
 
 export type DriveNote = { tone: "warn" | "info"; text: string };
 
-/* What's worth saying about putting this drive family in this unit.
- *
- * Only what the catalogue actually records — the drive's maker, its class and
- * its workload rating against the unit's brand and bay count. Nothing here
- * blocks a configuration: every combination we price is one that runs. These
- * are the things a customer would otherwise find out after buying. */
 export function driveNotes(model: NasModel, line: DriveLine, drivesPerUnit: number): DriveNote[] {
   const notes: DriveNote[] = [];
   const madeFor = line.madeForBrand.trim();
@@ -191,7 +150,6 @@ export function driveNotes(model: NasModel, line: DriveLine, drivesPerUnit: numb
   return notes;
 }
 
-/** This configuration on that unit. */
 export function buildSpecs(build: Build, raid: RaidLevel): Spec[] {
   return [
     { label: "Usable capacity", value: `${build.totalUsable} TB` },
@@ -204,8 +162,6 @@ export function buildSpecs(build: Build, raid: RaidLevel): Spec[] {
   ];
 }
 
-/** One row per specification, one column per shortlisted unit. Every row is
- *  filled for every column — a blank cell would read as a missing feature. */
 export function compareRows(builds: Build[], raid: RaidLevel): { label: string; values: string[] }[] {
   const rows: { label: string; get: (b: Build) => string }[] = [
     { label: "Brand", get: (b) => b.model.brand },

@@ -2,7 +2,6 @@ import { APIError, type Access, type CollectionConfig, type FieldAccess } from "
 import { logChanges } from "../hooks/nasPriceLog";
 
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
-// Admins and sales staff: sales quote against the floor, so they can read it.
 const staffOnly: FieldAccess = ({ req }) => req.user?.role === "admin" || req.user?.role === "sales";
 
 type DriveLike = { id?: number | string; capacityTb?: number; line?: string } | undefined;
@@ -10,8 +9,6 @@ type DriveFinder = {
   find: (args: object) => Promise<{ docs: { id: number | string }[] }>;
 };
 
-/* Hard drives the configurator can quote — one row per capacity + drive line
- * (e.g. 10 TB IronWolf). `minPrice` is admin-only, like the other NAS items. */
 export const NasDrives: CollectionConfig = {
   slug: "nas-drives",
   admin: {
@@ -34,7 +31,6 @@ export const NasDrives: CollectionConfig = {
         const capacityTb = data?.capacityTb ?? previous?.capacityTb;
         const line = String(data?.line ?? previous?.line ?? "").trim();
 
-        // Two rows for the same size and line would make the price ambiguous.
         const existing = await (req.payload as unknown as DriveFinder).find({
           collection: "nas-drives",
           where: {

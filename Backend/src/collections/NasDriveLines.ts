@@ -3,17 +3,6 @@ import { logChanges } from "@/hooks/nasPriceLog";
 
 const isAdmin: Access = ({ req }) => req.user?.role === "admin";
 
-/* The specifications of a hard drive family — IronWolf, Exos, WD Ultrastar and
- * so on — shown in the configurator's drive step.
- *
- * Specs live here rather than on each priced drive because they belong to the
- * line, not the capacity: every Exos is a 550 TB/year enterprise drive whether
- * it holds 8 TB or 20 TB. `name` is what links a line to the drives on the
- * price list, so it must match their drive line exactly.
- *
- * Figures are as the manufacturer publishes them, with a link to the source.
- * Where a line spans a range — Synology's Plus drives spin at two speeds — the
- * range is written out rather than averaged. */
 export const NasDriveLines: CollectionConfig = {
   slug: "nas-drive-lines",
   labels: { singular: "Drive line", plural: "Drive lines" },
@@ -23,7 +12,6 @@ export const NasDriveLines: CollectionConfig = {
     defaultColumns: ["name", "brand", "driveClass", "workloadTbYear", "warrantyYears"],
   },
   defaultSort: "name",
-  // Spec edits go in the same change log as price edits, with the editor’s email.
   hooks: logChanges("driveLine", (doc) => String(doc.name)),
   access: {
     read: () => true,

@@ -1,12 +1,5 @@
-// Thin REST client for the standalone Payload backend. Frontend and Backend
-// are separate deployments now, so all content comes over HTTP instead of
-// Payload's in-process Local API — see Backend's payload.config.ts `cors`.
-
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
-// Revalidate content periodically (ISR) rather than fetching fresh on every
-// request. Lower this (or pass `revalidate: 0` per-call) for content that
-// needs to feel closer to live.
 const DEFAULT_REVALIDATE = 60;
 
 type WhereClause = Record<string, Record<string, string | number | boolean>>;
