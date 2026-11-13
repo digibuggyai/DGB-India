@@ -96,7 +96,7 @@ export async function InfrastructureOverview() {
                   className="h-[170px] bg-[#f3f4f5] bg-center bg-no-repeat"
                   style={
                     item.image
-                      ? { backgroundImage: `url(${item.image})`, backgroundSize: item.fit }
+                      ? { backgroundImage: `url("${item.image}")`, backgroundSize: item.fit }
                       : undefined
                   }
                 >
@@ -118,7 +118,7 @@ export async function InfrastructureOverview() {
                     className="h-[210px] rounded-t-lg bg-[#f3f4f5] bg-center bg-no-repeat"
                     style={
                       item.image
-                        ? { backgroundImage: `url(${item.image})`, backgroundSize: item.fit }
+                        ? { backgroundImage: `url("${item.image}")`, backgroundSize: item.fit }
                         : undefined
                     }
                   >

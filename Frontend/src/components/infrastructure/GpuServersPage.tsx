@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { infrastructureImage } from "@/lib/site-images";
+import { infrastructureFit, infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const ROWS = [
@@ -25,17 +25,27 @@ const ROWS = [
   },
 ];
 
-function ImagePanel({ url, className = "" }: { url: string | null; className?: string }) {
+function ImagePanel({
+  url,
+  fit = "cover",
+  className = "",
+}: {
+  url: string | null;
+  fit?: "cover" | "contain";
+  className?: string;
+}) {
+  const surface = fit === "contain" ? "bg-white" : "bg-[#eef1f3]";
   return (
     <div
-      className={`rounded-lg border border-[#e0e4e7] bg-[#eef1f3] bg-cover bg-center ${className}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      className={`rounded-lg border border-[#e0e4e7] ${surface} bg-center bg-no-repeat ${className}`}
+      style={url ? { backgroundImage: `url("${url}")`, backgroundSize: fit } : undefined}
     />
   );
 }
 
 export function GpuServersPage({ item }: { item: Infrastructure }) {
   const heroImageUrl = infrastructureImage(item);
+  const heroFit = infrastructureFit(item);
 
   return (
     <>
@@ -43,7 +53,7 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
         className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-28"
         style={
           heroImageUrl
-            ? { backgroundImage: `linear-gradient(90deg, #202326f2 0%, #202326cc 55%, #20232655 100%), url(${heroImageUrl})` }
+            ? { backgroundImage: `linear-gradient(90deg, #202326f2 0%, #202326cc 55%, #20232655 100%), url("${heroImageUrl}")` }
             : undefined
         }
       >
@@ -60,13 +70,13 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
               &mdash; from AI to rendering to simulation.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
 
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page">
-          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] sm:h-[250px] lg:h-[300px]" />
           <div className="mt-8 grid gap-8 sm:mt-12 sm:gap-12 lg:grid-cols-2 lg:gap-16">
             <h2 className="font-display max-w-sm text-2xl font-bold tracking-tight sm:text-[32px]">
               Built for Heavy Workloads.
@@ -96,7 +106,7 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
                 key={r.n}
                 className="grid gap-4 rounded-lg border border-[#d9bcc1] bg-white/60 p-6 sm:grid-cols-[120px_60px_1fr] sm:items-center sm:gap-6"
               >
-                <ImagePanel url={heroImageUrl} className="h-[90px] border-white bg-white" />
+                <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[90px] border-white bg-white" />
                 <div className="font-display text-2xl font-bold text-[#b06f79]">{r.n}</div>
                 <div>
                   <div className="font-display text-lg font-bold text-[#2e3236]">{r.title}</div>
@@ -126,7 +136,7 @@ export function GpuServersPage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your GPU Workload &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

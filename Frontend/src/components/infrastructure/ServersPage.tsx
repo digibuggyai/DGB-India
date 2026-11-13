@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { infrastructureImage } from "@/lib/site-images";
+import { infrastructureFit, infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const CARDS = [
@@ -21,17 +21,27 @@ const CARDS = [
   },
 ];
 
-function ImagePanel({ url, className = "" }: { url: string | null; className?: string }) {
+function ImagePanel({
+  url,
+  fit = "cover",
+  className = "",
+}: {
+  url: string | null;
+  fit?: "cover" | "contain";
+  className?: string;
+}) {
+  const surface = fit === "contain" ? "bg-white" : "bg-[#eef1f3]";
   return (
     <div
-      className={`rounded-lg border border-[#e0e4e7] bg-[#eef1f3] bg-cover bg-center ${className}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      className={`rounded-lg border border-[#e0e4e7] ${surface} bg-center bg-no-repeat ${className}`}
+      style={url ? { backgroundImage: `url("${url}")`, backgroundSize: fit } : undefined}
     />
   );
 }
 
 export function ServersPage({ item }: { item: Infrastructure }) {
   const heroImageUrl = infrastructureImage(item);
+  const heroFit = infrastructureFit(item);
 
   return (
     <>
@@ -39,7 +49,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
         className="border-b border-[#43484d] bg-[#202326] bg-cover bg-center py-16 sm:py-32"
         style={
           heroImageUrl
-            ? { backgroundImage: `linear-gradient(180deg, #202326d9 0%, #202326f7 100%), url(${heroImageUrl})` }
+            ? { backgroundImage: `linear-gradient(180deg, #202326d9 0%, #202326f7 100%), url("${heroImageUrl}")` }
             : undefined
         }
       >
@@ -59,7 +69,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
 
       <section className="border-b border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">Built for Your Environment.</h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">
@@ -79,7 +89,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
           <div className="mt-6 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {CARDS.map((c) => (
               <div key={c.title} className="overflow-hidden rounded-lg border border-[#e0e4e7] bg-white">
-                <ImagePanel url={heroImageUrl} className="h-[150px] rounded-none border-0" />
+                <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[150px] rounded-none border-0" />
                 <div className="p-5">
                   <div className="h-0.5 w-8 bg-accent" />
                   <div className="font-display mt-3 text-lg font-bold">{c.title}</div>
@@ -109,7 +119,7 @@ export function ServersPage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your Server Requirements &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] border-[#d9bcc1] bg-white/40 sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

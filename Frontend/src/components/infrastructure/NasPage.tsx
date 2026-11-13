@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { infrastructureImage } from "@/lib/site-images";
+import { infrastructureFit, infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const CARDS = [
@@ -9,17 +9,27 @@ const CARDS = [
   { title: "Business Data", desc: "Reliable, centralized storage for day-to-day business files and records." },
 ];
 
-function ImagePanel({ url, className = "" }: { url: string | null; className?: string }) {
+function ImagePanel({
+  url,
+  fit = "cover",
+  className = "",
+}: {
+  url: string | null;
+  fit?: "cover" | "contain";
+  className?: string;
+}) {
+  const surface = fit === "contain" ? "bg-white" : "bg-[#eef1f3]";
   return (
     <div
-      className={`rounded-lg border border-[#e0e4e7] bg-[#eef1f3] bg-cover bg-center ${className}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      className={`rounded-lg border border-[#e0e4e7] ${surface} bg-center bg-no-repeat ${className}`}
+      style={url ? { backgroundImage: `url("${url}")`, backgroundSize: fit } : undefined}
     />
   );
 }
 
 export function NasPage({ item }: { item: Infrastructure }) {
   const heroImageUrl = infrastructureImage(item);
+  const heroFit = infrastructureFit(item);
 
   return (
     <>
@@ -37,13 +47,13 @@ export function NasPage({ item }: { item: Infrastructure }) {
               works with files &mdash; from anywhere on your network.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[220px] sm:h-[300px] lg:h-[360px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[220px] sm:h-[300px] lg:h-[360px]" />
         </div>
       </section>
 
       <section className="bg-[#202326] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-10 lg:grid-cols-[0.42fr_1fr] lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[32px]">
               One Place for Your Projects.
@@ -67,7 +77,7 @@ export function NasPage({ item }: { item: Infrastructure }) {
               <div
                 key={c.title}
                 className="relative h-[220px] overflow-hidden rounded-lg border border-[#e0e4e7] bg-cover bg-center sm:h-[250px] lg:h-[280px]"
-                style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : { backgroundColor: "#eef1f3" }}
+                style={heroImageUrl ? { backgroundImage: `url("${heroImageUrl}")`, backgroundSize: heroFit } : { backgroundColor: "#eef1f3" }}
               >
                 <div
                   className="absolute inset-0"
@@ -86,7 +96,7 @@ export function NasPage({ item }: { item: Infrastructure }) {
 
       <section className="border-t border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#d9bcc1] sm:gap-12 lg:grid-cols-2 lg:gap-0">
-          <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
           <div className="bg-white p-6 sm:p-10 lg:p-12">
             <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px]">
               Storage That Grows With Your Work.

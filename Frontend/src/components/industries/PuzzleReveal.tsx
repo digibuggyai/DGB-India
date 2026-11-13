@@ -4,7 +4,7 @@ export function PuzzleReveal({ imageUrl }: { imageUrl?: string | null }) {
   return (
     <div
       className="relative h-[260px] w-full overflow-hidden rounded-lg bg-[#eef1f3] bg-cover bg-center sm:h-[340px] lg:h-[420px]"
-      style={imageUrl ? { backgroundImage: `url(${imageUrl})` } : undefined}
+      style={imageUrl ? { backgroundImage: `url("${imageUrl}")` } : undefined}
     >
       <div className="absolute inset-0 grid grid-cols-3 grid-rows-4">
         {DELAYS.map((delay, i) => (

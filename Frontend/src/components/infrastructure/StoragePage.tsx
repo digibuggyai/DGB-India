@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { infrastructureImage } from "@/lib/site-images";
+import { infrastructureFit, infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const ROWS = [
@@ -25,23 +25,33 @@ const ROWS = [
   },
 ];
 
-function ImagePanel({ url, className = "" }: { url: string | null; className?: string }) {
+function ImagePanel({
+  url,
+  fit = "cover",
+  className = "",
+}: {
+  url: string | null;
+  fit?: "cover" | "contain";
+  className?: string;
+}) {
+  const surface = fit === "contain" ? "bg-white" : "bg-[#eef1f3]";
   return (
     <div
-      className={`rounded-lg border border-[#e0e4e7] bg-[#eef1f3] bg-cover bg-center ${className}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      className={`rounded-lg border border-[#e0e4e7] ${surface} bg-center bg-no-repeat ${className}`}
+      style={url ? { backgroundImage: `url("${url}")`, backgroundSize: fit } : undefined}
     />
   );
 }
 
 export function StoragePage({ item }: { item: Infrastructure }) {
   const heroImageUrl = infrastructureImage(item);
+  const heroFit = infrastructureFit(item);
 
   return (
     <>
       <section className="border-b border-[#d9bcc1] bg-[#ecdcdf] py-12 sm:py-24">
         <div className="container-page grid gap-8 sm:gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center lg:gap-16">
-          <ImagePanel url={heroImageUrl} className="h-[220px] border-[#d9bcc1] bg-white/40 sm:h-[280px] lg:h-[340px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[220px] border-[#d9bcc1] bg-white/40 sm:h-[280px] lg:h-[340px]" />
           <div>
             <span className="text-xs font-semibold uppercase tracking-[0.18em] text-[#b06f79]">
               Infrastructure &middot; Storage
@@ -83,7 +93,7 @@ export function StoragePage({ item }: { item: Infrastructure }) {
                   i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""
                 }`}
               >
-                <ImagePanel url={heroImageUrl} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
+                <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] border-[#43484d] bg-[#2e3236] sm:h-[220px] lg:h-[260px]" />
                 <div>
                   <div className="font-display text-2xl font-bold text-[#8a9095]">{r.n}</div>
                   <div className="mt-3 h-0.5 w-8 bg-accent" />
@@ -113,7 +123,7 @@ export function StoragePage({ item }: { item: Infrastructure }) {
               <ButtonLink href="/about#contact">Discuss Your Storage Requirements &rarr;</ButtonLink>
             </div>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
     </>

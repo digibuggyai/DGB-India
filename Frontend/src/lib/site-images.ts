@@ -45,6 +45,12 @@ export function infrastructureImage(item: WithHero): string | null {
   return fromCms(item) ?? url(INFRASTRUCTURE[item.slug ?? ""]);
 }
 
+export function infrastructureFit(item: WithHero): "cover" | "contain" {
+  if (fromCms(item)) return "cover";
+  const file = INFRASTRUCTURE[item.slug ?? ""];
+  return file && CONTAIN.has(file) ? "contain" : "cover";
+}
+
 export function industryImage(item: WithHero): string | null {
   return fromCms(item) ?? url(INDUSTRY[item.slug ?? ""]);
 }

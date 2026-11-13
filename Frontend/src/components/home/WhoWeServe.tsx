@@ -46,7 +46,7 @@ export async function WhoWeServe() {
                       className="relative flex h-full w-full flex-col justify-end bg-cover bg-center bg-ink-800 p-5"
                       style={
                         ind.image
-                          ? { backgroundImage: `linear-gradient(180deg, transparent 42%, #2e3236d9 100%), url(${ind.image})` }
+                          ? { backgroundImage: `linear-gradient(180deg, transparent 42%, #2e3236d9 100%), url("${ind.image}")` }
                           : undefined
                       }
                     >

@@ -99,7 +99,7 @@ export async function Partners() {
                     aria-label={isClone ? undefined : item.name}
                     title={item.name}
                     className="h-9 w-[112px] bg-contain bg-center bg-no-repeat opacity-60 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0 sm:h-11 sm:w-[140px]"
-                    style={{ backgroundImage: `url(${item.logo})` }}
+                    style={{ backgroundImage: `url("${item.logo}")` }}
                   />
                 ) : (
                   <span className="font-display flex h-9 items-center whitespace-nowrap text-lg font-bold tracking-tight text-[#9aa0a6] transition-colors duration-300 hover:text-ink-800 sm:h-11 sm:text-[22px]">

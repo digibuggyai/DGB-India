@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { infrastructureImage } from "@/lib/site-images";
+import { infrastructureFit, infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const CARDS = [
@@ -21,17 +21,27 @@ const CARDS = [
   },
 ];
 
-function ImagePanel({ url, className = "" }: { url: string | null; className?: string }) {
+function ImagePanel({
+  url,
+  fit = "cover",
+  className = "",
+}: {
+  url: string | null;
+  fit?: "cover" | "contain";
+  className?: string;
+}) {
+  const surface = fit === "contain" ? "bg-white" : "bg-[#eef1f3]";
   return (
     <div
-      className={`rounded-lg border border-[#e0e4e7] bg-[#eef1f3] bg-cover bg-center ${className}`}
-      style={url ? { backgroundImage: `url(${url})` } : undefined}
+      className={`rounded-lg border border-[#e0e4e7] ${surface} bg-center bg-no-repeat ${className}`}
+      style={url ? { backgroundImage: `url("${url}")`, backgroundSize: fit } : undefined}
     />
   );
 }
 
 export function WorkstationsPage({ item }: { item: Infrastructure }) {
   const heroImageUrl = infrastructureImage(item);
+  const heroFit = infrastructureFit(item);
 
   return (
     <>
@@ -47,7 +57,7 @@ export function WorkstationsPage({ item }: { item: Infrastructure }) {
             Workstations configured around your applications, not a generic spec sheet &mdash; so
             performance matches how you actually work.
           </p>
-          <ImagePanel url={heroImageUrl} className="mt-8 h-[220px] border-white/40 sm:mt-14 sm:h-[280px] lg:h-[360px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="mt-8 h-[220px] border-white/40 sm:mt-14 sm:h-[280px] lg:h-[360px]" />
         </div>
       </section>
 
@@ -66,7 +76,7 @@ export function WorkstationsPage({ item }: { item: Infrastructure }) {
               system that keeps pace with it.
             </p>
           </div>
-          <ImagePanel url={heroImageUrl} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] sm:h-[260px] lg:h-[320px]" />
         </div>
       </section>
 
@@ -78,7 +88,7 @@ export function WorkstationsPage({ item }: { item: Infrastructure }) {
           <div className="mt-6 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-4">
             {CARDS.map((c) => (
               <div key={c.title} className="overflow-hidden rounded-lg border border-[#43484d] bg-[#2e3236]">
-                <ImagePanel url={heroImageUrl} className="h-[150px] rounded-none border-0 bg-[#3a3f44]" />
+                <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[150px] rounded-none border-0 bg-[#3a3f44]" />
                 <div className="p-5">
                   <div className="h-0.5 w-8 bg-accent" />
                   <div className="font-display mt-3 text-lg font-bold text-white">{c.title}</div>
@@ -92,7 +102,7 @@ export function WorkstationsPage({ item }: { item: Infrastructure }) {
 
       <section className="border-t border-[#e0e4e7] py-12 sm:py-24">
         <div className="container-page grid gap-8 overflow-hidden rounded-lg border border-[#e0e4e7] sm:gap-12 lg:grid-cols-2 lg:gap-0">
-          <ImagePanel url={heroImageUrl} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
+          <ImagePanel url={heroImageUrl} fit={heroFit} className="h-[200px] rounded-none border-0 sm:h-[260px] lg:h-auto lg:min-h-[320px]" />
           <div className="bg-white p-6 sm:p-10 lg:p-12">
             <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[32px]">From Desk to Delivery.</h2>
             <p className="font-display mt-3 text-lg font-semibold text-accent">
