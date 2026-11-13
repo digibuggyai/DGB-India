@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { industryImage } from "@/lib/site-images";
+import { industryBandImage, industryImage, industryPanelImage } from "@/lib/site-images";
 import { PuzzleReveal } from "@/components/industries/PuzzleReveal";
 import { DeckStage } from "@/components/industries/DeckStage";
 import type { Industry } from "@/payload-types";
@@ -25,6 +25,8 @@ const STAGES = [
 
 export function ArchitectureEngineeringPage({ industry }: { industry: Industry }) {
   const heroImageUrl = industryImage(industry);
+  const panelImageUrl = industryPanelImage(industry);
+  const bandImageUrl = industryBandImage(industry);
 
   return (
     <>
@@ -119,7 +121,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
               Application logos can be displayed here based on the software supported by DGB India.
             </p>
           </div>
-          <PuzzleReveal imageUrl={heroImageUrl} />
+          <PuzzleReveal imageUrl={panelImageUrl} />
         </div>
       </section>
 
@@ -136,9 +138,9 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
       <section
         className="border-b border-border bg-background bg-cover bg-center py-14 sm:py-18 lg:py-24"
         style={
-          heroImageUrl
+          bandImageUrl
             ? {
-                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe6 52%, #ffffff8c 100%), url("${heroImageUrl}")`,
+                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe6 52%, #ffffff8c 100%), url("${bandImageUrl}")`,
               }
             : undefined
         }

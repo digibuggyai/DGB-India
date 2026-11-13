@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageImage } from "@/lib/site-images";
 import Link from "next/link";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { getCaseStudies } from "@/lib/content";
@@ -11,9 +12,20 @@ export const metadata: Metadata = {
 export default async function CaseStudiesPage() {
   const caseStudies = await getCaseStudies();
 
+  const heroImageUrl = pageImage("case-studies");
+
   return (
     <>
-      <section className="border-b border-border py-20">
+      <section
+        className="border-b border-border bg-cover bg-center py-20"
+        style={
+          heroImageUrl
+            ? {
+                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe8 55%, #ffffff9e 100%), url("${heroImageUrl}")`,
+              }
+            : undefined
+        }
+      >
         <div className="container-page">
           <Eyebrow>Resources / Case Studies</Eyebrow>
           <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">Case Studies</h1>

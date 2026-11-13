@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { industryCardImage } from "@/lib/site-images";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal, RevealGroup, RevealItem } from "@/components/ui/Reveal";
 import { IndustryArt } from "@/components/home/IndustryArt";
@@ -19,7 +20,9 @@ export async function WhoWeServe() {
         slug: i.slug ?? "",
         name: i.name,
         tagline: i.tagline ?? "",
-        image: typeof i.heroImage === "object" && i.heroImage?.url ? i.heroImage.url : null,
+        image:
+          (typeof i.heroImage === "object" && i.heroImage?.url ? i.heroImage.url : null) ??
+          industryCardImage(i.slug ?? ""),
       }))
     : FALLBACK;
 

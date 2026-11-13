@@ -1,5 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
-import { industryImage } from "@/lib/site-images";
+import { industryBandImage, industryImage, industryPanelImage } from "@/lib/site-images";
 import { PuzzleReveal } from "@/components/industries/PuzzleReveal";
 import type { Industry } from "@/payload-types";
 
@@ -26,6 +26,8 @@ const APP_TAGS = ["3D", "Animation", "Simulation", "Rendering", "Compositing", "
 
 export function VfxAnimationPage({ industry }: { industry: Industry }) {
   const heroImageUrl = industryImage(industry);
+  const panelImageUrl = industryPanelImage(industry);
+  const bandImageUrl = industryBandImage(industry);
 
   return (
     <>
@@ -104,7 +106,7 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
           <div
             className="h-[200px] rounded-lg bg-[#2e3236] bg-cover bg-center sm:h-[260px] lg:h-[340px]"
-            style={heroImageUrl ? { backgroundImage: `url("${heroImageUrl}")` } : undefined}
+            style={bandImageUrl ? { backgroundImage: `url("${bandImageUrl}")` } : undefined}
           />
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[28px] lg:text-[34px]">
@@ -150,7 +152,7 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
 
       <section className="border-b border-border bg-background py-14 sm:py-18 lg:py-24">
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-2 lg:items-center">
-          <PuzzleReveal imageUrl={heroImageUrl} />
+          <PuzzleReveal imageUrl={panelImageUrl} />
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight sm:text-[28px] lg:text-[32px]">
               Built Around Your Creative Tools

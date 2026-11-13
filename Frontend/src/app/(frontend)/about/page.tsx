@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageImage } from "@/lib/site-images";
 import { Eyebrow } from "@/components/ui/Eyebrow";
 import { RequirementForm } from "@/components/forms/RequirementForm";
 import { getIndustries, getInfrastructure, getPartners, getSiteSettings } from "@/lib/content";
@@ -17,9 +18,20 @@ export default async function AboutPage() {
     getSiteSettings(),
   ]);
 
+  const heroImageUrl = pageImage("about");
+
   return (
     <>
-      <section className="border-b border-border py-20">
+      <section
+        className="border-b border-border bg-cover bg-center py-20"
+        style={
+          heroImageUrl
+            ? {
+                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe8 55%, #ffffff9e 100%), url("${heroImageUrl}")`,
+              }
+            : undefined
+        }
+      >
         <div className="container-page">
           <Eyebrow>About Us</Eyebrow>
           <h1 className="mt-4 max-w-2xl text-4xl font-semibold tracking-tight sm:text-5xl">

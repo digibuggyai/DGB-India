@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { infrastructureImage } from "@/lib/site-images";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -59,13 +60,23 @@ export default async function InfrastructureDetailPage({
     return <NetworkingPage item={item} />;
   }
 
+  const heroImageUrl = infrastructureImage(item);
   const parent = typeof item.parent === "object" ? item.parent : null;
   const suitedWorkloads = (item.suitedWorkloads ?? []).filter((w) => typeof w === "object");
   const relatedIndustries = (item.relatedIndustries ?? []).filter((i) => typeof i === "object");
 
   return (
     <>
-      <section className="border-b border-border py-20">
+      <section
+        className="border-b border-border bg-cover bg-center py-20"
+        style={
+          heroImageUrl
+            ? {
+                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe8 55%, #ffffff9e 100%), url("${heroImageUrl}")`,
+              }
+            : undefined
+        }
+      >
         <div className="container-page">
           {parent && (
             <Link href={`/infrastructure/${parent.slug}`} className="text-sm text-muted hover:text-accent-2">
