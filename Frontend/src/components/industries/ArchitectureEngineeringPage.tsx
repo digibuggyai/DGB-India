@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { industryImage } from "@/lib/site-images";
 import { PuzzleReveal } from "@/components/industries/PuzzleReveal";
 import { DeckStage } from "@/components/industries/DeckStage";
 import type { Industry } from "@/payload-types";
@@ -23,8 +24,7 @@ const STAGES = [
 ];
 
 export function ArchitectureEngineeringPage({ industry }: { industry: Industry }) {
-  const heroImageUrl =
-    (typeof industry.heroImage === "object" && industry.heroImage?.url) || "/serve-arch.png";
+  const heroImageUrl = industryImage(industry);
 
   return (
     <>
@@ -32,7 +32,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-16 sm:py-24 lg:py-28 xl:py-36"
         style={{
           backgroundImage: heroImageUrl
-            ? `linear-gradient(90deg, #202326f2 0%, #202326cc 46%, #20232655 100%), url(${heroImageUrl})`
+            ? `linear-gradient(90deg, #202326f2 0%, #202326cc 46%, #20232655 100%), url("${heroImageUrl}")`
             : undefined,
         }}
       >
@@ -138,7 +138,7 @@ export function ArchitectureEngineeringPage({ industry }: { industry: Industry }
         style={
           heroImageUrl
             ? {
-                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe6 52%, #ffffff8c 100%), url(${heroImageUrl})`,
+                backgroundImage: `linear-gradient(90deg, #fffffff7 0%, #ffffffe6 52%, #ffffff8c 100%), url("${heroImageUrl}")`,
               }
             : undefined
         }

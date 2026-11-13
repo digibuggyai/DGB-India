@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { infrastructureImage } from "@/lib/site-images";
 import type { Infrastructure } from "@/payload-types";
 
 const CARDS = [
@@ -30,7 +31,7 @@ function ImagePanel({ url, className = "" }: { url: string | null; className?: s
 }
 
 export function WorkstationsPage({ item }: { item: Infrastructure }) {
-  const heroImageUrl = typeof item.heroImage === "object" && item.heroImage?.url ? item.heroImage.url : null;
+  const heroImageUrl = infrastructureImage(item);
 
   return (
     <>

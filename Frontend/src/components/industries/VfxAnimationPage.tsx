@@ -1,4 +1,5 @@
 import { ButtonLink } from "@/components/ui/Button";
+import { industryImage } from "@/lib/site-images";
 import { PuzzleReveal } from "@/components/industries/PuzzleReveal";
 import type { Industry } from "@/payload-types";
 
@@ -24,14 +25,13 @@ const MARGINS = ["0%", "5%", "10%", "15%", "20%"];
 const APP_TAGS = ["3D", "Animation", "Simulation", "Rendering", "Compositing", "Post-Production"];
 
 export function VfxAnimationPage({ industry }: { industry: Industry }) {
-  const heroImageUrl =
-    (typeof industry.heroImage === "object" && industry.heroImage?.url) || "/serve-vfx.png";
+  const heroImageUrl = industryImage(industry);
 
   return (
     <>
       <section
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center"
-        style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
+        style={heroImageUrl ? { backgroundImage: `url("${heroImageUrl}")` } : undefined}
       >
         <div className="absolute inset-0 bg-[#202326]/55" />
         <div className="container-page relative py-14 sm:py-20 lg:py-24">
@@ -104,7 +104,7 @@ export function VfxAnimationPage({ industry }: { industry: Industry }) {
         <div className="container-page grid grid-cols-1 gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-12">
           <div
             className="h-[200px] rounded-lg bg-[#2e3236] bg-cover bg-center sm:h-[260px] lg:h-[340px]"
-            style={heroImageUrl ? { backgroundImage: `url(${heroImageUrl})` } : undefined}
+            style={heroImageUrl ? { backgroundImage: `url("${heroImageUrl}")` } : undefined}
           />
           <div>
             <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-[28px] lg:text-[34px]">

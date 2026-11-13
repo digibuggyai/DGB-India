@@ -3,6 +3,7 @@ import { Eyebrow } from "@/components/ui/Eyebrow";
 import { Reveal } from "@/components/ui/Reveal";
 import { InfraIcon } from "@/components/home/InfraIcon";
 import { getInfrastructure } from "@/lib/content";
+import { homeCardFit, homeCardImage } from "@/lib/site-images";
 
 const TARGETS = [
   {
@@ -49,21 +50,7 @@ const TARGETS = [
   },
 ];
 
-const STATIC_IMAGE: Record<string, string> = {
-  DGX: "/dgx.png",
-  Workstations: "/workstation.jpg",
-  Servers: "/server.jpg",
-  Storage: "/storage.jpg",
-  Networking: "/networking.jpg",
-  NAS: "/NAS.jpg",
-};
 
-const STATIC_IMAGE_FIT: Record<string, "cover" | "contain"> = {
-  DGX: "contain",
-  Servers: "contain",
-  Storage: "contain",
-  NAS: "contain",
-};
 
 export async function InfrastructureOverview() {
   const all = await getInfrastructure();
@@ -79,8 +66,8 @@ export async function InfrastructureOverview() {
       name: t.name,
       desc: found?.summary || t.desc,
       tags: t.tags,
-      image: cmsImage || STATIC_IMAGE[t.name] || null,
-      fit: cmsImage ? "cover" : STATIC_IMAGE_FIT[t.name] || "cover",
+      image: cmsImage || homeCardImage(t.name),
+      fit: cmsImage ? "cover" : homeCardFit(t.name),
     };
   });
 

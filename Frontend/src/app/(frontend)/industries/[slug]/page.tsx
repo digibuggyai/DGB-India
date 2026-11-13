@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { industryImage } from "@/lib/site-images";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Eyebrow } from "@/components/ui/Eyebrow";
@@ -49,8 +50,7 @@ export default async function IndustryDetailPage({
   const infra = (industry.recommendedInfrastructure ?? []).filter((i) => typeof i === "object");
   const caseStudies = (industry.caseStudies ?? []).filter((c) => typeof c === "object");
   const faqs = (industry.faqs ?? []).filter((f) => typeof f === "object");
-  const heroImageUrl =
-    typeof industry.heroImage === "object" && industry.heroImage?.url ? industry.heroImage.url : null;
+  const heroImageUrl = industryImage(industry);
 
   return (
     <>
@@ -58,7 +58,7 @@ export default async function IndustryDetailPage({
         className="relative overflow-hidden bg-ink-800 bg-cover bg-center py-24 sm:py-32"
         style={{
           backgroundImage: heroImageUrl
-            ? `linear-gradient(to top, rgba(32,35,38,0.95), rgba(32,35,38,0.65)), url(${heroImageUrl})`
+            ? `linear-gradient(to top, rgba(32,35,38,0.95), rgba(32,35,38,0.65)), url("${heroImageUrl}")`
             : undefined,
         }}
       >
