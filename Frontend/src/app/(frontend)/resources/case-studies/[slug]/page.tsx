@@ -7,7 +7,7 @@ import { RichText } from "@/components/ui/RichText";
 import { getCaseStudies, getCaseStudyBySlug } from "@/lib/content";
 
 export async function generateStaticParams() {
-  const all = await getCaseStudies(100);
+  const all = await getCaseStudies(100).catch(() => []);
   return all.map((c) => ({ slug: c.slug ?? "" }));
 }
 

@@ -317,7 +317,7 @@ export function estimateRef(now: Date = new Date()): string {
   return `DGB-NAS-${stamp}-${now.getTime().toString(36).slice(-4).toUpperCase()}`;
 }
 
-export function leadSummary(d: Derived, build: Build, price: Price, speed: string | null, a: Answers, P: NasPricing, ref: string): string {
+export function leadSummary(d: Derived, build: Build, price: Price, speed: string | null, a: Answers, P: NasPricing, ref: string, quoted?: number | null): string {
   const ram = selectedUpgrade(P, "RAM", a.ramSku);
   const nic = selectedUpgrade(P, "NIC", a.nicSku);
   const addons = [a.includeInstall ? "Installation & setup" : null, a.includeAMC ? `AMC (${Math.round(P.amcRate.quote * 100)}%)` : null]
@@ -339,6 +339,9 @@ export function leadSummary(d: Derived, build: Build, price: Price, speed: strin
     `Preferences: brand ${a.brand === "any" ? "any" : a.brand} · bays ${a.bays ?? "auto"} · expansion ${a.expandable ? "required" : "not required"}`,
     "",
     `Estimated total (incl. GST): ${inr(price.total)}`,
+    quoted != null && Math.round(quoted) !== Math.round(price.total)
+      ? `Quoted price (negotiated): ${inr(quoted)}`
+      : null,
   ]
     .filter((line): line is string => line !== null)
     .join("\n");

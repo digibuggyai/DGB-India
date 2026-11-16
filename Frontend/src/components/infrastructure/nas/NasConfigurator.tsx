@@ -77,8 +77,27 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
   const [specsFor, setSpecsFor] = useState<Build | null>(null);
   const [driveSpecsFor, setDriveSpecsFor] = useState<string | null>(null);
   const [comparing, setComparing] = useState(false);
+  const [negotiated, setNegotiated] = useState<number | null>(null);
+  const [negotiatedText, setNegotiatedText] = useState("");
 
-  const update = (patch: Partial<Answers>) => setA((prev) => ({ ...prev, ...patch }));
+  const update = (patch: Partial<Answers>) => {
+    setNegotiated(null);
+    setNegotiatedText("");
+    setA((prev) => ({ ...prev, ...patch }));
+  };
+
+  function applyNegotiated(raw: string) {
+    setNegotiatedText(raw);
+    const digits = raw.replace(/[^0-9.]/g, "");
+    if (!digits) return setNegotiated(null);
+    const value = Number(digits);
+    setNegotiated(Number.isFinite(value) && value > 0 ? value : null);
+  }
+
+  function clearNegotiated() {
+    setNegotiated(null);
+    setNegotiatedText("");
+  }
 
   const d = useMemo(() => derive(a, P), [a, P]);
   const build = d.build;
@@ -87,6 +106,12 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
   const nic = selectedUpgrade(P, "NIC", a.nicSku);
   const { net, nicTopGb, speed } = speedFor(build, nic);
   const priced = Boolean(build && price && !d.error);
+
+  const listTotal = price?.total ?? null;
+  const floorTotal = price?.floor?.total ?? null;
+  const quotedTotal = negotiated ?? listTotal;
+  const adjustment = negotiated != null && listTotal != null ? negotiated - listTotal : 0;
+  const belowFloor = negotiated != null && floorTotal != null && negotiated < floorTotal;
   const raid = RAID_INFO[d.raid];
 
   const brands = useMemo(() => [...new Set(P.models.map((m) => m.brand).filter(Boolean))].sort(), [P]);
@@ -163,6 +188,19 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
     setDownloading(true);
     setDownloadError(null);
     try {
+      const adjustmentLine =
+        adjustment !== 0
+          ? [
+              {
+                description: adjustment < 0 ? "Negotiated discount" : "Negotiated adjustment",
+                detail: "Agreed with the customer",
+                qty: null,
+                rate: null,
+                amount: adjustment,
+              },
+            ]
+          : [];
+
       const estimate: Estimate = {
         ref: estimateRef(),
         model: build.model,
@@ -176,8 +214,8 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
         usableTB: build.totalUsable,
         speed: speed ?? "Not specified",
         expandable: a.expandable,
-        lines: estimateLines(build, price, a, P, d.raid),
-        total: price.total,
+        lines: [...estimateLines(build, price, a, P, d.raid), ...adjustmentLine],
+        total: quotedTotal ?? price.total,
         customer: { name: details.name.trim(), company: details.company.trim(), location: details.location.trim() },
       };
       const { downloadEstimatePdf } = await import("@/lib/nas/pdf");
@@ -217,7 +255,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
           email,
           phone: details.phone.trim() || undefined,
           interestedInfrastructure: infrastructureId != null ? [infrastructureId] : undefined,
-          workloadDescription: leadSummary(d, build, price, speed, a, P, ref),
+          workloadDescription: leadSummary(d, build, price, speed, a, P, ref, negotiated),
           message: details.location.trim() ? `Location: ${details.location.trim()}` : undefined,
           sourceUrl: window.location.href,
           utmSource: "nas-configurator",
@@ -802,9 +840,53 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                   Total <span className="font-normal text-muted">incl. GST</span>
                 </span>
                 <span className="font-display text-2xl font-bold tabular-nums text-foreground" aria-live="polite">
-                  {priced && price ? inr(price.total) : "—"}
+                  {priced && quotedTotal != null ? inr(quotedTotal) : "—"}
                 </span>
               </div>
+
+              {sales && priced && listTotal != null ? (
+                <div className="mt-3 rounded-md border border-border bg-background px-3 py-2.5">
+                  <label htmlFor="nas-quoted-price" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted">
+                    Quoted price · editable
+                  </label>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <div className="relative flex-1">
+                      <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted">₹</span>
+                      <input
+                        id="nas-quoted-price"
+                        inputMode="decimal"
+                        value={negotiatedText}
+                        onChange={(e) => applyNegotiated(e.target.value)}
+                        placeholder={String(Math.round(listTotal))}
+                        aria-invalid={belowFloor || undefined}
+                        className={`h-10 w-full rounded-md border bg-background pl-7 pr-3 text-sm font-semibold tabular-nums text-foreground focus:outline-none ${
+                          belowFloor ? "border-accent" : "border-border focus:border-accent"
+                        }`}
+                      />
+                    </div>
+                    {negotiated != null ? (
+                      <button
+                        type="button"
+                        onClick={clearNegotiated}
+                        className="rounded-full px-3 py-1.5 text-xs font-medium text-accent transition-colors hover:bg-tint"
+                      >
+                        Reset
+                      </button>
+                    ) : null}
+                  </div>
+                  {belowFloor && floorTotal != null ? (
+                    <p role="alert" className="mt-1.5 text-xs text-accent">
+                      Below the floor of {inr(floorTotal)}. This needs approval before you send it.
+                    </p>
+                  ) : adjustment !== 0 ? (
+                    <p className="mt-1.5 text-xs text-muted">
+                      {adjustment < 0 ? "Discount" : "Uplift"} of {inr(Math.abs(adjustment))} against the list price of {inr(listTotal)}.
+                    </p>
+                  ) : (
+                    <p className="mt-1.5 text-xs text-muted">Type a figure to quote a negotiated price. The PDF shows it as an adjustment line.</p>
+                  )}
+                </div>
+              ) : null}
 
               {sales && priced && price?.floor ? (
                 <div className="mt-3 rounded-md border border-border-strong bg-surface px-3 py-2.5">
@@ -813,9 +895,10 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
                     <span className="font-display text-lg font-bold tabular-nums text-foreground">{inr(price.floor.total)}</span>
                   </div>
                   <div className="mt-1 flex items-baseline justify-between gap-3 text-xs text-muted">
-                    <span>Room to negotiate</span>
-                    <span className="tabular-nums">
-                      {inr(price.total - price.floor.total)} · {Math.round(((price.total - price.floor.total) / price.total) * 100)}%
+                    <span>{negotiated != null ? "Margin at quoted price" : "Room to negotiate"}</span>
+                    <span className={`tabular-nums ${belowFloor ? "text-accent" : ""}`}>
+                      {inr((quotedTotal ?? 0) - price.floor.total)} ·{" "}
+                      {Math.round((((quotedTotal ?? 0) - price.floor.total) / (quotedTotal || 1)) * 100)}%
                     </span>
                   </div>
                 </div>
@@ -844,7 +927,7 @@ function Configurator({ pricing: P, company, infrastructureId, source = "public"
         </aside>
       </div>
 
-      <MobileBar visible={stepsInView && !panelInView} total={priced && price ? price.total : null} onView={() => scrollToId("nas-estimate")} />
+      <MobileBar visible={stepsInView && !panelInView} total={priced ? quotedTotal : null} onView={() => scrollToId("nas-estimate")} />
 
       {specsFor ? (
         <SpecsDialog

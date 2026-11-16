@@ -10,7 +10,7 @@ import { ArchitectureEngineeringPage } from "@/components/industries/Architectur
 import { VfxAnimationPage } from "@/components/industries/VfxAnimationPage";
 
 export async function generateStaticParams() {
-  const all = await getIndustries();
+  const all = await getIndustries().catch(() => []);
   return all.map((i) => ({ slug: i.slug ?? "" }));
 }
 

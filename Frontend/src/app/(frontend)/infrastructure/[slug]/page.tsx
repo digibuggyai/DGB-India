@@ -14,7 +14,7 @@ import { StoragePage } from "@/components/infrastructure/StoragePage";
 import { NetworkingPage } from "@/components/infrastructure/NetworkingPage";
 
 export async function generateStaticParams() {
-  const all = await getInfrastructure();
+  const all = await getInfrastructure().catch(() => []);
   return all.map((i) => ({ slug: i.slug ?? "" }));
 }
 

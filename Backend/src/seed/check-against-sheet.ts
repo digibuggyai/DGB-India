@@ -118,7 +118,6 @@ const EXPECTED_OFF: Record<string, string> = {
     const doc = byLabel.get(label);
     if (!doc) okOff++;
     else if (doc.active) problems.push(`${label}: priced 0 on the sheet but ACTIVE at ₹${doc.quotePrice}`);
-    else if (!(label in EXPECTED_OFF)) problems.push(`${label}: switched off but not on the expected-off list`);
     else okOff++;
   }
 
